@@ -40,5 +40,4 @@ A memory training web app for seniors (ages 70+) that uses the Memory Palace tec
 
 ## Environment Variables
 
-- `AI_INTEGRATIONS_OPENAI_API_KEY` - Provided by Replit AI Integrations
-- `AI_INTEGRATIONS_OPENAI_BASE_URL` - Provided by Replit AI Integrations
+- `OPENAI_API_KEY` - User's own OpenAI API key (stored as a secret)

@@ -50,7 +50,7 @@ export function ChatMessage({ sender, text, isTyping }: ChatMessageProps) {
             />
           </div>
         ) : (
-          <p className="text-lg leading-relaxed whitespace-pre-wrap">{text}</p>
+          <p className="text-xl md:text-2xl leading-relaxed whitespace-pre-wrap">{text}</p>
         )}
       </div>
 

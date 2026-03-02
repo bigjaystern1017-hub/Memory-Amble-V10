@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import OpenAI from "openai";
-import { generateAssociationsSchema } from "@shared/schema";
+import { z } from "zod";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -35,83 +35,59 @@ function pickRandomObjects(count: number): string[] {
   return shuffled.slice(0, count);
 }
 
+const assignObjectsSchema = z.object({
+  stops: z.array(z.string()).length(3),
+});
+
+const sparkSchema = z.object({
+  object: z.string(),
+  stopName: z.string(),
+  placeName: z.string(),
+});
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
 
-  app.post("/api/generate-associations", async (req, res) => {
+  app.post("/api/assign-objects", (req, res) => {
+    const parsed = assignObjectsSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Invalid request" });
+    }
+
+    const objects = pickRandomObjects(3);
+    const assignments = parsed.data.stops.map((stop, i) => ({
+      stopName: stop,
+      object: objects[i],
+    }));
+
+    res.json({ assignments });
+  });
+
+  app.post("/api/spark", async (req, res) => {
     try {
-      const parsed = generateAssociationsSchema.safeParse(req.body);
+      const parsed = sparkSchema.safeParse(req.body);
       if (!parsed.success) {
-        return res.status(400).json({ error: "Invalid request data", details: parsed.error.errors });
+        return res.status(400).json({ error: "Invalid request" });
       }
 
-      const { placeName, placeDescription, stops } = parsed.data;
-      const objects = pickRandomObjects(3);
+      const { object, stopName, placeName } = parsed.data;
 
-      const prompt = `You are a warm, encouraging memory coach helping a senior citizen learn the Memory Palace technique. 
-
-The person has chosen "${placeName}" as their memory palace${placeDescription ? ` (${placeDescription})` : ""}.
-
-They have identified these 3 stops in their palace:
-1. ${stops[0].name}${stops[0].description ? ` - ${stops[0].description}` : ""}
-2. ${stops[1].name}${stops[1].description ? ` - ${stops[1].description}` : ""}
-3. ${stops[2].name}${stops[2].description ? ` - ${stops[2].description}` : ""}
-
-Create a vivid, bizarre, and FUNNY mental image for each stop, placing these objects:
-- Stop 1 (${stops[0].name}): ${objects[0]}
-- Stop 2 (${stops[1].name}): ${objects[1]}
-- Stop 3 (${stops[2].name}): ${objects[2]}
-
-For each association, write a vivid 2-3 sentence scene description that is:
-- Absurd and exaggerated (the more bizarre, the more memorable!)
-- Sensory-rich (include sounds, smells, textures, colors)
-- Emotionally engaging (funny, surprising, delightful)
-- Written in second person ("You walk into..." "You see...")
-
-Respond in this exact JSON format:
-[
-  {
-    "stopName": "${stops[0].name}",
-    "object": "${objects[0]}",
-    "scene": "Your vivid scene description here..."
-  },
-  {
-    "stopName": "${stops[1].name}",
-    "object": "${objects[1]}",
-    "scene": "Your vivid scene description here..."
-  },
-  {
-    "stopName": "${stops[2].name}",
-    "object": "${objects[2]}",
-    "scene": "Your vivid scene description here..."
-  }
-]
-
-Only respond with the JSON array, nothing else.`;
+      const prompt = `You are a warm memory coach. Give ONE short, vivid, funny sentence (15 words max) to help someone visualize "${object}" at "${stopName}" in "${placeName}". Be absurd and sensory. Just the sentence, nothing else.`;
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [{ role: "user", content: prompt }],
-        temperature: 0.9,
-        max_tokens: 1000,
+        temperature: 1.0,
+        max_tokens: 60,
       });
 
-      const content = response.choices[0]?.message?.content || "[]";
-
-      let associations;
-      try {
-        const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-        associations = JSON.parse(cleaned);
-      } catch {
-        return res.status(500).json({ error: "Failed to parse AI response" });
-      }
-
-      res.json({ associations });
+      const spark = response.choices[0]?.message?.content?.trim() || "";
+      res.json({ spark });
     } catch (error: any) {
-      console.error("Error generating associations:", error);
-      res.status(500).json({ error: "Failed to generate associations. Please try again." });
+      console.error("Error generating spark:", error);
+      res.status(500).json({ error: "Could not generate a hint right now." });
     }
   });
 

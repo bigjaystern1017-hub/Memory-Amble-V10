@@ -67,10 +67,10 @@ export function ChatInput({ onSend, placeholder = "Type your answer...", disable
 
   const handleSubmit = () => {
     const trimmed = value.trim();
-    if (trimmed && !disabled) {
-      onSend(trimmed);
-      setValue("");
-    }
+    if (!trimmed || disabled) return;
+    if (trimmed.length < 1) return;
+    onSend(trimmed);
+    setValue("");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -85,6 +85,7 @@ export function ChatInput({ onSend, placeholder = "Type your answer...", disable
       {speechSupported && (
         <Button
           size="icon"
+          className="h-14 w-14"
           variant={isListening ? "default" : "secondary"}
           onClick={isListening ? stopListening : startListening}
           disabled={disabled}
@@ -92,9 +93,9 @@ export function ChatInput({ onSend, placeholder = "Type your answer...", disable
           aria-label={isListening ? "Stop listening" : "Start voice input"}
         >
           {isListening ? (
-            <MicOff className="w-5 h-5" />
+            <MicOff className="w-6 h-6" />
           ) : (
-            <Mic className="w-5 h-5" />
+            <Mic className="w-6 h-6" />
           )}
         </Button>
       )}
@@ -106,18 +107,19 @@ export function ChatInput({ onSend, placeholder = "Type your answer...", disable
         onKeyDown={handleKeyDown}
         placeholder={isListening ? "Listening..." : placeholder}
         disabled={disabled}
-        className="text-lg h-12 flex-1"
+        className="text-xl h-14 flex-1"
         data-testid="input-chat"
       />
 
       <Button
         size="icon"
+        className="h-14 w-14"
         onClick={handleSubmit}
         disabled={!value.trim() || disabled}
         data-testid="button-send"
         aria-label="Send message"
       >
-        <Send className="w-5 h-5" />
+        <Send className="w-6 h-6" />
       </Button>
     </div>
   );

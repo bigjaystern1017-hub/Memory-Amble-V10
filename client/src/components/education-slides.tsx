@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ArrowLeft, Landmark, Lightbulb, Heart } from "lucide-react";
@@ -31,12 +31,20 @@ const slides = [
 export function EducationSlides({ onComplete }: EducationSlidesProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const parent = containerRef.current?.parentElement;
+    if (parent) parent.scrollTop = 0;
+  }, [currentSlide]);
+
   const slide = slides[currentSlide];
   const Icon = slide.icon;
   const isLast = currentSlide === slides.length - 1;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 md:px-6">
+    <div ref={containerRef} className="flex flex-col items-center justify-center min-h-[70vh] px-4 md:px-6">
       <div className="flex gap-2 mb-8" data-testid="slide-dots">
         {slides.map((_, i) => (
           <div

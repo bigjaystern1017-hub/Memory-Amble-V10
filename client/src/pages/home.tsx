@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { ChatMessage } from "@/components/chat-message";
 import { ChatInput } from "@/components/chat-input";
 import { EducationSlides } from "@/components/education-slides";
@@ -53,6 +53,10 @@ export default function Home() {
   const typewriterResolveRef = useRef<(() => void) | null>(null);
 
   const progressStep = getProgressStep(currentBeat);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [phase]);
 
   const scrollToBottom = useCallback(() => {
     if (scrollRef.current) {

@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from "react";
 import { ChatMessage } from "@/components/chat-message";
 import { ChatInput } from "@/components/chat-input";
 import { EducationSlides } from "@/components/education-slides";
+import { NameEntry } from "@/components/name-entry";
 import { ProgressBar } from "@/components/progress-bar";
 import {
   type BeatId,
@@ -12,7 +13,6 @@ import {
   beatNeedsContinueButton,
   getInputPlaceholder,
   getProgressStep,
-  extractName,
 } from "@/components/beat-engine";
 import { apiRequest } from "@/lib/queryClient";
 import { Brain, RotateCcw, ArrowRight, Lightbulb } from "lucide-react";
@@ -26,9 +26,9 @@ interface Message {
 }
 
 export default function Home() {
-  const [phase, setPhase] = useState<"education" | "chat">("education");
+  const [phase, setPhase] = useState<"education" | "name" | "chat">("education");
   const [messages, setMessages] = useState<Message[]>([]);
-  const [currentBeat, setCurrentBeat] = useState<BeatId>("ask-name");
+  const [currentBeat, setCurrentBeat] = useState<BeatId>("welcome");
   const [isTyping, setIsTyping] = useState(false);
   const [inputEnabled, setInputEnabled] = useState(false);
   const [showContinue, setShowContinue] = useState(false);
@@ -49,7 +49,6 @@ export default function Home() {
 
   const msgIdRef = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const hasStartedRef = useRef(false);
   const processingRef = useRef(false);
   const typewriterResolveRef = useRef<(() => void) | null>(null);
 
@@ -186,14 +185,17 @@ export default function Home() {
   );
 
   const handleEducationComplete = useCallback(() => {
+    setPhase("name");
+  }, []);
+
+  const handleNameSubmit = useCallback((name: string) => {
+    const updatedState = { ...state, userName: name };
+    setState(updatedState);
     setPhase("chat");
     setTimeout(() => {
-      if (!hasStartedRef.current) {
-        hasStartedRef.current = true;
-        advanceBeat("ask-name", state);
-      }
+      advanceBeat("welcome", updatedState);
     }, 200);
-  }, [advanceBeat, state]);
+  }, [state, advanceBeat]);
 
   const handleContinue = useCallback(async () => {
     if (processingRef.current) return;
@@ -259,10 +261,6 @@ export default function Home() {
       const beat = currentBeat;
 
       switch (beat) {
-        case "ask-name":
-          updatedState = { ...updatedState, userName: extractName(text) };
-          break;
-
         case "ask-place":
           updatedState = { ...updatedState, placeName: text };
           break;
@@ -344,7 +342,7 @@ export default function Home() {
     };
     setPhase("education");
     setMessages([]);
-    setCurrentBeat("ask-name");
+    setCurrentBeat("welcome");
     setIsTyping(false);
     setInputEnabled(false);
     setShowContinue(false);
@@ -356,7 +354,6 @@ export default function Home() {
     typewriterResolveRef.current = null;
     setState(freshState);
     msgIdRef.current = 0;
-    hasStartedRef.current = false;
     processingRef.current = false;
   };
 
@@ -383,9 +380,36 @@ export default function Home() {
             </div>
           </div>
         </header>
-
         <div className="flex-1 overflow-y-auto">
           <EducationSlides onComplete={handleEducationComplete} />
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === "name") {
+    return (
+      <div className="flex flex-col h-screen bg-background" data-testid="app-container">
+        <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50 shrink-0">
+          <div className="max-w-3xl mx-auto px-4 md:px-6 py-3 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center">
+              <Brain className="w-6 h-6 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="text-lg font-semibold tracking-tight" data-testid="text-app-title">
+                MemoryAmble
+              </h1>
+              <p className="text-sm text-muted-foreground">Coach Timbuk</p>
+            </div>
+          </div>
+          <div className="border-t border-border/30">
+            <div className="max-w-3xl mx-auto px-4 md:px-6">
+              <ProgressBar currentStep={0} />
+            </div>
+          </div>
+        </header>
+        <div className="flex-1 overflow-y-auto">
+          <NameEntry onSubmit={handleNameSubmit} />
         </div>
       </div>
     );

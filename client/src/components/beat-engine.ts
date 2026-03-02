@@ -1,7 +1,6 @@
 import type { Assignment } from "@shared/schema";
 
 export type BeatId =
-  | "ask-name"
   | "welcome"
   | "ask-place"
   | "react-place"
@@ -59,7 +58,7 @@ export function getProgressStep(beatId: BeatId): number {
     "recall-3", "react-recall-3",
   ];
 
-  if (beatId === "ask-name" || beatId === "welcome") return 0;
+  if (beatId === "welcome") return 0;
   if (palaceBeats.includes(beatId)) return 1;
   if (rememberBeats.includes(beatId)) return 2;
   if (recallBeats.includes(beatId)) return 3;
@@ -71,11 +70,8 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
   const name = state.userName || "friend";
 
   switch (beatId) {
-    case "ask-name":
-      return `Hello! I'm Timbuk, your memory coach. Before we take our stroll, may I ask who I'm walking with today?`;
-
     case "welcome":
-      return `What a lovely name, ${name}! I'm so glad you're here. We're going to do something wonderful together -- we're going to build you a Memory Palace. Ready to start?`;
+      return `${name}, I'm so glad you're here! We're going to do something wonderful together -- we're going to build you a Memory Palace. Ready to start?`;
 
     case "ask-place":
       return `Wonderful! First, ${name}, I need you to think of a place you know very well. It could be your childhood home, your current house, a favourite park -- any place you can picture clearly in your mind. What place comes to mind?`;
@@ -198,45 +194,6 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
   }
 }
 
-export function extractName(input: string): string {
-  const trimmed = input.trim();
-
-  const patterns = [
-    /^(?:my\s+name\s+is|i'm|im|i\s+am|they\s+call\s+me|call\s+me|it's|its|name's|names)\s+(.+)/i,
-    /^(?:hi|hello|hey)[,!]?\s+(?:i'm|im|i\s+am|my\s+name\s+is|it's|its)\s+(.+)/i,
-    /^(?:hi|hello|hey)[,!]?\s+(.+)/i,
-  ];
-
-  for (const pattern of patterns) {
-    const match = trimmed.match(pattern);
-    if (match && match[1]) {
-      let name = match[1]
-        .replace(/[.!,;]+$/, "")
-        .replace(/\s+nice\s+to\s+meet\s+you.*$/i, "")
-        .replace(/\s+pleased\s+to\s+meet\s+you.*$/i, "")
-        .trim();
-
-      const firstWord = name.split(/\s+/)[0];
-      if (firstWord) {
-        return firstWord.charAt(0).toUpperCase() + firstWord.slice(1).toLowerCase();
-      }
-    }
-  }
-
-  const singleWord = trimmed.replace(/[.!,;]+$/, "").trim();
-  if (singleWord && !singleWord.includes(" ")) {
-    return singleWord.charAt(0).toUpperCase() + singleWord.slice(1).toLowerCase();
-  }
-
-  const words = singleWord.split(/\s+/);
-  const lastWord = words[words.length - 1];
-  if (lastWord) {
-    return lastWord.charAt(0).toUpperCase() + lastWord.slice(1).toLowerCase();
-  }
-
-  return trimmed;
-}
-
 function extractKeyword(objectName: string): string {
   return objectName
     .replace(/^a\s+/i, "")
@@ -249,7 +206,6 @@ function extractKeyword(objectName: string): string {
 
 export function getNextBeat(current: BeatId): BeatId | null {
   const flow: BeatId[] = [
-    "ask-name",
     "welcome",
     "ask-place",
     "react-place",
@@ -284,7 +240,6 @@ export function getNextBeat(current: BeatId): BeatId | null {
 
 export function beatNeedsUserInput(beatId: BeatId): boolean {
   const inputBeats: BeatId[] = [
-    "ask-name",
     "ask-place",
     "ask-stop-1",
     "ask-stop-2",
@@ -305,8 +260,6 @@ export function beatNeedsContinueButton(beatId: BeatId): boolean {
 
 export function getInputPlaceholder(beatId: BeatId): string {
   switch (beatId) {
-    case "ask-name":
-      return "Type your name...";
     case "ask-place":
       return "Name a place you know well...";
     case "ask-stop-1":

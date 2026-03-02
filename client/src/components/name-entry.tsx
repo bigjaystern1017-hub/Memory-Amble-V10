@@ -52,7 +52,7 @@ export function NameEntry({ onSubmit }: NameEntryProps) {
           className="text-xl text-muted-foreground mb-8"
           data-testid="text-name-prompt"
         >
-          I'm Timbuk, your memory coach. May I ask who I'm walking with today?
+          I'm Timbuk. Before we take our stroll together, I'd love to know who I'm walking with today.
         </p>
 
         <div className="space-y-4">

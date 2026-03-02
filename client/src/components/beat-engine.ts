@@ -71,70 +71,79 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
 
   switch (beatId) {
     case "welcome":
-      return `${name}, I'm so glad you're here! We're going to do something wonderful together -- we're going to build you a Memory Palace. Ready to start?`;
+      return `${name}! What a pleasure. I've been looking forward to our walk together. Today we're going to build something really special -- your very own Memory Palace. It's been around for thousands of years, and honestly? It's a lot of fun. Shall we get started?`;
 
     case "ask-place":
-      return `Wonderful! First, ${name}, I need you to think of a place you know very well. It could be your childhood home, your current house, a favourite park -- any place you can picture clearly in your mind. What place comes to mind?`;
+      return `So here's how this works, ${name}. I want you to think of a place that feels like home to you. Somewhere you could walk through with your eyes closed -- maybe your house, your garden, a favourite shop you've visited a hundred times. Tell me about a place you love.`;
 
     case "react-place":
-      return `"${state.placeName}" -- I can see it now! What a perfect choice, ${name}. A place with real memories is exactly what makes this work so beautifully.\n\nNow, I want you to imagine walking through ${state.placeName}. As you walk, we're going to pick 3 specific spots -- I call them "stops" -- that you naturally pass by.`;
+      return `Oh, ${state.placeName}! I love that you picked that, ${name}. I can already picture you there. A place you really know is worth its weight in gold for this.\n\nNow, imagine you're walking through ${state.placeName} right now. We're going to choose 3 spots along your path -- little landmarks you'd naturally pass by. Think of them as rest stops on our stroll.`;
 
     case "ask-stop-1":
-      return `Let's start with your first stop. As you walk into ${state.placeName}, what's the very first thing you see or pass by? Maybe a doorway, a table, a window? Tell me about it, ${name}.`;
+      return `Let's start right at the beginning. You've just arrived at ${state.placeName}. Look around -- what's the first thing that catches your eye? A door? A piece of furniture? A tree? Whatever jumps out at you, ${name}, that's your first stop.`;
 
     case "react-stop-1":
-      return `"${state.stops[0]}" -- wonderful! I can picture that perfectly. You've got this, ${name}.\n\nNow keep walking through ${state.placeName}...`;
+      return `${state.stops[0]} -- oh, I can see it. That's a lovely first stop, ${name}. I'm going to remember that.\n\nAlright, keep walking for me. What comes next in ${state.placeName}?`;
 
     case "ask-stop-2":
-      return "What's the next spot you come to? The second thing that catches your eye as you continue through?";
+      return `You've passed ${state.stops[0]} and you're moving through the space. What do you notice next? Where do your feet take you?`;
 
     case "react-stop-2":
-      return `"${state.stops[1]}" -- oh, that's a great one! I love how clearly you see this place.\n\nOne more stop to go...`;
+      return `${state.stops[1]} -- perfect. See how naturally these come to you? You know this place inside and out, ${name}.\n\nOne more. Keep walking...`;
 
     case "ask-stop-3":
-      return "And as you keep walking, what's your third and final stop? What do you see next?";
+      return `You're past ${state.stops[0]} and ${state.stops[1]} now. As you continue through ${state.placeName}, where do you end up? What's your last stop?`;
 
     case "react-stop-3":
-      return `"${state.stops[2]}" -- perfect! Now we have your three stops:\n\n1. ${state.stops[0]}\n2. ${state.stops[1]}\n3. ${state.stops[2]}\n\nYou've just built the skeleton of your Memory Palace, ${name}! Now comes the really fun part -- let me pick some objects to place at each stop. Just a moment...`;
+      return `${state.stops[2]} -- beautiful. So here's your route through ${state.placeName}:\n\nFirst, ${state.stops[0]}.\nThen, ${state.stops[1]}.\nAnd finally, ${state.stops[2]}.\n\nThat, ${name}, is the skeleton of your Memory Palace. You just built it in about two minutes. Not bad at all! Now let me find some things to put in it...`;
 
     case "assigning":
       return "";
 
     case "placement-intro":
-      return `I've picked three objects, ${name}. But here's the secret -- I'm not going to tell you how to picture them. YOU are going to create the scene, because your imagination makes the strongest memories. The weirder and funnier you make it, the better it sticks. Ready?`;
+      return `Right, ${name}, here's where the fun really starts. I've picked three objects, and we're going to plant one at each of your stops. But here's the thing -- I'm not going to tell you how to picture them. That's YOUR job. The weirder and sillier you make it, the stickier the memory. Trust me on this one.`;
 
     case "place-object-1": {
       const a = state.assignments[0];
       if (!a) return "";
-      return `At your first stop -- ${a.stopName} -- we're placing ${a.object}.\n\nHow can we make this totally your own, ${name}? What weird detail would make ${a.object} stick to ${a.stopName} in your mind? Tell me what you see.`;
+      return `Your first stop is ${a.stopName}, and the object is ${a.object}.\n\nNow, ${name}, here's what I want you to do. Picture ${a.object} right there at ${a.stopName}. But don't just set it down -- make it ridiculous. Is it doing something? Is it enormous? Is it making noise? Tell me what you see in your mind.`;
     }
 
-    case "mirror-object-1":
-      return `Brilliant, ${name}! I can practically see that now. Lock that image in -- it's your secret anchor.\n\nOn to your second stop.`;
+    case "mirror-object-1": {
+      const scene = state.userScenes[0] || "";
+      const snippet = scene.length > 40 ? scene.substring(0, 40).trim() + "..." : scene;
+      return `Ha! "${snippet}" -- I can practically see it, ${name}. That is exactly the kind of image that sticks. Hold onto that one.\n\nLet's move to your second stop.`;
+    }
 
     case "place-object-2": {
       const a = state.assignments[1];
       if (!a) return "";
-      return `Now at ${a.stopName}, we're placing ${a.object}.\n\nSame thing, ${name} -- what wild detail would make ${a.object} unforgettable at ${a.stopName}? Paint me a picture.`;
+      return `You're at ${a.stopName} now, and I'm handing you ${a.object}.\n\nSame thing, ${name} -- make it yours. What absurd thing is ${a.object} doing at ${a.stopName}? The funnier, the better. Paint me a picture.`;
     }
 
-    case "mirror-object-2":
-      return `Oh, that's wonderful! You're a natural at this, ${name}. That image is locked in tight.\n\nOne more to go.`;
+    case "mirror-object-2": {
+      const scene = state.userScenes[1] || "";
+      const snippet = scene.length > 40 ? scene.substring(0, 40).trim() + "..." : scene;
+      return `Oh, that's brilliant. "${snippet}" -- you really have a knack for this, ${name}. That image is locked in.\n\nOne more to go. You're doing beautifully.`;
+    }
 
     case "place-object-3": {
       const a = state.assignments[2];
       if (!a) return "";
-      return `And at your last stop -- ${a.stopName} -- we're placing ${a.object}.\n\nLast one, ${name}. Make it as wild and vivid as you like. What do you see?`;
+      return `Last one, ${name}. You're at ${a.stopName}, and the object is ${a.object}.\n\nLet your imagination run completely wild on this one. What do you see?`;
     }
 
-    case "mirror-object-3":
-      return `I love it! All three objects are placed, ${name}. Your Memory Palace is complete. You've done something remarkable today.\n\nNow, let's put it to the test. I'm going to ask you to walk through your palace one more time -- but this time, you tell ME what you see at each stop. Don't worry if you can't remember everything perfectly. This is practice, not a test.`;
+    case "mirror-object-3": {
+      const scene = state.userScenes[2] || "";
+      const snippet = scene.length > 40 ? scene.substring(0, 40).trim() + "..." : scene;
+      return `"${snippet}" -- I love it, ${name}. All three are planted. Your Memory Palace is alive!\n\nNow here comes the real test. I'm going to walk you back through ${state.placeName}, and this time, you tell me what you see at each stop. No pressure -- this is just practice, and whatever you remember is a win.`;
+    }
 
     case "walkthrough-intro":
-      return `Alright, ${name}. Close your eyes for a moment. Picture yourself standing at the entrance of ${state.placeName}. Take a breath.\n\nNow, walk to your first stop...`;
+      return `Take a breath, ${name}. Close your eyes if you like. You're standing at the entrance of ${state.placeName}. You know this place. You've been here before.\n\nNow, walk to your first stop...`;
 
     case "recall-1":
-      return `You're at ${state.assignments[0]?.stopName}. Look around... what unusual thing do you see there?`;
+      return `You're at ${state.assignments[0]?.stopName}. Something strange is happening here. What is it? What do you see, ${name}?`;
 
     case "react-recall-1": {
       const a = state.assignments[0];
@@ -142,13 +151,13 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       const keyword = extractKeyword(a?.object || "");
       const isCorrect = answer.toLowerCase().includes(keyword);
       if (isCorrect) {
-        return `Yes! ${a?.object}! I can see you really pictured that scene, ${name}. Wonderful!\n\nNow keep walking to your next stop...`;
+        return `Yes! ${a?.object}! See, ${name}? Your brain held onto that image. That's the palace at work.\n\nKeep going -- walk to your next stop...`;
       }
-      return `The object was ${a?.object}. That's perfectly alright, ${name} -- it gets easier with practice, I promise. Next time that image will be even stronger.\n\nLet's keep walking to your next stop...`;
+      return `It was ${a?.object}. And you know what, ${name}? That's completely fine. The first time through, even the pros miss some. The image is planted -- it just needs a little watering.\n\nLet's keep walking...`;
     }
 
     case "recall-2":
-      return `You're now at ${state.assignments[1]?.stopName}. What do you see here?`;
+      return `You're at ${state.assignments[1]?.stopName} now. Look around. Something is definitely out of place here. What is it?`;
 
     case "react-recall-2": {
       const a = state.assignments[1];
@@ -156,13 +165,13 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       const keyword = extractKeyword(a?.object || "");
       const isCorrect = answer.toLowerCase().includes(keyword);
       if (isCorrect) {
-        return `That's it! ${a?.object}! You're a natural, ${name}. I can see it now -- your palace is working!\n\nOne more stop to go...`;
+        return `That's the one! ${a?.object}! Oh, ${name}, your palace is working beautifully.\n\nOne more. Last stop...`;
       }
-      return `It was ${a?.object}. Don't worry one bit, ${name}. Memory is a muscle, and you're already making it stronger.\n\nLet's visit your last stop...`;
+      return `That was ${a?.object}. Don't you worry, ${name}. Every time you walk through ${state.placeName} in your mind, these pictures get sharper and sharper.\n\nLet's see about your last stop...`;
     }
 
     case "recall-3":
-      return `And finally, you're at ${state.assignments[2]?.stopName}. What wild thing do you see here?`;
+      return `And here you are at ${state.assignments[2]?.stopName}. Last one, ${name}. What wild thing is waiting for you?`;
 
     case "react-recall-3": {
       const a = state.assignments[2];
@@ -170,23 +179,23 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       const keyword = extractKeyword(a?.object || "");
       const isCorrect = answer.toLowerCase().includes(keyword);
       if (isCorrect) {
-        return `${a?.object} -- exactly right! Oh, ${name}, that was beautiful!`;
+        return `${a?.object} -- you got it, ${name}! Brilliant finish!`;
       }
-      return `That one was ${a?.object}. You know what, ${name}? The fact that you tried is what matters most. Each time you practice, these images become clearer and stickier.`;
+      return `That one was ${a?.object}. And honestly, ${name}, the fact that you walked through your whole palace just now? That takes real courage. The pictures will get clearer, I promise you.`;
     }
 
     case "final": {
       const count = state.correctCount;
       if (count === 3) {
-        return `${name}, you got all three! A perfect score on your very first Memory Palace. That is truly wonderful. You have a gift for this.\n\nYour palace is yours to keep. Whenever you want to practice, just walk through it in your mind. And remember -- you can build as many palaces as you like. I'm so proud of you today. You've got this!`;
+        return `${name}, three out of three. A perfect walk through your very first Memory Palace. I have to tell you -- that doesn't happen often. You clearly have a wonderful imagination.\n\nYour palace at ${state.placeName} is yours now. Walk through it in your mind tonight before bed, and I bet those images will be even more vivid tomorrow. You can build new palaces for anything -- shopping lists, birthdays, phone numbers. The world is yours, ${name}. I'm so proud of you.`;
       }
       if (count >= 2) {
-        return `${count} out of 3, ${name}! That is a fantastic result for your first try. Your Memory Palace is working beautifully.\n\nWith a little practice, you'll be getting them all. The images get stickier each time you walk through. I'm so proud of you. You've got this!`;
+        return `${count} out of 3, ${name}! For your very first time? That is genuinely impressive. Your palace at ${state.placeName} is working.\n\nHere's a little secret -- if you walk through it one more time tonight, those images will get even stickier. Every palace gets stronger with practice. I had such a lovely time walking with you today, ${name}. You've got real talent for this.`;
       }
       if (count >= 1) {
-        return `${count} out of 3 -- and that is a wonderful start, ${name}. Remember, even world memory champions started right where you are. The beauty of a Memory Palace is that it gets stronger every time you walk through it.\n\nTry walking through your palace tonight before bed. I bet you'll surprise yourself. You've got this!`;
+        return `${count} out of 3 -- and ${name}, that is a real start. You know what the best part is? You built a Memory Palace from nothing in just a few minutes. That palace at ${state.placeName}? It's yours. The images are planted.\n\nTry this tonight: close your eyes and walk through ${state.placeName} one more time. Visit ${state.stops[0]}, then ${state.stops[1]}, then ${state.stops[2]}. I think you'll surprise yourself. I believe in you, ${name}.`;
       }
-      return `You know what, ${name}? Today wasn't about getting the answers right -- it was about building your first palace. And you did that beautifully. The images are planted, and they'll get clearer with practice.\n\nTry walking through your palace tonight before bed. Picture each stop, and let those funny images come back. You've got this, ${name}. I believe in you!`;
+      return `${name}, listen to me. What you just did took courage. You built a palace at ${state.placeName}, you filled it with wild images, and you walked through it. That is the whole technique, and you just did it.\n\nThe pictures will get clearer. Tonight, try walking through ${state.placeName} in your mind -- ${state.stops[0]}, ${state.stops[1]}, ${state.stops[2]}. Let those funny images drift back. Each time, they'll stick a little more.\n\nI had a wonderful time with you today, ${name}. You've got this. I really mean that.`;
     }
 
     default:
@@ -261,15 +270,15 @@ export function beatNeedsContinueButton(beatId: BeatId): boolean {
 export function getInputPlaceholder(beatId: BeatId): string {
   switch (beatId) {
     case "ask-place":
-      return "Name a place you know well...";
+      return "Tell me about a place you love...";
     case "ask-stop-1":
     case "ask-stop-2":
     case "ask-stop-3":
-      return "Describe what you see...";
+      return "What do you see?";
     case "place-object-1":
     case "place-object-2":
     case "place-object-3":
-      return "Describe the scene you imagine...";
+      return "Describe what you imagine...";
     case "recall-1":
     case "recall-2":
     case "recall-3":

@@ -241,10 +241,10 @@ export default function Home() {
       });
       const data = await response.json();
       if (data.spark) {
-        addTimbukInstant(`Here's a little spark to get you started: "${data.spark}"\n\nNow make it your own, ${state.userName}! What do YOU see?`);
+        addTimbukInstant(`Here's a little nudge to get you going: "${data.spark}"\n\nBut that's just a starting point, ${state.userName}. Make it yours -- what do you actually see?`);
       }
     } catch {
-      addTimbukInstant("Hmm, my spark didn't quite light. No worries -- just let your own imagination run wild!");
+      addTimbukInstant("Hmm, my imagination took a coffee break on that one. No worries -- just tell me the first silly thing that pops into your head!");
     }
     setSparkLoading(false);
   }, [currentBeat, state, sparkLoading, addTimbukInstant]);

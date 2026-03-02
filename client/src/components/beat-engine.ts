@@ -198,6 +198,45 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
   }
 }
 
+export function extractName(input: string): string {
+  const trimmed = input.trim();
+
+  const patterns = [
+    /^(?:my\s+name\s+is|i'm|im|i\s+am|they\s+call\s+me|call\s+me|it's|its|name's|names)\s+(.+)/i,
+    /^(?:hi|hello|hey)[,!]?\s+(?:i'm|im|i\s+am|my\s+name\s+is|it's|its)\s+(.+)/i,
+    /^(?:hi|hello|hey)[,!]?\s+(.+)/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = trimmed.match(pattern);
+    if (match && match[1]) {
+      let name = match[1]
+        .replace(/[.!,;]+$/, "")
+        .replace(/\s+nice\s+to\s+meet\s+you.*$/i, "")
+        .replace(/\s+pleased\s+to\s+meet\s+you.*$/i, "")
+        .trim();
+
+      const firstWord = name.split(/\s+/)[0];
+      if (firstWord) {
+        return firstWord.charAt(0).toUpperCase() + firstWord.slice(1).toLowerCase();
+      }
+    }
+  }
+
+  const singleWord = trimmed.replace(/[.!,;]+$/, "").trim();
+  if (singleWord && !singleWord.includes(" ")) {
+    return singleWord.charAt(0).toUpperCase() + singleWord.slice(1).toLowerCase();
+  }
+
+  const words = singleWord.split(/\s+/);
+  const lastWord = words[words.length - 1];
+  if (lastWord) {
+    return lastWord.charAt(0).toUpperCase() + lastWord.slice(1).toLowerCase();
+  }
+
+  return trimmed;
+}
+
 function extractKeyword(objectName: string): string {
   return objectName
     .replace(/^a\s+/i, "")

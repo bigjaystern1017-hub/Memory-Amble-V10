@@ -12,6 +12,7 @@ import {
   beatNeedsContinueButton,
   getInputPlaceholder,
   getProgressStep,
+  extractName,
 } from "@/components/beat-engine";
 import { apiRequest } from "@/lib/queryClient";
 import { Brain, RotateCcw, ArrowRight, Lightbulb } from "lucide-react";
@@ -245,7 +246,7 @@ export default function Home() {
 
       switch (beat) {
         case "ask-name":
-          updatedState = { ...updatedState, userName: text.trim() };
+          updatedState = { ...updatedState, userName: extractName(text) };
           break;
 
         case "ask-place":

@@ -71,7 +71,7 @@ export default function Home() {
     [scrollToBottom]
   );
 
-  const addGladysMessage = useCallback(
+  const addUserMessage = useCallback(
     (text: string) => {
       const id = ++msgIdRef.current;
       setMessages((prev) => [...prev, { id, sender: "gladys", text }]);
@@ -238,7 +238,7 @@ export default function Home() {
       processingRef.current = true;
       setInputEnabled(false);
       setShowSparkButton(false);
-      addGladysMessage(text);
+      addUserMessage(text);
 
       let updatedState = { ...state };
       const beat = currentBeat;
@@ -314,7 +314,7 @@ export default function Home() {
       }
       processingRef.current = false;
     },
-    [currentBeat, state, addGladysMessage, advanceBeat]
+    [currentBeat, state, addUserMessage, advanceBeat]
   );
 
   const handleRestart = () => {

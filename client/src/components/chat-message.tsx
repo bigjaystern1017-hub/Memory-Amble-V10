@@ -1,13 +1,58 @@
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Brain, User } from "lucide-react";
+
+const CHAR_DELAY_MS = 40;
 
 interface ChatMessageProps {
   sender: "timbuk" | "gladys";
   text: string;
   isTyping?: boolean;
+  typewriter?: boolean;
+  onTypewriterDone?: () => void;
 }
 
-export function ChatMessage({ sender, text, isTyping }: ChatMessageProps) {
+function TypewriterText({ text, onDone }: { text: string; onDone?: () => void }) {
+  const [charIndex, setCharIndex] = useState(0);
+  const doneRef = useRef(false);
+  const containerRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    if (charIndex >= text.length) {
+      if (!doneRef.current) {
+        doneRef.current = true;
+        onDone?.();
+      }
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCharIndex((prev) => prev + 1);
+    }, CHAR_DELAY_MS);
+
+    return () => clearTimeout(timer);
+  }, [charIndex, text.length, onDone]);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      const el = containerRef.current.closest("[data-testid='chat-scroll']");
+      if (el) {
+        el.scrollTop = el.scrollHeight;
+      }
+    }
+  }, [charIndex]);
+
+  return (
+    <p ref={containerRef} className="text-xl md:text-2xl leading-relaxed whitespace-pre-wrap">
+      {text.slice(0, charIndex)}
+      {charIndex < text.length && (
+        <span className="inline-block w-0.5 h-5 md:h-6 bg-foreground/40 animate-pulse ml-0.5 align-text-bottom" />
+      )}
+    </p>
+  );
+}
+
+export function ChatMessage({ sender, text, isTyping, typewriter, onTypewriterDone }: ChatMessageProps) {
   const isTimbuk = sender === "timbuk";
 
   return (
@@ -49,6 +94,8 @@ export function ChatMessage({ sender, text, isTyping }: ChatMessageProps) {
               transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
             />
           </div>
+        ) : typewriter ? (
+          <TypewriterText text={text} onDone={onTypewriterDone} />
         ) : (
           <p className="text-xl md:text-2xl leading-relaxed whitespace-pre-wrap">{text}</p>
         )}

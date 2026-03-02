@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { ChatMessage } from "@/components/chat-message";
 import { ChatInput } from "@/components/chat-input";
 import { EducationSlides } from "@/components/education-slides";
@@ -22,6 +22,7 @@ interface Message {
   id: number;
   sender: "timbuk" | "gladys";
   text: string;
+  typewriter?: boolean;
 }
 
 export default function Home() {
@@ -35,6 +36,7 @@ export default function Home() {
   const [genError, setGenError] = useState(false);
   const [showSparkButton, setShowSparkButton] = useState(false);
   const [sparkLoading, setSparkLoading] = useState(false);
+  const [typewriterBusy, setTypewriterBusy] = useState(false);
   const [state, setState] = useState<ConversationState>({
     userName: "",
     placeName: "",
@@ -49,6 +51,7 @@ export default function Home() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const hasStartedRef = useRef(false);
   const processingRef = useRef(false);
+  const typewriterResolveRef = useRef<(() => void) | null>(null);
 
   const progressStep = getProgressStep(currentBeat);
 
@@ -63,15 +66,6 @@ export default function Home() {
     }
   }, []);
 
-  const addTimbukMessage = useCallback(
-    (text: string) => {
-      const id = ++msgIdRef.current;
-      setMessages((prev) => [...prev, { id, sender: "timbuk", text }]);
-      scrollToBottom();
-    },
-    [scrollToBottom]
-  );
-
   const addUserMessage = useCallback(
     (text: string) => {
       const id = ++msgIdRef.current;
@@ -81,19 +75,40 @@ export default function Home() {
     [scrollToBottom]
   );
 
-  const showTimbukWithDelay = useCallback(
-    (text: string, delayMs: number = 800): Promise<void> => {
+  const showTimbukWithTypewriter = useCallback(
+    (text: string): Promise<void> => {
       return new Promise((resolve) => {
         setIsTyping(true);
         scrollToBottom();
         setTimeout(() => {
           setIsTyping(false);
-          addTimbukMessage(text);
-          resolve();
-        }, delayMs);
+          const id = ++msgIdRef.current;
+          setMessages((prev) => [...prev, { id, sender: "timbuk", text, typewriter: true }]);
+          setTypewriterBusy(true);
+          typewriterResolveRef.current = resolve;
+          scrollToBottom();
+        }, 500);
       });
     },
-    [addTimbukMessage, scrollToBottom]
+    [scrollToBottom]
+  );
+
+  const handleTypewriterDone = useCallback(() => {
+    setTypewriterBusy(false);
+    if (typewriterResolveRef.current) {
+      const resolve = typewriterResolveRef.current;
+      typewriterResolveRef.current = null;
+      resolve();
+    }
+  }, []);
+
+  const addTimbukInstant = useCallback(
+    (text: string) => {
+      const id = ++msgIdRef.current;
+      setMessages((prev) => [...prev, { id, sender: "timbuk", text }]);
+      scrollToBottom();
+    },
+    [scrollToBottom]
   );
 
   const fetchAssignments = useCallback(
@@ -121,7 +136,7 @@ export default function Home() {
 
         if (!newState || !newState.assignments?.length) {
           setGenError(true);
-          addTimbukMessage(
+          addTimbukInstant(
             "Oh dear, I had a little hiccup picking the objects. Could you tap the button below to let me try again?"
           );
           return;
@@ -139,8 +154,7 @@ export default function Home() {
       const text = getTimbukMessage(beat, currentState);
       if (!text) return;
 
-      const delay = text.length > 200 ? 1200 : text.length > 100 ? 900 : 700;
-      await showTimbukWithDelay(text, delay);
+      await showTimbukWithTypewriter(text);
 
       if (beat === "final") {
         setIsFinished(true);
@@ -168,7 +182,7 @@ export default function Home() {
         await advanceBeat(next, currentState);
       }
     },
-    [showTimbukWithDelay, addTimbukMessage, scrollToBottom, fetchAssignments]
+    [showTimbukWithTypewriter, addTimbukInstant, scrollToBottom, fetchAssignments]
   );
 
   const handleEducationComplete = useCallback(() => {
@@ -225,13 +239,13 @@ export default function Home() {
       });
       const data = await response.json();
       if (data.spark) {
-        addTimbukMessage(`Here's a little spark to get you started: "${data.spark}"\n\nNow make it your own, ${state.userName}! What do YOU see?`);
+        addTimbukInstant(`Here's a little spark to get you started: "${data.spark}"\n\nNow make it your own, ${state.userName}! What do YOU see?`);
       }
     } catch {
-      addTimbukMessage("Hmm, my spark didn't quite light. No worries -- just let your own imagination run wild!");
+      addTimbukInstant("Hmm, my spark didn't quite light. No worries -- just let your own imagination run wild!");
     }
     setSparkLoading(false);
-  }, [currentBeat, state, sparkLoading, addTimbukMessage]);
+  }, [currentBeat, state, sparkLoading, addTimbukInstant]);
 
   const handleUserInput = useCallback(
     async (text: string) => {
@@ -338,11 +352,15 @@ export default function Home() {
     setGenError(false);
     setShowSparkButton(false);
     setSparkLoading(false);
+    setTypewriterBusy(false);
+    typewriterResolveRef.current = null;
     setState(freshState);
     msgIdRef.current = 0;
     hasStartedRef.current = false;
     processingRef.current = false;
   };
+
+  const lastMessageId = messages.length > 0 ? messages[messages.length - 1].id : -1;
 
   if (phase === "education") {
     return (
@@ -415,7 +433,13 @@ export default function Home() {
       >
         <div className="max-w-3xl mx-auto px-4 md:px-6 py-6 space-y-4">
           {messages.map((msg) => (
-            <ChatMessage key={msg.id} sender={msg.sender} text={msg.text} />
+            <ChatMessage
+              key={msg.id}
+              sender={msg.sender}
+              text={msg.text}
+              typewriter={msg.typewriter && msg.id === lastMessageId}
+              onTypewriterDone={msg.id === lastMessageId ? handleTypewriterDone : undefined}
+            />
           ))}
           {isTyping && <ChatMessage sender="timbuk" text="" isTyping />}
         </div>
@@ -464,9 +488,9 @@ export default function Home() {
               <ChatInput
                 onSend={handleUserInput}
                 placeholder={getInputPlaceholder(currentBeat)}
-                disabled={!inputEnabled || isTyping}
+                disabled={!inputEnabled || isTyping || typewriterBusy}
               />
-              {showSparkButton && inputEnabled && (
+              {showSparkButton && inputEnabled && !typewriterBusy && (
                 <div className="flex justify-center">
                   <Button
                     variant="ghost"

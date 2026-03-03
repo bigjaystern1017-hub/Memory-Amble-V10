@@ -365,7 +365,7 @@ export default function Home() {
 
   if (phase === "education") {
     return (
-      <div className="flex flex-col h-screen bg-background" data-testid="app-container">
+      <div className="flex flex-col h-dvh bg-background pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]" data-testid="app-container">
         <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50 shrink-0">
           <div className="max-w-3xl mx-auto px-4 md:px-6 py-3 flex items-center gap-3">
             <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center">
@@ -393,7 +393,7 @@ export default function Home() {
 
   if (phase === "name") {
     return (
-      <div className="flex flex-col h-screen bg-background" data-testid="app-container">
+      <div className="flex flex-col h-dvh bg-background pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]" data-testid="app-container">
         <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50 shrink-0">
           <div className="max-w-3xl mx-auto px-4 md:px-6 py-3 flex items-center gap-3">
             <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center">
@@ -420,7 +420,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-background" data-testid="app-container">
+    <div className="flex flex-col h-dvh bg-background pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]" data-testid="app-container">
       <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50 shrink-0">
         <div className="max-w-3xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">

@@ -14,6 +14,7 @@ import {
   beatNeedsContinueButton,
   getInputPlaceholder,
   getProgressStep,
+  recallAssignmentIndex,
 } from "@/components/beat-engine";
 import {
   loadProgress,
@@ -21,10 +22,9 @@ import {
   clearProgress,
   initProgress,
   getYesterdaySession,
-  computeNextLevel,
-  shouldSwitchCategory,
   recordSession,
   hasCompletedToday,
+  getLessonDay,
 } from "@/lib/progress";
 import { apiRequest } from "@/lib/queryClient";
 import { Brain, RotateCcw, ArrowRight, Lightbulb } from "lucide-react";
@@ -124,9 +124,11 @@ export default function Home() {
   const fetchAssignments = useCallback(
     async (currentState: ConversationState): Promise<ConversationState | null> => {
       try {
+        const lesson = currentState.lessonDay;
+        const category = lesson?.focus === "Shopping Lists" ? "names" : "objects";
         const response = await apiRequest("POST", "/api/assign-objects", {
           stops: currentState.stops,
-          category: currentState.category,
+          category,
         });
         const data = await response.json();
         return { ...currentState, assignments: data.assignments, stepIndex: 0 };
@@ -153,7 +155,7 @@ export default function Home() {
         if (!newState || !newState.assignments?.length) {
           setGenError(true);
           addTimbukInstant(
-            "Oh dear, I had a little hiccup picking the objects. Could you tap the button below to let me try again?"
+            "Oh dear, I had a little hiccup picking the items. Could you tap the button below to let me try again?"
           );
           return;
         }
@@ -177,8 +179,7 @@ export default function Home() {
         const progress = loadProgress();
         if (progress) {
           const updated = recordSession(progress, {
-            level: currentState.itemCount,
-            category: currentState.category,
+            day: currentState.lessonDay?.day || progress.currentDay,
             score: currentState.correctCount,
             totalItems: currentState.itemCount,
             assignments: currentState.assignments,
@@ -217,16 +218,13 @@ export default function Home() {
           nextState = { ...currentState, stepIndex: 0 };
           updateState(nextState);
         }
-        if (beat === "react-check-in" && (next === "check-in-done" || next === "graduation-offer" || next === "welcome")) {
+        if (beat === "react-check-in" && (next === "check-in-done" || next === "welcome")) {
           nextState = { ...currentState, stepIndex: 0 };
           updateState(nextState);
         }
         if (beat === "mirror-object" && next === "walkthrough-intro") {
           nextState = { ...currentState, stepIndex: 0 };
           updateState(nextState);
-        }
-        if (beat === "react-recall" && next === "final") {
-          nextState = currentState;
         }
         if (beat === "check-in-done") {
           nextState = { ...currentState, stepIndex: 0 };
@@ -248,12 +246,14 @@ export default function Home() {
 
     const progress = loadProgress();
     if (progress && progress.userName && progress.hasSeenEducation) {
+      const lesson = getLessonDay(progress.currentDay);
+
       if (hasCompletedToday(progress)) {
         setPhase("chat");
         const s = createFreshState();
         s.userName = progress.userName;
-        s.itemCount = progress.currentLevel;
-        s.category = progress.currentCategory;
+        s.lessonDay = lesson;
+        s.itemCount = lesson.itemCount;
         s.isReturningUser = true;
         updateState(s);
         setIsFinished(true);
@@ -269,23 +269,15 @@ export default function Home() {
       }
 
       const yesterday = getYesterdaySession(progress);
-      const nextLevel = computeNextLevel(progress);
-      const switchCat = shouldSwitchCategory(progress);
-      const newCategory = switchCat ? "names" as const : progress.currentCategory;
-
       const s = createFreshState();
       s.userName = progress.userName;
       s.isReturningUser = true;
-      s.category = newCategory;
-      s.itemCount = progress.currentLevel;
+      s.lessonDay = lesson;
+      s.itemCount = lesson.itemCount;
 
       if (yesterday) {
         s.checkInAssignments = yesterday.assignments;
         s.checkInPlace = yesterday.placeName;
-
-        if (yesterday.score === yesterday.totalItems && nextLevel > progress.currentLevel) {
-          s.graduatedLevel = nextLevel;
-        }
 
         updateState(s);
         setPhase("chat");
@@ -318,7 +310,8 @@ export default function Home() {
       saveProgress(initProgress(name));
     }
 
-    const s = { ...stateRef.current, userName: name };
+    const lesson = getLessonDay(1);
+    const s = { ...stateRef.current, userName: name, lessonDay: lesson, itemCount: lesson.itemCount };
     updateState(s);
     setPhase("chat");
     setTimeout(() => {
@@ -407,20 +400,6 @@ export default function Home() {
           break;
         }
 
-        case "graduation-offer": {
-          const accepted = /yes|sure|ok|let'?s|go for it|ready|absolutely|definitely/i.test(text);
-          if (accepted && s.graduatedLevel) {
-            s = { ...s, itemCount: s.graduatedLevel };
-            const progress = loadProgress();
-            if (progress) {
-              progress.currentLevel = s.graduatedLevel;
-              saveProgress(progress);
-            }
-          }
-          s = { ...s, graduatedLevel: null };
-          break;
-        }
-
         case "ask-place":
           s = { ...s, placeName: text };
           break;
@@ -439,7 +418,8 @@ export default function Home() {
         case "recall": {
           const newAnswers = [...s.userAnswers];
           newAnswers[idx] = text;
-          const assoc = s.assignments[idx];
+          const ri = recallAssignmentIndex(idx, s);
+          const assoc = s.assignments[ri];
           let addCorrect = 0;
           if (assoc) {
             const keyword = assoc.object
@@ -502,9 +482,10 @@ export default function Home() {
     const progress = loadProgress();
     const s = createFreshState();
     if (progress) {
+      const lesson = getLessonDay(progress.currentDay);
       s.userName = progress.userName;
-      s.itemCount = progress.currentLevel;
-      s.category = progress.currentCategory;
+      s.lessonDay = lesson;
+      s.itemCount = lesson.itemCount;
       s.isReturningUser = true;
     }
     updateState(s);
@@ -517,7 +498,8 @@ export default function Home() {
   };
 
   const lastMessageId = messages.length > 0 ? messages[messages.length - 1].id : -1;
-  const levelLabel = state.itemCount > 0 ? `Level ${Math.ceil((state.itemCount - 1) / 2)} -- ${state.itemCount} items` : "";
+  const lesson = state.lessonDay;
+  const dayLabel = lesson ? `Day ${lesson.day}: ${lesson.title}` : "";
 
   if (phase === "education") {
     return (
@@ -587,9 +569,11 @@ export default function Home() {
               <h1 className="text-lg font-semibold tracking-tight" data-testid="text-app-title">
                 MemoryAmble
               </h1>
-              <p className="text-sm text-muted-foreground" data-testid="text-level-info">
-                {levelLabel || "Coach Timbuk"}
-              </p>
+              {dayLabel && (
+                <p className="text-sm font-serif italic text-muted-foreground" data-testid="text-day-label">
+                  {dayLabel}
+                </p>
+              )}
             </div>
           </div>
           {isFinished && (
@@ -605,6 +589,15 @@ export default function Home() {
             </Button>
           )}
         </div>
+        {dayLabel && (
+          <div className="bg-primary/5 border-t border-b border-border/30">
+            <div className="max-w-3xl mx-auto px-4 md:px-6 py-2 text-center">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground" data-testid="text-daily-focus">
+                Today's Focus: {lesson?.focus}
+              </p>
+            </div>
+          </div>
+        )}
         <div className="border-t border-border/30">
           <div className="max-w-3xl mx-auto px-4 md:px-6">
             <ProgressBar currentStep={progressStep} />

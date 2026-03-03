@@ -59,7 +59,7 @@ function pickRandom(list: string[], count: number): string[] {
 }
 
 const assignItemsSchema = z.object({
-  stops: z.array(z.string()).min(3).max(9),
+  stops: z.array(z.string()).min(1).max(10),
   category: z.enum(["objects", "names"]).default("objects"),
 });
 

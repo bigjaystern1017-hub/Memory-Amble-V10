@@ -1,9 +1,25 @@
 import type { Assignment } from "@shared/schema";
+import lessonPlan from "./lessonPlan.json";
+
+export interface LessonDay {
+  day: number;
+  title: string;
+  itemCount: number;
+  focus: string;
+  coachNote: string;
+}
+
+export const curriculum: LessonDay[] = lessonPlan.curriculum;
+
+export function getLessonDay(dayNumber: number): LessonDay {
+  const idx = Math.min(dayNumber, curriculum.length) - 1;
+  if (idx < 0) return curriculum[0];
+  return curriculum[idx];
+}
 
 export interface SessionRecord {
   date: string;
-  level: number;
-  category: "objects" | "names";
+  day: number;
   score: number;
   totalItems: number;
   assignments: Assignment[];
@@ -13,10 +29,7 @@ export interface SessionRecord {
 
 export interface UserProgress {
   userName: string;
-  currentLevel: number;
-  currentCategory: "objects" | "names";
-  dayCount: number;
-  consecutiveObjectDays: number;
+  currentDay: number;
   sessions: SessionRecord[];
   hasSeenEducation: boolean;
 }
@@ -25,10 +38,7 @@ const STORAGE_KEY = "memoryamble_progress";
 
 const DEFAULT_PROGRESS: UserProgress = {
   userName: "",
-  currentLevel: 3,
-  currentCategory: "objects",
-  dayCount: 0,
-  consecutiveObjectDays: 0,
+  currentDay: 1,
   sessions: [],
   hasSeenEducation: false,
 };
@@ -79,42 +89,16 @@ export function hasCompletedToday(progress: UserProgress): boolean {
   return last.date === todayStr();
 }
 
-export function computeNextLevel(progress: UserProgress): number {
-  const last = getLastSession(progress);
-  if (!last) return progress.currentLevel;
-  if (last.score === last.totalItems) {
-    return Math.min(last.level + 2, 9);
-  }
-  return last.level;
-}
-
-export function shouldSwitchCategory(progress: UserProgress): boolean {
-  return progress.consecutiveObjectDays >= 7;
-}
-
 export function recordSession(
   progress: UserProgress,
   session: Omit<SessionRecord, "date">
 ): UserProgress {
   const record: SessionRecord = { ...session, date: todayStr() };
-  const isPerfect = session.score === session.totalItems;
-  const newLevel = isPerfect
-    ? Math.min(session.level + 2, 9)
-    : session.level;
-
-  const newObjectDays =
-    session.category === "objects"
-      ? progress.consecutiveObjectDays + 1
-      : 0;
-
-  const newCategory = newObjectDays >= 7 ? "names" as const : progress.currentCategory;
+  const nextDay = Math.min(progress.currentDay + 1, curriculum.length);
 
   return {
     ...progress,
-    currentLevel: newLevel,
-    currentCategory: newCategory,
-    dayCount: progress.dayCount + 1,
-    consecutiveObjectDays: newObjectDays,
+    currentDay: nextDay,
     sessions: [...progress.sessions, record],
   };
 }

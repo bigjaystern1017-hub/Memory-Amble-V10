@@ -37,6 +37,24 @@ export interface ConversationState {
   correctCount: number;
 }
 
+function flipPronoun(input: string): string {
+  let text = input.trim();
+  text = text.replace(/^my\s+/i, "your ");
+  text = text.replace(/^i\s+call\s+it\s+/i, "");
+  text = text.replace(/^it's\s+/i, "");
+  text = text.replace(/^the\s+/i, (m) => m.toLowerCase());
+  return text.charAt(0).toLowerCase() + text.slice(1);
+}
+
+function asPlace(raw: string): string {
+  const flipped = flipPronoun(raw);
+  return flipped.charAt(0).toUpperCase() + flipped.slice(1);
+}
+
+function asStop(raw: string): string {
+  return flipPronoun(raw);
+}
+
 export function getProgressStep(beatId: BeatId): number {
   const palaceBeats: BeatId[] = [
     "ask-place", "react-place",
@@ -68,6 +86,9 @@ export function getProgressStep(beatId: BeatId): number {
 
 export function getTimbukMessage(beatId: BeatId, state: ConversationState): string {
   const name = state.userName || "friend";
+  const place = asPlace(state.placeName);
+  const stop = (i: number) => asStop(state.stops[i] || "");
+  const aStop = (i: number) => asStop(state.assignments[i]?.stopName || "");
 
   switch (beatId) {
     case "welcome":
@@ -77,25 +98,25 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       return `So here's how this works, ${name}. I want you to think of a place that feels like home to you. Somewhere you could walk through with your eyes closed -- maybe your house, your garden, a favourite shop you've visited a hundred times. Tell me about a place you love.`;
 
     case "react-place":
-      return `Oh, ${state.placeName}! I love that you picked that, ${name}. I can already picture you there. A place you really know is worth its weight in gold for this.\n\nNow, imagine you're walking through ${state.placeName} right now. We're going to choose 3 spots along your path -- little landmarks you'd naturally pass by. Think of them as rest stops on our stroll.`;
+      return `Oh, ${place.toLowerCase()}! I love that you picked that, ${name}. I can already picture you there. A place you really know is worth its weight in gold for this.\n\nNow, imagine you're walking through ${place.toLowerCase()} right now. We're going to choose 3 spots along your path -- little landmarks you'd naturally pass by. Think of them as rest stops on our stroll.`;
 
     case "ask-stop-1":
-      return `Let's start right at the beginning. You've just arrived at ${state.placeName}. Look around -- what's the first thing that catches your eye? A door? A piece of furniture? A tree? Whatever jumps out at you, ${name}, that's your first stop.`;
+      return `Let's start right at the beginning. You've just arrived at ${place.toLowerCase()}. Look around -- what's the first thing that catches your eye? A door? A piece of furniture? A tree? Whatever jumps out at you, ${name}, that's your first stop.`;
 
     case "react-stop-1":
-      return `${state.stops[0]} -- oh, I can see it. That's a lovely first stop, ${name}. I'm going to remember that.\n\nAlright, keep walking for me. What comes next in ${state.placeName}?`;
+      return `Oh, ${stop(0)} -- I can see it. That's a lovely first stop, ${name}. I'm going to remember that.\n\nAlright, keep walking for me. What comes next?`;
 
     case "ask-stop-2":
-      return `You've passed ${state.stops[0]} and you're moving through the space. What do you notice next? Where do your feet take you?`;
+      return `You've passed ${stop(0)} and you're moving through the space. What do you notice next? Where do your feet take you?`;
 
     case "react-stop-2":
-      return `${state.stops[1]} -- perfect. See how naturally these come to you? You know this place inside and out, ${name}.\n\nOne more. Keep walking...`;
+      return `Ah, ${stop(1)} -- perfect. See how naturally these come to you? You know this place inside and out, ${name}.\n\nOne more. Keep walking...`;
 
     case "ask-stop-3":
-      return `You're past ${state.stops[0]} and ${state.stops[1]} now. As you continue through ${state.placeName}, where do you end up? What's your last stop?`;
+      return `You're past ${stop(0)} and ${stop(1)} now. As you continue through ${place.toLowerCase()}, where do you end up? What's your last stop?`;
 
     case "react-stop-3":
-      return `${state.stops[2]} -- beautiful. So here's your route through ${state.placeName}:\n\nFirst, ${state.stops[0]}.\nThen, ${state.stops[1]}.\nAnd finally, ${state.stops[2]}.\n\nThat, ${name}, is the skeleton of your Memory Palace. You just built it in about two minutes. Not bad at all! Now let me find some things to put in it...`;
+      return `${stop(2).charAt(0).toUpperCase() + stop(2).slice(1)} -- beautiful. So here's your route through ${place.toLowerCase()}:\n\nFirst, ${stop(0)}.\nThen, ${stop(1)}.\nAnd finally, ${stop(2)}.\n\nThat, ${name}, is the skeleton of your Memory Palace. You just built it in about two minutes. Not bad at all! Now let me find some things to put in it...`;
 
     case "assigning":
       return "";
@@ -106,7 +127,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     case "place-object-1": {
       const a = state.assignments[0];
       if (!a) return "";
-      return `Your first stop is ${a.stopName}, and the object is ${a.object}.\n\nNow, ${name}, here's what I want you to do. Picture ${a.object} right there at ${a.stopName}. But don't just set it down -- make it ridiculous. Is it doing something? Is it enormous? Is it making noise? Tell me what you see in your mind.`;
+      return `Your first stop is ${aStop(0)}, and the object is ${a.object}.\n\nNow, ${name}, here's what I want you to do. Picture ${a.object} right there at ${aStop(0)}. But don't just set it down -- make it ridiculous. Is it doing something? Is it enormous? Is it making noise? Tell me what you see in your mind.`;
     }
 
     case "mirror-object-1": {
@@ -118,7 +139,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     case "place-object-2": {
       const a = state.assignments[1];
       if (!a) return "";
-      return `You're at ${a.stopName} now, and I'm handing you ${a.object}.\n\nSame thing, ${name} -- make it yours. What absurd thing is ${a.object} doing at ${a.stopName}? The funnier, the better. Paint me a picture.`;
+      return `You're at ${aStop(1)} now, and I'm handing you ${a.object}.\n\nSame thing, ${name} -- make it yours. What absurd thing is ${a.object} doing at ${aStop(1)}? The funnier, the better. Paint me a picture.`;
     }
 
     case "mirror-object-2": {
@@ -130,20 +151,20 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     case "place-object-3": {
       const a = state.assignments[2];
       if (!a) return "";
-      return `Last one, ${name}. You're at ${a.stopName}, and the object is ${a.object}.\n\nLet your imagination run completely wild on this one. What do you see?`;
+      return `Last one, ${name}. You're at ${aStop(2)}, and the object is ${a.object}.\n\nLet your imagination run completely wild on this one. What do you see?`;
     }
 
     case "mirror-object-3": {
       const scene = state.userScenes[2] || "";
       const snippet = scene.length > 40 ? scene.substring(0, 40).trim() + "..." : scene;
-      return `"${snippet}" -- I love it, ${name}. All three are planted. Your Memory Palace is alive!\n\nNow here comes the real test. I'm going to walk you back through ${state.placeName}, and this time, you tell me what you see at each stop. No pressure -- this is just practice, and whatever you remember is a win.`;
+      return `"${snippet}" -- I love it, ${name}. All three are planted. Your Memory Palace is alive!\n\nNow here comes the real test. I'm going to walk you back through ${place.toLowerCase()}, and this time, you tell me what you see at each stop. No pressure -- this is just practice, and whatever you remember is a win.`;
     }
 
     case "walkthrough-intro":
-      return `Take a breath, ${name}. Close your eyes if you like. You're standing at the entrance of ${state.placeName}. You know this place. You've been here before.\n\nNow, walk to your first stop...`;
+      return `Take a breath, ${name}. Close your eyes if you like. You're standing at the entrance of ${place.toLowerCase()}. You know this place. You've been here before.\n\nNow, walk to your first stop...`;
 
     case "recall-1":
-      return `You're at ${state.assignments[0]?.stopName}. Something strange is happening here. What is it? What do you see, ${name}?`;
+      return `You're at ${aStop(0)}. Something strange is happening here. What is it? What do you see, ${name}?`;
 
     case "react-recall-1": {
       const a = state.assignments[0];
@@ -157,7 +178,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     }
 
     case "recall-2":
-      return `You're at ${state.assignments[1]?.stopName} now. Look around. Something is definitely out of place here. What is it?`;
+      return `You're at ${aStop(1)} now. Look around. Something is definitely out of place here. What is it?`;
 
     case "react-recall-2": {
       const a = state.assignments[1];
@@ -167,11 +188,11 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       if (isCorrect) {
         return `That's the one! ${a?.object}! Oh, ${name}, your palace is working beautifully.\n\nOne more. Last stop...`;
       }
-      return `That was ${a?.object}. Don't you worry, ${name}. Every time you walk through ${state.placeName} in your mind, these pictures get sharper and sharper.\n\nLet's see about your last stop...`;
+      return `That was ${a?.object}. Don't you worry, ${name}. Every time you walk through ${place.toLowerCase()} in your mind, these pictures get sharper and sharper.\n\nLet's see about your last stop...`;
     }
 
     case "recall-3":
-      return `And here you are at ${state.assignments[2]?.stopName}. Last one, ${name}. What wild thing is waiting for you?`;
+      return `And here you are at ${aStop(2)}. Last one, ${name}. What wild thing is waiting for you?`;
 
     case "react-recall-3": {
       const a = state.assignments[2];
@@ -187,15 +208,15 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     case "final": {
       const count = state.correctCount;
       if (count === 3) {
-        return `${name}, three out of three. A perfect walk through your very first Memory Palace. I have to tell you -- that doesn't happen often. You clearly have a wonderful imagination.\n\nYour palace at ${state.placeName} is yours now. Walk through it in your mind tonight before bed, and I bet those images will be even more vivid tomorrow. You can build new palaces for anything -- shopping lists, birthdays, phone numbers. The world is yours, ${name}. I'm so proud of you.`;
+        return `${name}, three out of three. A perfect walk through your very first Memory Palace. I have to tell you -- that doesn't happen often. You clearly have a wonderful imagination.\n\nYour palace at ${place.toLowerCase()} is yours now. Walk through it in your mind tonight before bed, and I bet those images will be even more vivid tomorrow. You can build new palaces for anything -- shopping lists, birthdays, phone numbers. The world is yours, ${name}. I'm so proud of you.`;
       }
       if (count >= 2) {
-        return `${count} out of 3, ${name}! For your very first time? That is genuinely impressive. Your palace at ${state.placeName} is working.\n\nHere's a little secret -- if you walk through it one more time tonight, those images will get even stickier. Every palace gets stronger with practice. I had such a lovely time walking with you today, ${name}. You've got real talent for this.`;
+        return `${count} out of 3, ${name}! For your very first time? That is genuinely impressive. Your palace at ${place.toLowerCase()} is working.\n\nHere's a little secret -- if you walk through it one more time tonight, those images will get even stickier. Every palace gets stronger with practice. I had such a lovely time walking with you today, ${name}. You've got real talent for this.`;
       }
       if (count >= 1) {
-        return `${count} out of 3 -- and ${name}, that is a real start. You know what the best part is? You built a Memory Palace from nothing in just a few minutes. That palace at ${state.placeName}? It's yours. The images are planted.\n\nTry this tonight: close your eyes and walk through ${state.placeName} one more time. Visit ${state.stops[0]}, then ${state.stops[1]}, then ${state.stops[2]}. I think you'll surprise yourself. I believe in you, ${name}.`;
+        return `${count} out of 3 -- and ${name}, that is a real start. You know what the best part is? You built a Memory Palace from nothing in just a few minutes. That palace at ${place.toLowerCase()}? It's yours. The images are planted.\n\nTry this tonight: close your eyes and walk through ${place.toLowerCase()} one more time. Visit ${stop(0)}, then ${stop(1)}, then ${stop(2)}. I think you'll surprise yourself. I believe in you, ${name}.`;
       }
-      return `${name}, listen to me. What you just did took courage. You built a palace at ${state.placeName}, you filled it with wild images, and you walked through it. That is the whole technique, and you just did it.\n\nThe pictures will get clearer. Tonight, try walking through ${state.placeName} in your mind -- ${state.stops[0]}, ${state.stops[1]}, ${state.stops[2]}. Let those funny images drift back. Each time, they'll stick a little more.\n\nI had a wonderful time with you today, ${name}. You've got this. I really mean that.`;
+      return `${name}, listen to me. What you just did took courage. You built a palace at ${place.toLowerCase()}, you filled it with wild images, and you walked through it. That is the whole technique, and you just did it.\n\nThe pictures will get clearer. Tonight, try walking through ${place.toLowerCase()} in your mind -- ${stop(0)}, ${stop(1)}, ${stop(2)}. Let those funny images drift back. Each time, they'll stick a little more.\n\nI had a wonderful time with you today, ${name}. You've got this. I really mean that.`;
     }
 
     default:

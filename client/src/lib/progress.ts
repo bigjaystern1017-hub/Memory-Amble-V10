@@ -5,17 +5,16 @@ export interface LessonDay {
   title: string;
   itemCount: number;
   focus: string;
-  coachNote: string;
+  cleaning: boolean;
+  reverse: boolean;
 }
 
 export const curriculum: LessonDay[] = [
-  { day: 1, title: "The Spark", itemCount: 3, focus: "Vivid Colors", coachNote: "Focus on high-contrast colors. Keep it very encouraging." },
-  { day: 2, title: "The Sensory Hub", itemCount: 5, focus: "Smell and Sound", coachNote: "Ask what the object smells like. Add 2 new stops." },
-  { day: 3, title: "The Action Move", itemCount: 5, focus: "Motion", coachNote: "Make the objects move! A spinning pizza, a dancing duck." },
-  { day: 4, title: "The Scale Up", itemCount: 8, focus: "Spatial Detail", coachNote: "Start moving into a second room of the house." },
-  { day: 5, title: "The Master Walk", itemCount: 10, focus: "Reverse Recall", coachNote: "The big challenge: Walk through all 10 items backwards." },
-  { day: 6, title: "The Palace Wipe", itemCount: 0, focus: "Clearing Space", coachNote: "Teach the fresh breeze technique to clear the palace for new memories." },
-  { day: 7, title: "Real World Utility", itemCount: 5, focus: "Shopping Lists", coachNote: "Use the palace for a real 5-item grocery list." },
+  { day: 1, title: "The Foundation", itemCount: 3, focus: "Vivid Imagery", cleaning: false, reverse: false },
+  { day: 2, title: "The Expansion", itemCount: 5, focus: "Making Space", cleaning: true, reverse: false },
+  { day: 3, title: "The Reverse", itemCount: 5, focus: "Mental Agility", cleaning: true, reverse: true },
+  { day: 4, title: "The Stretch", itemCount: 8, focus: "Volume", cleaning: true, reverse: false },
+  { day: 5, title: "The Graduation", itemCount: 10, focus: "Mastery", cleaning: true, reverse: true },
 ];
 
 export function getLessonDay(dayNumber: number): LessonDay {

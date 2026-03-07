@@ -40,7 +40,7 @@ export interface ConversationState {
 }
 
 export function isReverseRecall(state: ConversationState): boolean {
-  return state.lessonDay?.focus === "Reverse Recall";
+  return state.lessonDay?.reverse === true;
 }
 
 export function recallAssignmentIndex(stepIndex: number, state: ConversationState): number {
@@ -131,24 +131,9 @@ function extractKeyword(objectName: string): string {
     ?.toLowerCase() || "";
 }
 
-function focusPrompt(lesson: LessonDay | null): string {
+function coachPrompt(lesson: LessonDay | null): string {
   if (!lesson) return "";
-  switch (lesson.focus) {
-    case "Vivid Colors":
-      return " Make the colors really pop -- bright red, electric blue, sunshine yellow.";
-    case "Smell and Sound":
-      return " This time, think about what it smells like or sounds like. Add a scent or a noise to the picture.";
-    case "Motion":
-      return " Make it move! Is it spinning, dancing, bouncing, flying?";
-    case "Spatial Detail":
-      return " Pay attention to the space around it -- is it squeezed in a corner? Towering over the room?";
-    case "Reverse Recall":
-      return "";
-    case "Shopping Lists":
-      return " Think of it as a real grocery item sitting at this spot.";
-    default:
-      return "";
-  }
+  return " Remember to make it bold, vivid, and unique to you.";
 }
 
 export function getTimbukMessage(beatId: BeatId, state: ConversationState): string {
@@ -158,7 +143,8 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
   const total = state.itemCount;
   const lesson = state.lessonDay;
   const dayNum = lesson?.day || 1;
-  const isDay6 = lesson?.focus === "Clearing Space";
+  const hasCleaning = lesson?.cleaning === true;
+  const hasReverse = lesson?.reverse === true;
 
   const stop = (i: number) => asStop(state.stops[i] || "");
   const aStop = (i: number) => asStop(state.assignments[i]?.stopName || "");
@@ -212,27 +198,18 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     }
 
     case "welcome":
-      if (isDay6) {
-        return `${name}, today is a different kind of day. We're going to learn how to clear your palace -- make room for fresh memories. Think of it as spring cleaning for your mind.`;
-      }
       if (state.isReturningUser) {
         return `Alright, ${name}, welcome to Day ${dayNum}! Today's focus is ${lesson?.focus || "memory"}. We're working with ${total} items. Let's build!`;
       }
       return `${name}! What a pleasure. I've been looking forward to our walk together. Today we're going to build something really special -- your very own Memory Palace. It's been around for thousands of years, and honestly? It's a lot of fun. Shall we get started?`;
 
     case "ask-place":
-      if (isDay6) {
-        return `Think back to a palace you've already built, ${name}. Which place did you use? Let's revisit it.`;
-      }
       if (state.isReturningUser) {
         return `Think of a place you know well, ${name}. It can be the same one as last time or somewhere new. Where shall we walk today?`;
       }
       return `So here's how this works, ${name}. I want you to think of a place that feels like home to you. Somewhere you could walk through with your eyes closed -- maybe your house, your garden, a favourite shop you've visited a hundred times. Tell me about a place you love.`;
 
     case "react-place":
-      if (isDay6) {
-        return `${cap(place.toLowerCase())} -- perfect. Now close your eyes and picture yourself standing at the entrance. Can you still see it?`;
-      }
       if (state.isReturningUser) {
         return `${cap(place.toLowerCase())} -- lovely choice. Let's find ${total} stops along your path.`;
       }
@@ -264,22 +241,21 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       return "";
 
     case "placement-intro": {
-      const focusNote = lesson ? ` Today's focus: ${lesson.focus}.` : "";
-      return `Right, ${name}, here's where the fun really starts. I've picked ${total} items, and we're going to plant one at each of your stops. The weirder you make the picture, the stickier the memory.${focusNote}`;
+      return `Right, ${name}, here's where the fun really starts. I've picked ${total} items, and we're going to plant one at each of your stops. The weirder you make the picture, the stickier the memory. Make each one bold, vivid, and unique to you.`;
     }
 
     case "place-object": {
       const a = state.assignments[idx];
       if (!a) return "";
       const stopLabel = cap(asStop(a.stopName));
-      const extra = focusPrompt(lesson);
+      const prompt = coachPrompt(lesson);
       if (idx === 0) {
-        return `${stopLabel}. Place ${a.object} right there.${extra} What do you see?`;
+        return `${stopLabel}. Place ${a.object} right there.${prompt} What do you see happening?`;
       }
       if (idx === total - 1) {
-        return `Last one. ${stopLabel}, and it's ${a.object}.${extra} Go wild. What do you see?`;
+        return `Last one. ${stopLabel}, and it's ${a.object}. Go wild, ${name} -- make it yours. What do you see?`;
       }
-      return `${stopLabel}. The item is ${a.object}.${extra} What's happening?`;
+      return `${stopLabel}. The item is ${a.object}. What do you see happening there?`;
     }
 
     case "mirror-object": {
@@ -295,12 +271,10 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     }
 
     case "walkthrough-intro": {
-      const reverseNote = lesson?.focus === "Reverse Recall" ? " And here's the twist, ${name} -- we're walking backwards this time. Start at your last stop." : "";
-      const intro = `Close your eyes if you like, ${name}. You're at the entrance of ${place.toLowerCase()}.${reverseNote.replace("${name}", name)}`;
-      if (lesson?.focus === "Reverse Recall") {
-        return `${intro} Walk to your last stop...`;
+      if (hasReverse) {
+        return `Close your eyes if you like, ${name}. You're at the entrance of ${place.toLowerCase()}. And here's the twist -- we're walking backwards this time. Start at your last stop and work your way back. What do you see?`;
       }
-      return `${intro} Walk to your first stop...`;
+      return `Close your eyes if you like, ${name}. You're at the entrance of ${place.toLowerCase()}. Walk to your first stop...`;
     }
 
     case "recall": {
@@ -339,15 +313,12 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     }
 
     case "palace-wipe": {
-      return `${name}, here's a technique called the Fresh Breeze. Close your eyes. Picture yourself standing at the entrance of ${place.toLowerCase()}. Now imagine a gentle wind blowing through the whole place -- through every room, past every stop. As it passes, it gently sweeps away all the images. The objects float away like leaves.\n\nTake a slow breath. When you open your eyes, the palace is clean -- a blank canvas, ready for new memories whenever you need it.\n\nThat's the Palace Wipe, ${name}. You can use this any time you want to reuse a palace for something new. Your memory is not a cupboard that fills up -- it's a palace that can be refreshed.`;
+      return `${name}, before we finish, let's clear the palace. Close your eyes and picture yourself at the entrance of ${place.toLowerCase()}. Now imagine a gentle breeze blowing through the whole place. As it passes each stop, the images float away like leaves. Take a slow breath. The palace is clean -- ready for new memories whenever you need it.`;
     }
 
     case "final": {
-      if (isDay6) {
-        return `Well done, ${name}. You've learned something important today -- your palaces aren't permanent. They're tools you can refresh and reuse whenever you need them.\n\nTomorrow we're going to put it all together with something practical. I think you're going to love it. See you then!`;
-      }
       const count = state.correctCount;
-      const dayNote = dayNum < 7 ? `\n\nSee you tomorrow for Day ${dayNum + 1}!` : "\n\nYou've completed the full curriculum, " + name + "! You can keep building palaces any time.";
+      const dayNote = dayNum < 5 ? `\n\nSee you tomorrow for Day ${dayNum + 1}!` : "\n\nYou've completed the full curriculum, " + name + "! You can keep building palaces any time.";
       if (count === total) {
         return `${name}, ${count} out of ${total}. A perfect walk! You clearly have a wonderful imagination.\n\nYour palace at ${place.toLowerCase()} is yours now. Walk through it in your mind tonight before bed.${dayNote}`;
       }
@@ -369,7 +340,7 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
   const idx = state.stepIndex;
   const total = state.itemCount;
   const checkInTotal = state.checkInAssignments.length;
-  const isDay6 = state.lessonDay?.focus === "Clearing Space";
+  const hasCleaning = state.lessonDay?.cleaning === true;
 
   switch (current) {
     case "check-in-intro":
@@ -392,7 +363,6 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
       return "react-place";
 
     case "react-place":
-      if (isDay6) return "palace-wipe";
       return "ask-stop";
 
     case "ask-stop":
@@ -423,6 +393,7 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
 
     case "react-recall":
       if (idx < total - 1) return "recall";
+      if (hasCleaning) return "palace-wipe";
       return "final";
 
     case "palace-wipe":

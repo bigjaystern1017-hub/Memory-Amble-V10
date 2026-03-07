@@ -125,7 +125,7 @@ export default function Home() {
     async (currentState: ConversationState): Promise<ConversationState | null> => {
       try {
         const lesson = currentState.lessonDay;
-        const category = lesson?.focus === "Shopping Lists" ? "names" : "objects";
+        const category = "objects";
         const response = await apiRequest("POST", "/api/assign-objects", {
           stops: currentState.stops,
           category,

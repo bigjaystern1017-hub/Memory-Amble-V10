@@ -700,6 +700,13 @@ export default function Home() {
           )}
         </div>
       </div>
+      <button
+        onClick={() => { localStorage.clear(); window.location.reload(); }}
+        className="fixed bottom-2 right-2 z-[9999] px-2 py-1 text-xs text-muted-foreground/50 hover:text-muted-foreground bg-transparent cursor-pointer"
+        data-testid="button-dev-reset"
+      >
+        Dev Reset
+      </button>
     </div>
   );
 }

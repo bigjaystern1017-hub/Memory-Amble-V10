@@ -1,4 +1,5 @@
 import type { Assignment } from "@shared/schema";
+import { BOOTCAMP_CURRICULUM } from "@shared/curriculum";
 
 export interface LessonConfig {
   itemCount: number;
@@ -44,40 +45,16 @@ export function shouldSwitchCategory(dayCount: number, currentCategory: "objects
 }
 
 export function getLessonConfig(level: number, dayCount: number, category: "objects" | "names"): LessonConfig {
-  const cleaning = dayCount > 0;
-  const reverse = dayCount >= 2 && dayCount % 2 === 0;
-
-  let focus = "Vivid Imagery";
-  let title = "The Foundation";
-
-  if (dayCount === 0) {
-    focus = "Vivid Imagery";
-    title = "The Foundation";
-  } else if (level <= 3) {
-    focus = "Building Confidence";
-    title = "Warm Up";
-  } else if (level <= 5) {
-    focus = "Expanding Capacity";
-    title = "The Expansion";
-  } else if (level <= 7) {
-    focus = "Mental Agility";
-    title = "The Stretch";
-  } else {
-    focus = "Mastery";
-    title = "The Challenge";
-  }
-
-  if (reverse) {
-    focus += " + Reverse Recall";
-  }
+  const day = dayCount + 1;
+  const curriculumDay = BOOTCAMP_CURRICULUM.find(c => c.day === day) || BOOTCAMP_CURRICULUM[0];
 
   return {
-    itemCount: level,
+    itemCount: curriculumDay.itemCount,
     category,
-    cleaning,
-    reverse,
-    focus,
-    title,
+    cleaning: curriculumDay.cleaning,
+    reverse: curriculumDay.reverse,
+    focus: curriculumDay.focus,
+    title: curriculumDay.title,
   };
 }
 

@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { ChatMessage } from "@/components/chat-message";
 import { ChatInput } from "@/components/chat-input";
 import { EducationSlides } from "@/components/education-slides";
+import { NameEntry } from "@/components/name-entry";
 import { ProgressBar } from "@/components/progress-bar";
 import {
   type BeatId,
@@ -57,7 +58,7 @@ export default function Amble() {
 
   const isGuest = !isAuthenticated;
 
-  const [phase, setPhase] = useState<"loading" | "education" | "chat">("loading");
+  const [phase, setPhase] = useState<"loading" | "education" | "name" | "chat">("loading");
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentBeat, setCurrentBeat] = useState<BeatId>("welcome");
   const [isTyping, setIsTyping] = useState(false);
@@ -354,21 +355,9 @@ export default function Amble() {
       const educationSeen = localStorage.getItem("memoryamble_education_seen");
       if (!educationSeen) {
         setPhase("education");
-        return;
+      } else {
+        setPhase("name");
       }
-
-      const lesson = getLessonConfig(3, 0, "objects");
-      const s = createFreshState();
-      s.userName = "friend";
-      s.lessonConfig = lesson;
-      s.itemCount = lesson.itemCount;
-      s.category = lesson.category;
-      s.dayCount = 0;
-      updateState(s);
-      setPhase("chat");
-      setTimeout(() => {
-        advanceBeatRef.current("welcome", s);
-      }, 300);
       return;
     }
 
@@ -391,6 +380,11 @@ export default function Amble() {
         const educationSeen = localStorage.getItem("memoryamble_education_seen");
         if (!educationSeen) {
           setPhase("education");
+          return;
+        }
+
+        if (pd.dayCount === 0) {
+          setPhase("name");
           return;
         }
 
@@ -449,14 +443,17 @@ export default function Amble() {
 
   const handleEducationComplete = useCallback(() => {
     localStorage.setItem("memoryamble_education_seen", "true");
+    setPhase("name");
+  }, []);
 
+  const handleNameSubmit = useCallback((enteredName: string) => {
     const lesson = getLessonConfig(
       progressData.currentLevel,
       progressData.dayCount,
       progressData.currentCategory as "objects" | "names"
     );
     const s = createFreshState();
-    s.userName = isGuest ? "friend" : displayName;
+    s.userName = enteredName;
     s.lessonConfig = lesson;
     s.itemCount = lesson.itemCount;
     s.category = lesson.category;
@@ -466,7 +463,7 @@ export default function Amble() {
     setTimeout(() => {
       advanceBeatRef.current("welcome", s);
     }, 200);
-  }, [displayName, isGuest, progressData, updateState]);
+  }, [progressData, updateState]);
 
   const handleContinue = useCallback(async () => {
     if (processingRef.current) return;
@@ -701,6 +698,38 @@ export default function Amble() {
         </header>
         <div className="flex-1 overflow-y-auto">
           <EducationSlides onComplete={handleEducationComplete} />
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === "name") {
+    return (
+      <div className="flex flex-col h-dvh bg-background pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]" data-testid="app-container">
+        <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50 shrink-0">
+          <div className="max-w-3xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center">
+                <Brain className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <h1 className="text-lg font-semibold tracking-tight" data-testid="text-app-title">
+                MemoryAmble
+              </h1>
+            </div>
+            {isGuest ? (
+              <Button variant="outline" size="sm" onClick={() => navigate("/login")} data-testid="button-header-signin">
+                Sign In
+              </Button>
+            ) : (
+              <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-2 text-muted-foreground" data-testid="button-signout">
+                <LogOut className="w-4 h-4" />
+                Sign Out
+              </Button>
+            )}
+          </div>
+        </header>
+        <div className="flex-1 overflow-y-auto">
+          <NameEntry onSubmit={handleNameSubmit} />
         </div>
       </div>
     );

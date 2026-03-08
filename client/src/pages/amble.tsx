@@ -753,6 +753,26 @@ export default function Amble() {
     [typewriterBusy, currentBeat, addUserMessage]
   );
 
+  const handleFinish = useCallback(async () => {
+    const nextDay = progressData.currentDay + 1;
+    
+    if (isGuest) {
+      localStorage.setItem("memory-amble-day", String(nextDay));
+    } else {
+      try {
+        await authFetch("/api/user/current-day", {
+          method: "POST",
+          body: JSON.stringify({ currentDay: nextDay }),
+        });
+      } catch (e) {
+        console.error("Failed to save next day:", e);
+      }
+    }
+    
+    setMessages([]);
+    navigate("/");
+  }, [progressData.currentDay, isGuest, authFetch, navigate]);
+
   const handleNewPalace = () => {
     if (isGuest) {
       navigate("/login");
@@ -898,7 +918,7 @@ export default function Amble() {
         correctCount={resultsSummary.correctCount}
         totalItems={resultsSummary.totalItems}
         streak={resultsSummary.streak}
-        onContinue={() => navigate("/")}
+        onContinue={handleFinish}
       />
     );
   }
@@ -1136,7 +1156,7 @@ export default function Amble() {
                 console.error("Failed to skip to day 2:", e);
               }
             }
-            window.location.href = window.location.pathname;
+            window.location.assign('/');
           }}
           className="px-2 py-1 text-xs text-muted-foreground/50 hover:text-muted-foreground bg-transparent cursor-pointer"
           data-testid="button-dev-skip-day2"

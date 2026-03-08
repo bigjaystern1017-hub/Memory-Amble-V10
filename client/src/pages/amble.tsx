@@ -84,8 +84,11 @@ export default function Amble() {
   const [showSparkButton, setShowSparkButton] = useState(false);
   const [sparkLoading, setSparkLoading] = useState(false);
   const [typewriterBusy, setTypewriterBusy] = useState(false);
-  const [interruptTypewriter, setInterruptTypewriter] = useState(false);
+  const [fastForward, setFastForward] = useState(false);
   const [state, setState] = useState<ConversationState>(createFreshState());
+  
+  const queuedInputRef = useRef<{ text: string; beat: BeatId } | null>(null);
+  const fastForwardTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [resultsSummary, setResultsSummary] = useState({ correctCount: 0, totalItems: 0, streak: 0 });
 
   const [progressData, setProgressData] = useState<ProgressData>({
@@ -157,7 +160,21 @@ export default function Amble() {
       typewriterResolveRef.current = null;
       resolve();
     }
-  }, []);
+    
+    // If there's a queued input or fast-forward, process it after 1 second
+    if (queuedInputRef.current || fastForward) {
+      fastForwardTimeoutRef.current = setTimeout(async () => {
+        setFastForward(false);
+        if (queuedInputRef.current) {
+          processingRef.current = true;
+          const { text } = queuedInputRef.current;
+          queuedInputRef.current = null;
+          await processUserInput(text);
+          processingRef.current = false;
+        }
+      }, 1000);
+    }
+  }, [processUserInput]);
 
   const addTimbukInstant = useCallback(
     (text: string) => {
@@ -640,34 +657,8 @@ export default function Amble() {
     setSparkLoading(false);
   }, [sparkLoading, addTimbukInstant]);
 
-  const handleUserInput = useCallback(
+  const processUserInput = useCallback(
     async (text: string) => {
-      processingRef.current = true;
-      
-      // IMMEDIATE INTERRUPT: Stop ALL typewriter activity
-      setInterruptTypewriter(true);
-      setTypewriterBusy(false);
-      setIsTyping(false);
-      setShowSparkButton(false);
-      
-      // Clear any pending typewriter promise
-      if (typewriterResolveRef.current) {
-        const resolve = typewriterResolveRef.current;
-        typewriterResolveRef.current = null;
-        resolve();
-      }
-      
-      // Remove pending "isTyping" messages from queue
-      setMessages((prev) => {
-        const last = prev[prev.length - 1];
-        if (last && last.sender === "timbuk" && !last.text) {
-          return prev.slice(0, -1);
-        }
-        return prev;
-      });
-      
-      addUserMessage(text);
-
       let s = { ...stateRef.current };
       const beat = currentBeat;
       const idx = s.stepIndex;
@@ -731,11 +722,30 @@ export default function Amble() {
         setCurrentBeat(next);
         await advanceBeatRef.current(next, s);
       }
+    },
+    [currentBeat, updateState]
+  );
+
+  const handleUserInput = useCallback(
+    async (text: string) => {
+      if (processingRef.current) return;
       
-      setInterruptTypewriter(false);
+      addUserMessage(text);
+      setShowSparkButton(false);
+      
+      // If typewriter is busy, fast-forward and queue the input
+      if (typewriterBusy) {
+        queuedInputRef.current = { text, beat: currentBeat };
+        setFastForward(true);
+        return;
+      }
+      
+      // Otherwise, process immediately
+      processingRef.current = true;
+      await processUserInput(text);
       processingRef.current = false;
     },
-    [currentBeat, addUserMessage, updateState]
+    [typewriterBusy, currentBeat, addUserMessage, processUserInput]
   );
 
   const handleNewPalace = () => {
@@ -975,7 +985,7 @@ export default function Amble() {
               text={msg.text}
               typewriter={msg.typewriter && msg.id === lastMessageId}
               onTypewriterDone={msg.id === lastMessageId ? handleTypewriterDone : undefined}
-              interruptSignal={msg.id === lastMessageId && interruptTypewriter}
+              fastForward={msg.id === lastMessageId && fastForward}
             />
           ))}
           {isTyping && <ChatMessage sender="timbuk" text="" isTyping />}

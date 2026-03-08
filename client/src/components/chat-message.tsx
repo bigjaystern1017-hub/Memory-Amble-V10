@@ -10,16 +10,16 @@ interface ChatMessageProps {
   isTyping?: boolean;
   typewriter?: boolean;
   onTypewriterDone?: () => void;
-  interruptSignal?: boolean;
+  fastForward?: boolean;
 }
 
-function TypewriterText({ text, onDone, interruptSignal }: { text: string; onDone?: () => void; interruptSignal?: boolean }) {
+function TypewriterText({ text, onDone, fastForward }: { text: string; onDone?: () => void; fastForward?: boolean }) {
   const [charIndex, setCharIndex] = useState(0);
   const doneRef = useRef(false);
   const containerRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
-    if (interruptSignal && !doneRef.current) {
+    if (fastForward && !doneRef.current) {
       doneRef.current = true;
       setCharIndex(text.length);
       onDone?.();
@@ -39,10 +39,10 @@ function TypewriterText({ text, onDone, interruptSignal }: { text: string; onDon
     }, CHAR_DELAY_MS);
 
     return () => clearTimeout(timer);
-  }, [charIndex, text.length, onDone, interruptSignal, text]);
+  }, [charIndex, text.length, onDone, fastForward, text]);
 
   useEffect(() => {
-    if (interruptSignal || charIndex % 5 === 0) {
+    if (fastForward || charIndex % 5 === 0) {
       if (containerRef.current) {
         const el = containerRef.current.closest("[data-testid='chat-scroll']");
         if (el) {
@@ -52,7 +52,7 @@ function TypewriterText({ text, onDone, interruptSignal }: { text: string; onDon
         }
       }
     }
-  }, [charIndex, interruptSignal]);
+  }, [charIndex, fastForward]);
 
   return (
     <p ref={containerRef} className="text-xl md:text-2xl leading-relaxed whitespace-pre-wrap">
@@ -64,7 +64,7 @@ function TypewriterText({ text, onDone, interruptSignal }: { text: string; onDon
   );
 }
 
-export function ChatMessage({ sender, text, isTyping, typewriter, onTypewriterDone, interruptSignal }: ChatMessageProps) {
+export function ChatMessage({ sender, text, isTyping, typewriter, onTypewriterDone, fastForward }: ChatMessageProps) {
   const isTimbuk = sender === "timbuk";
 
   return (
@@ -107,7 +107,7 @@ export function ChatMessage({ sender, text, isTyping, typewriter, onTypewriterDo
             />
           </div>
         ) : typewriter ? (
-          <TypewriterText text={text} onDone={onTypewriterDone} interruptSignal={interruptSignal} />
+          <TypewriterText text={text} onDone={onTypewriterDone} fastForward={fastForward} />
         ) : (
           <p className="text-xl md:text-2xl leading-relaxed whitespace-pre-wrap">{text}</p>
         )}

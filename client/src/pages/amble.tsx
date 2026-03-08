@@ -5,6 +5,7 @@ import { ChatInput } from "@/components/chat-input";
 import { EducationSlides } from "@/components/education-slides";
 import { NameEntry } from "@/components/name-entry";
 import { ProgressBar } from "@/components/progress-bar";
+import { AmbleResults } from "@/components/amble-results";
 import {
   type BeatId,
   type ConversationState,
@@ -58,7 +59,7 @@ export default function Amble() {
 
   const isGuest = !isAuthenticated;
 
-  const [phase, setPhase] = useState<"loading" | "education" | "name" | "chat">("loading");
+  const [phase, setPhase] = useState<"loading" | "education" | "name" | "chat" | "results">("loading");
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentBeat, setCurrentBeat] = useState<BeatId>("welcome");
   const [isTyping, setIsTyping] = useState(false);
@@ -70,6 +71,7 @@ export default function Amble() {
   const [sparkLoading, setSparkLoading] = useState(false);
   const [typewriterBusy, setTypewriterBusy] = useState(false);
   const [state, setState] = useState<ConversationState>(createFreshState());
+  const [resultsSummary, setResultsSummary] = useState({ correctCount: 0, totalItems: 0, streak: 0 });
 
   const [progressData, setProgressData] = useState<ProgressData>({
     currentDay: 1,
@@ -290,12 +292,22 @@ export default function Amble() {
           currentLevel: nextLevel,
           currentCategory: nextCategory,
           dayCount: nextDayCount,
-          streak: progressData.streak,
+          streak: progressData.streak + 1,
           lastLogin: todayStr(),
         };
         await saveSessionToDB(currentState);
         await savePalaceToDB(currentState.stops);
         await saveProgressToDB(newProgress);
+        
+        setResultsSummary({
+          correctCount: currentState.correctCount,
+          totalItems: currentState.itemCount,
+          streak: newProgress.streak,
+        });
+
+        setTimeout(() => {
+          setPhase("results");
+        }, 500);
         
         if (isGuest) {
           localStorage.setItem("memoryamble_current_day", String(newProgress.currentDay));
@@ -759,6 +771,17 @@ export default function Amble() {
           <NameEntry onSubmit={handleNameSubmit} />
         </div>
       </div>
+    );
+  }
+
+  if (phase === "results") {
+    return (
+      <AmbleResults
+        correctCount={resultsSummary.correctCount}
+        totalItems={resultsSummary.totalItems}
+        streak={resultsSummary.streak}
+        onContinue={() => navigate("/")}
+      />
     );
   }
 

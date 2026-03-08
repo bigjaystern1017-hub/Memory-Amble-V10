@@ -195,12 +195,9 @@ export default function Amble() {
   }, []);
 
   const savePalaceToDB = useCallback(async (stops: string[]) => {
-    if (isGuest) {
-      localStorage.setItem("memory-amble-palace", JSON.stringify(stops));
-      return;
-    }
+    localStorage.setItem("memory-amble-palace", JSON.stringify(stops));
+    if (isGuest) return;
     try {
-      localStorage.setItem("memory-amble-palace", JSON.stringify(stops));
       const locations = stops.map((name, i) => ({
         locationName: name,
         position: i + 1,
@@ -210,9 +207,9 @@ export default function Amble() {
         body: JSON.stringify({ locations }),
       });
     } catch (e) {
-      console.error("Failed to save palace:", e);
+      console.error("Failed to save palace to Supabase:", e);
     }
-  }, [isGuest]);
+  }, [isGuest, authFetch]);
 
   const loadSavedPalace = useCallback(async (): Promise<string[] | null> => {
     const saved = localStorage.getItem("memory-amble-palace");
@@ -255,11 +252,12 @@ export default function Amble() {
         }),
       });
     } catch (e) {
-      console.error("Failed to save session:", e);
+      console.error("Failed to save session to Supabase:", e);
     }
   }, [isGuest]);
 
   const saveProgressToDB = useCallback(async (pd: ProgressData) => {
+    localStorage.setItem("memory-amble-day", String(pd.currentDay));
     if (isGuest) return;
     try {
       const res = await authFetch("/api/progress", {
@@ -281,7 +279,7 @@ export default function Amble() {
         lastLogin: saved.lastLogin,
       });
     } catch (e) {
-      console.error("Failed to save progress:", e);
+      console.error("Failed to save progress to Supabase:", e);
     }
   }, [isGuest]);
 

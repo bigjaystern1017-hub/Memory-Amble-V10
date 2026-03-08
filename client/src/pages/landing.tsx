@@ -28,10 +28,11 @@ export default function Landing() {
             if (res.ok) {
               const progress = await res.json();
               setCurrentDay(progress.currentDay || 1);
+              localStorage.setItem("memory-amble-day", String(progress.currentDay || 1));
             }
           }
         } catch (e) {
-          console.error("Failed to load progress:", e);
+          console.error("Failed to load progress from Supabase:", e);
           setCurrentDay(1);
         }
       } else {

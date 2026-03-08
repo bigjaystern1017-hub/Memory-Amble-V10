@@ -237,8 +237,8 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
 
     case "cleaning-intro": {
       const lastPlace = asPlace(state.lastPalaceName);
-      const lastRoute = state.lastStops.map((s, i) => `${ordinal(i + 1)}, ${asStop(s)}`).join(".\n");
-      return `${name}, before we build anything new, let's clear out the palace from last time. You remember ${lastPlace.toLowerCase()}? Here's the route you walked:\n\n${lastRoute}.\n\nI'll guide you through each one, and you picture the breeze clearing it clean.`;
+      const lastRoute = state.lastStops.map((s, i) => `${ordinal(i + 1)}, ${asStop(s)}`).join(", ");
+      return `${name}! Welcome back to Day ${dayNum}. Let's start by cleaning your ${lastRoute}. Picture them fresh and ready for new memories. I'll guide you through each one.`;
     }
 
     case "cleaning-recall": {

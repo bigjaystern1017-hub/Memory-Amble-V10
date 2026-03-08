@@ -424,6 +424,33 @@ export default function Amble() {
 
     const init = async () => {
       try {
+        const savedName = localStorage.getItem("memory-amble-name");
+        const savedDay = localStorage.getItem("memory-amble-day");
+        const savedPaletteString = localStorage.getItem("memory-amble-palace");
+        
+        if (savedName && savedDay === "2" && savedPaletteString) {
+          const savedPalette = JSON.parse(savedPaletteString);
+          setProgressData({ currentDay: 2, currentLevel: 5, currentCategory: "objects", dayCount: 1, streak: 1, lastLogin: null });
+          const lesson = getLessonConfig(5, 1, "objects");
+          const s = createFreshState();
+          s.userName = savedName;
+          s.placeName = "Your Palace";
+          s.stops = savedPalette;
+          s.isReturningUser = true;
+          s.lessonConfig = lesson;
+          s.itemCount = lesson.itemCount;
+          s.category = lesson.category;
+          s.dayCount = 1;
+          s.lastPalaceName = "Your Palace";
+          s.lastStops = savedPalette;
+          updateState(s);
+          setPhase("chat");
+          setTimeout(() => {
+            advanceBeatRef.current("cleaning-intro", s);
+          }, 300);
+          return;
+        }
+
         const [progressRes, latestSessionRes] = await Promise.all([
           authFetch("/api/progress"),
           authFetch("/api/sessions/latest"),
@@ -1009,7 +1036,13 @@ export default function Amble() {
       </div>
       <div className="fixed bottom-2 right-2 z-[9999] flex flex-col gap-1">
         <button
-          onClick={() => { localStorage.clear(); window.location.reload(); }}
+          onClick={() => { 
+            localStorage.removeItem("memory-amble-day");
+            localStorage.removeItem("memory-amble-palace");
+            localStorage.removeItem("memory-amble-name");
+            localStorage.removeItem("memoryamble_education_seen");
+            window.location.reload();
+          }}
           className="px-2 py-1 text-xs text-muted-foreground/50 hover:text-muted-foreground bg-transparent cursor-pointer"
           data-testid="button-dev-reset"
         >
@@ -1017,9 +1050,11 @@ export default function Amble() {
         </button>
         <button
           onClick={async () => {
-            const dummyPalace = ["Front Door", "Hallway", "Kitchen"];
+            const dummyPalace = ["Front Door", "Kitchen", "Living Room"];
             localStorage.setItem("memory-amble-palace", JSON.stringify(dummyPalace));
             localStorage.setItem("memory-amble-day", "2");
+            localStorage.setItem("memory-amble-name", "Joe");
+            localStorage.setItem("memoryamble_education_seen", "true");
             if (!isGuest) {
               try {
                 const { data: { session } } = await supabase.auth.getSession();

@@ -20,6 +20,7 @@ import {
 } from "@/components/beat-engine";
 import {
   getLessonConfig,
+  getGuestProgressFromDay,
   getNextLevel,
   shouldSwitchCategory,
   todayStr,
@@ -417,54 +418,53 @@ export default function Amble() {
 
     if (isGuest) {
       const educationSeen = localStorage.getItem("memoryamble_education_seen");
-      const savedDay = localStorage.getItem("memory-amble-day");
-      if (savedDay) {
-        setProgressData({
-          currentDay: parseInt(savedDay, 10),
-          currentLevel: 3,
-          currentCategory: "objects",
-          dayCount: 0,
-          streak: 0,
-          lastLogin: null,
-        });
-      }
+      const savedDayRaw = localStorage.getItem("memory-amble-day");
+      const savedDay = savedDayRaw ? parseInt(savedDayRaw, 10) : 1;
+      const guestProgress = getGuestProgressFromDay(savedDay);
+      setProgressData(guestProgress);
+
       if (!educationSeen) {
         setPhase("education");
-      } else {
-        setPhase("name");
+        return;
       }
+
+      if (savedDay > 1) {
+        const savedName = localStorage.getItem("memory-amble-name");
+        const savedPalaceRaw = localStorage.getItem("memory-amble-palace");
+        if (savedName && savedPalaceRaw) {
+          try {
+            const savedPalace = JSON.parse(savedPalaceRaw);
+            const lesson = getLessonConfig(guestProgress.currentLevel, guestProgress.dayCount, guestProgress.currentCategory);
+            const s = createFreshState();
+            s.userName = savedName;
+            s.placeName = "Your Palace";
+            s.stops = savedPalace;
+            s.isReturningUser = true;
+            s.lessonConfig = lesson;
+            s.itemCount = lesson.itemCount;
+            s.category = lesson.category;
+            s.dayCount = guestProgress.dayCount;
+            s.lastPalaceName = "Your Palace";
+            s.lastStops = savedPalace;
+            updateState(s);
+            setPhase("chat");
+            setTimeout(() => {
+              const startBeat: BeatId = lesson.cleaning ? "cleaning-intro" : "placement-intro";
+              advanceBeatRef.current(startBeat, s);
+            }, 300);
+            return;
+          } catch {
+            // fall through to name entry if palace data is corrupt
+          }
+        }
+      }
+
+      setPhase("name");
       return;
     }
 
     const init = async () => {
       try {
-        const savedName = localStorage.getItem("memory-amble-name");
-        const savedDay = localStorage.getItem("memory-amble-day");
-        const savedPaletteString = localStorage.getItem("memory-amble-palace");
-        
-        if (savedName && savedDay === "2" && savedPaletteString) {
-          const savedPalette = JSON.parse(savedPaletteString);
-          setProgressData({ currentDay: 2, currentLevel: 5, currentCategory: "objects", dayCount: 1, streak: 1, lastLogin: null });
-          const lesson = getLessonConfig(5, 1, "objects");
-          const s = createFreshState();
-          s.userName = savedName;
-          s.placeName = "Your Palace";
-          s.stops = savedPalette;
-          s.isReturningUser = true;
-          s.lessonConfig = lesson;
-          s.itemCount = lesson.itemCount;
-          s.category = lesson.category;
-          s.dayCount = 1;
-          s.lastPalaceName = "Your Palace";
-          s.lastStops = savedPalette;
-          updateState(s);
-          setPhase("chat");
-          setTimeout(() => {
-            advanceBeatRef.current("cleaning-intro", s);
-          }, 300);
-          return;
-        }
-
         const [progressRes, latestSessionRes] = await Promise.all([
           authFetch("/api/progress"),
           authFetch("/api/sessions/latest"),
@@ -566,6 +566,7 @@ export default function Amble() {
   }, []);
 
   const handleNameSubmit = useCallback((enteredName: string) => {
+    localStorage.setItem("memory-amble-name", enteredName);
     const lesson = getLessonConfig(
       progressData.currentLevel,
       progressData.dayCount,

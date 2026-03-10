@@ -44,6 +44,26 @@ export function shouldSwitchCategory(dayCount: number, currentCategory: "objects
   return currentCategory;
 }
 
+export function getGuestProgressFromDay(day: number): ProgressData {
+  const map: Record<number, { currentLevel: number; dayCount: number }> = {
+    1: { currentLevel: 3, dayCount: 0 },
+    2: { currentLevel: 5, dayCount: 1 },
+    3: { currentLevel: 5, dayCount: 2 },
+    4: { currentLevel: 8, dayCount: 3 },
+    5: { currentLevel: 10, dayCount: 4 },
+  };
+  const clampedDay = Math.max(1, Math.min(day, 5));
+  const entry = map[clampedDay] || map[5];
+  return {
+    currentDay: day,
+    currentLevel: entry.currentLevel,
+    currentCategory: "objects",
+    dayCount: entry.dayCount,
+    streak: 0,
+    lastLogin: null,
+  };
+}
+
 export function getLessonConfig(level: number, dayCount: number, category: "objects" | "names"): LessonConfig {
   const day = dayCount + 1;
   const curriculumDay = BOOTCAMP_CURRICULUM.find(c => c.day === day) || BOOTCAMP_CURRICULUM[0];

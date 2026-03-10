@@ -14,13 +14,6 @@ export default function Landing() {
     setCurrentDay(localDay ? parseInt(localDay, 10) : 1);
   }, []);
 
-  const skipToDay2 = () => {
-    localStorage.setItem("memory-amble-day", "2");
-    localStorage.setItem("userName", "Joe");
-    localStorage.setItem("palaceLocations", JSON.stringify(["Front Door", "Kitchen", "Living Room"]));
-    window.location.reload();
-  };
-
   return (
     <div className="min-h-dvh bg-background">
       <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
@@ -32,11 +25,6 @@ export default function Landing() {
             <h1 className="text-lg font-semibold tracking-tight">MemoryAmble</h1>
           </div>
           <div className="flex items-center gap-2">
-            {/* DEV BUTTON - DELETE THIS AFTER TESTING */}
-            <Button variant="destructive" size="sm" onClick={skipToDay2}>
-              Skip to Day 2
-            </Button>
-
             {isAuthenticated ? (
               <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-2">
                 <LogOut className="w-4 h-4" /> Sign Out

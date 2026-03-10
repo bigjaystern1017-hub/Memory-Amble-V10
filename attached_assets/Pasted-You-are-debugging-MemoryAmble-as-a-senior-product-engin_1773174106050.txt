@@ -1,0 +1,97 @@
+You are debugging MemoryAmble as a senior product engineer.
+
+This is a surgical debugging task. Do not do a broad rewrite.
+
+PRIMARY GOAL:
+Restore correct GUEST MODE curriculum progression so the app advances from Day 1 to Day 2, Day 3, etc. and loads the correct lesson for each day.
+
+CRITICAL CONTEXT:
+This is a memory training app for seniors teaching the Memory Palace technique.
+The intended guest flow is:
+
+1. First app open
+2. Education / onboarding slides
+3. Name entry
+4. Day 1 lesson
+5. Results / celebration
+6. Return home
+7. Landing shows Continue Day 2
+8. Enter /amble again
+9. App loads the actual Day 2 lesson, not Day 1 again
+
+This used to work in an earlier version.
+The bug appeared after curriculum tweaks plus added results/auth/Supabase work.
+
+CURRENT OBSERVED BUG:
+- The landing page button text is changing day numbers correctly
+- But the actual lesson flow in /amble is NOT progressing correctly
+- Example: landing may show Continue Day 2 or Day 3, but /amble still rolls into the wrong lesson flow / onboarding logic
+
+THIS MEANS:
+The problem is NOT just landing page display.
+The problem is in guest lesson reconstruction / initialization inside /amble.
+
+STRICT RULES:
+- GUEST MODE ONLY. Ignore auth/Supabase unless absolutely necessary.
+- Do NOT refactor broadly.
+- Do NOT change product copy, landing hero text, onboarding slides, education content, or visual design.
+- Do NOT remove the onboarding preamble / first-run education flow.
+- Do NOT solve this with reload hacks.
+- Do NOT touch streaks, paywall logic, or monetization.
+- Preserve the curriculum structure already in the codebase.
+
+TASK:
+Audit the guest-mode progression logic in client/src/pages/amble.tsx and only related minimal files if required.
+
+You must:
+1. Find exactly how guest mode determines which lesson to load.
+2. Find every place guest current day is read from storage.
+3. Find every place guest progress is reconstructed into:
+   - currentDay
+   - currentLevel
+   - dayCount
+   - currentCategory
+4. Find every place getLessonConfig() is called for guests.
+5. Explain in one short paragraph why landing can show Day 3 while /amble still loads the wrong lesson.
+6. Then make the smallest safe patch to make guest progression deterministic and correct.
+
+REQUIRED IMPLEMENTATION:
+Create a single helper for guest progression mapping, such as:
+
+getGuestProgressFromDay(day: number)
+
+Use this mapping:
+- Day 1 => currentDay 1, currentLevel 3, dayCount 0
+- Day 2 => currentDay 2, currentLevel 5, dayCount 1
+- Day 3 => currentDay 3, currentLevel 5, dayCount 2
+- Day 4 => currentDay 4, currentLevel 8, dayCount 3
+- Day 5 => currentDay 5, currentLevel 10, dayCount 4
+
+Then:
+- Use that helper when guest state is initialized from localStorage
+- Use that helper anywhere guest progress is rebuilt after session completion
+- Ensure guest getLessonConfig() uses the corrected reconstructed values
+- Use ONE consistent storage key for guest day progression everywhere
+- If the dev Skip to Day 2 button uses wrong keys or is misleading, remove it entirely instead of patching it
+
+IMPORTANT:
+Before changing code:
+- inspect the current code
+- identify the true source of truth for guest day progression
+- name the exact function(s) causing the mismatch
+
+OUTPUT FORMAT:
+1. One short paragraph explaining root cause
+2. Bullet list of exact files/functions changed
+3. Minimal diff
+4. Very short test plan
+
+TEST PLAN MUST VERIFY:
+- Fresh guest visit shows onboarding/education flow
+- Completing Day 1 returns user home and shows Continue Day 2
+- Re-entering /amble loads Day 2 lesson, not Day 1
+- Same logic works for later days
+- Onboarding preamble / education flow is preserved for first-time users
+
+If you are uncertain, do NOT guess and do NOT rewrite unrelated code.
+Inspect first, then patch minimally.

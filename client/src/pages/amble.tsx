@@ -417,7 +417,7 @@ export default function Amble() {
 
     if (isGuest) {
       const educationSeen = localStorage.getItem("memoryamble_education_seen");
-      const savedDay = localStorage.getItem("memoryamble_current_day");
+      const savedDay = localStorage.getItem("memory-amble-day");
       if (savedDay) {
         setProgressData({
           currentDay: parseInt(savedDay, 10),
@@ -726,9 +726,6 @@ export default function Amble() {
   );
 
   const handleFinish = useCallback(() => {
-    const currentDay = parseInt(localStorage.getItem('currentDay') || '1');
-    const nextDay = currentDay + 1;
-    localStorage.setItem('currentDay', nextDay.toString());
     window.location.href = '/';
   }, []);
 

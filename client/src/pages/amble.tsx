@@ -726,7 +726,7 @@ export default function Amble() {
   );
 
   const handleFinish = useCallback(() => {
-    window.location.href = '/';
+    window.location.reload();
   }, []);
 
   const handleNewPalace = () => {

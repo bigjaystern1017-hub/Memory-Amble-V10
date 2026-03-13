@@ -12,26 +12,18 @@ const openai = new OpenAI({
 });
 
 const RANDOM_OBJECTS = [
-  "a giant rubber duck",
-  "a flaming guitar",
-  "a dancing penguin",
-  "a golden telephone",
-  "a purple elephant",
-  "a singing cactus",
-  "a flying pizza",
-  "a glowing jellyfish",
-  "a tiny dinosaur",
-  "a rainbow umbrella",
-  "a chocolate fountain",
-  "a neon flamingo",
-  "a crystal ball",
-  "a roller-skating cat",
-  "a bubble-blowing fish",
-  "a velvet top hat",
-  "a sparkling diamond shoe",
-  "a giant magnifying glass",
-  "a trumpeting rooster",
-  "a floating teapot",
+  "penguin", "flamingo", "jellyfish", "lobster", "peacock",
+  "sloth", "ostrich", "pelican", "toucan", "platypus",
+  "accordion", "trombone", "tuba", "banjo", "xylophone",
+  "guitar", "jukebox", "typewriter", "telescope", "periscope",
+  "anchor", "canoe", "kayak", "surfboard", "propeller",
+  "globe", "compass", "sundial", "weathervane", "lantern",
+  "beehive", "cactus", "sunflower", "pineapple", "watermelon",
+  "trophy", "crown", "scepter", "monocle", "top hat",
+  "grandfather clock", "abacus", "chessboard", "dartboard", "easel",
+  "fire hydrant", "mailbox", "parking meter", "wheelbarrow", "birdbath",
+  "disco ball", "pinball machine", "bowling ball", "boxing gloves", "fencing sword",
+  "hot air balloon", "parachute", "hang glider", "diving helmet", "astronaut helmet"
 ];
 
 const RANDOM_NAMES = [
@@ -163,7 +155,7 @@ export async function registerRoutes(
 
       const { object, stopName, placeName } = parsed.data;
 
-      const prompt = `You are a warm memory coach. Give ONE short, vivid, funny sentence (15 words max) to help someone visualize "${object}" at "${stopName}" in "${placeName}". Be absurd and sensory. Just the sentence, nothing else.`;
+      const prompt = `The object is just a noun. Create ONE short vivid sentence (15 words max) suggesting how to visualize ${object} at ${stopName} in ${placeName}. Be unexpected and sensory. Just the sentence.`;
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",

@@ -645,6 +645,15 @@ export default function Amble() {
       let s = { ...stateRef.current };
       const beat = currentBeat;
       const idx = s.stepIndex;
+      let nextBeatOverride: BeatId | null = null;
+
+      const isSamePlaceIntent = (input: string): boolean => {
+        return /^(same|same\s+(place|one|spot)|same\s+as\s+(before|last\s+time)|that\s+(same\s+)?one|the\s+same)$/i.test(input.trim());
+      };
+
+      const isConfirmation = (input: string): boolean => {
+        return /^(yes|yeah|yep|yup|sure|ok|okay|correct|that'?s?\s+right|absolutely|definitely|please|go ahead)$/i.test(input.trim());
+      };
 
       switch (beat) {
         case "check-in-recall": {
@@ -665,7 +674,20 @@ export default function Amble() {
         }
 
         case "ask-place":
-          s = { ...s, placeName: text };
+          if (isSamePlaceIntent(text) && s.lastPalaceName) {
+            s = { ...s, placeName: s.lastPalaceName, stops: [] };
+            nextBeatOverride = "confirm-same-place";
+          } else {
+            s = { ...s, placeName: text, stops: [] };
+          }
+          break;
+
+        case "confirm-same-place":
+          if (isConfirmation(text)) {
+            s = { ...s, stops: [] };
+          } else {
+            s = { ...s, placeName: text, stops: [] };
+          }
           break;
 
         case "ask-stop":
@@ -700,7 +722,7 @@ export default function Amble() {
 
       updateState(s);
 
-      const next = getNextBeat(beat, s);
+      const next = nextBeatOverride ?? getNextBeat(beat, s);
       if (next) {
         setCurrentBeat(next);
         await advanceBeatRef.current(next, s);

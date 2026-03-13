@@ -11,6 +11,7 @@ export type BeatId =
   | "react-cleaning"
   | "welcome"
   | "ask-place"
+  | "confirm-same-place"
   | "react-place"
   | "ask-stop"
   | "react-stop"
@@ -110,7 +111,7 @@ function asStop(raw: string): string {
 export function getProgressStep(beatId: BeatId): number {
   const checkInBeats: BeatId[] = ["check-in-intro", "check-in-recall", "react-check-in", "check-in-done"];
   const cleaningBeats: BeatId[] = ["cleaning-intro", "cleaning-recall", "react-cleaning"];
-  const palaceBeats: BeatId[] = ["ask-place", "react-place", "ask-stop", "react-stop", "assigning"];
+  const palaceBeats: BeatId[] = ["ask-place", "confirm-same-place", "react-place", "ask-stop", "react-stop", "assigning"];
   const rememberBeats: BeatId[] = ["placement-intro", "place-object", "mirror-object"];
   const recallBeats: BeatId[] = ["walkthrough-intro", "recall", "react-recall"];
 
@@ -281,6 +282,11 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
         return `Think of a place you know well, ${name}. It can be the same one as last time or somewhere new. Where shall we walk today?`;
       }
       return `So here's how this works, ${name}. I want you to think of a place that feels like home to you. Somewhere you could walk through with your eyes closed -- maybe your house, your garden, a favourite shop you've visited a hundred times. Tell me about a place you love.`;
+
+    case "confirm-same-place": {
+      const prev = asPlace(state.lastPalaceName);
+      return `Back to ${prev.toLowerCase()}? Just say yes to keep it, or tell me somewhere new.`;
+    }
 
     case "react-place":
       if (state.isReturningUser) {
@@ -477,6 +483,9 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
     case "ask-place":
       return "react-place";
 
+    case "confirm-same-place":
+      return "react-place";
+
     case "react-place":
       return "ask-stop";
 
@@ -530,6 +539,7 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
 export function beatNeedsUserInput(beatId: BeatId): boolean {
   return [
     "ask-place",
+    "confirm-same-place",
     "ask-stop",
     "place-object",
     "recall",

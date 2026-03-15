@@ -153,17 +153,29 @@ function extractKeyword(objectName: string): string {
 }
 
 function fuzzyMatch(userAnswer: string, correctObject: string): boolean {
-  const cleanAnswer = userAnswer
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "")
-    .replace(/[^\w]/g, "");
-  const cleanCorrect = correctObject
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "")
-    .replace(/[^\w]/g, "");
-  return cleanAnswer.includes(cleanCorrect) || cleanCorrect.includes(cleanAnswer);
+  const stopWords = new Set(["a", "the", "an", "of", "and", "or", "is", "in", "at", "to", "for"]);
+
+  const getSignificantWords = (str: string): Set<string> => {
+    return new Set(
+      str
+        .toLowerCase()
+        .replace(/[^\w\s]/g, "")
+        .split(/\s+/)
+        .filter((w) => w.length > 0 && !stopWords.has(w))
+    );
+  };
+
+  const answerWords = getSignificantWords(userAnswer);
+  const correctWords = getSignificantWords(correctObject);
+
+  // Check if any significant word from answer appears in correct object
+  for (const word of answerWords) {
+    if (correctWords.has(word)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 function itemLabel(category: "objects" | "names"): string {

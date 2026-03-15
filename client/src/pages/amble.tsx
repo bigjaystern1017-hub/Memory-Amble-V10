@@ -137,29 +137,28 @@ export default function Amble() {
     (text: string): Promise<void> => {
       return new Promise((resolve) => {
         setIsTyping(true);
-        scrollToBottom();
         setTimeout(() => {
           setIsTyping(false);
           const id = ++msgIdRef.current;
           setMessages((prev) => [...prev, { id, sender: "timbuk", text, typewriter: true }]);
           setTypewriterBusy(true);
           typewriterResolveRef.current = resolve;
-          scrollToBottom();
         }, 500);
       });
     },
-    [scrollToBottom]
+    []
   );
 
   const handleTypewriterDone = useCallback(() => {
     setTypewriterBusy(false);
     setFastForward(false);
+    scrollToBottom();
     if (typewriterResolveRef.current) {
       const resolve = typewriterResolveRef.current;
       typewriterResolveRef.current = null;
       resolve();
     }
-  }, []);
+  }, [scrollToBottom]);
 
   const addTimbukInstant = useCallback(
     (text: string) => {

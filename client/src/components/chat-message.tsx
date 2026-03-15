@@ -2,8 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Brain, User } from "lucide-react";
 
-const WORD_DELAY_MS = 100;
-const ANIMATION_DURATION = 0.3;
+const CHAR_DELAY_MS = 40;
 
 interface ChatMessageProps {
   sender: "timbuk" | "gladys";
@@ -16,22 +15,19 @@ interface ChatMessageProps {
 }
 
 function TypewriterText({ text, onDone, fastForward }: { text: string; onDone?: () => void; fastForward?: boolean }) {
-  const [wordIndex, setWordIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
   const doneRef = useRef(false);
   const containerRef = useRef<HTMLParagraphElement>(null);
-  
-  const words = text.split(" ");
-  const totalWords = words.length;
 
   useEffect(() => {
     if (fastForward && !doneRef.current) {
       doneRef.current = true;
-      setWordIndex(totalWords);
+      setCharIndex(text.length);
       onDone?.();
       return;
     }
 
-    if (wordIndex >= totalWords) {
+    if (charIndex >= text.length) {
       if (!doneRef.current) {
         doneRef.current = true;
         onDone?.();
@@ -40,14 +36,14 @@ function TypewriterText({ text, onDone, fastForward }: { text: string; onDone?: 
     }
 
     const timer = setTimeout(() => {
-      setWordIndex((prev) => prev + 1);
-    }, WORD_DELAY_MS);
+      setCharIndex((prev) => prev + 1);
+    }, CHAR_DELAY_MS);
 
     return () => clearTimeout(timer);
-  }, [wordIndex, totalWords, onDone, fastForward]);
+  }, [charIndex, text.length, onDone, fastForward, text]);
 
   useEffect(() => {
-    if (fastForward || wordIndex % 3 === 0) {
+    if (fastForward || charIndex % 5 === 0) {
       if (containerRef.current) {
         const el = containerRef.current.closest("[data-testid='chat-scroll']");
         if (el) {
@@ -57,24 +53,14 @@ function TypewriterText({ text, onDone, fastForward }: { text: string; onDone?: 
         }
       }
     }
-  }, [wordIndex, fastForward]);
+  }, [charIndex, fastForward]);
 
   return (
     <p ref={containerRef} className="text-xl md:text-2xl leading-relaxed whitespace-pre-wrap">
-      {words.map((word, idx) => (
-        <motion.span
-          key={idx}
-          initial={idx < wordIndex ? { opacity: 1, filter: "blur(0px)" } : { opacity: 0, filter: "blur(3px)" }}
-          animate={idx < wordIndex ? { opacity: 1, filter: "blur(0px)" } : { opacity: 0, filter: "blur(3px)" }}
-          transition={{
-            duration: ANIMATION_DURATION,
-            ease: "easeOut",
-          }}
-        >
-          {word}
-          {idx < words.length - 1 && " "}
-        </motion.span>
-      ))}
+      {text.slice(0, charIndex)}
+      {charIndex < text.length && (
+        <span className="inline-block w-0.5 h-5 md:h-6 bg-foreground/40 animate-pulse ml-0.5 align-text-bottom" />
+      )}
     </p>
   );
 }

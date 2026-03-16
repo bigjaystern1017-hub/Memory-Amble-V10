@@ -5,7 +5,7 @@ import { ChatInput } from "@/components/chat-input";
 import { EducationSlides } from "@/components/education-slides";
 import { NameEntry } from "@/components/name-entry";
 import { ProgressBar } from "@/components/progress-bar";
-import { AmbleResults } from "@/components/amble-results";
+import { AmbleResults, type PendingSessionData } from "@/components/amble-results";
 import {
   type BeatId,
   type ConversationState,
@@ -88,6 +88,7 @@ export default function Amble() {
   const [fastForward, setFastForward] = useState(false);
   const [state, setState] = useState<ConversationState>(createFreshState());
   const [resultsSummary, setResultsSummary] = useState({ correctCount: 0, totalItems: 0, streak: 0 });
+  const [pendingSession, setPendingSession] = useState<PendingSessionData | undefined>(undefined);
 
   const [progressData, setProgressData] = useState<ProgressData>({
     currentDay: 1,
@@ -347,6 +348,20 @@ export default function Amble() {
           streak: newProgress.streak,
         });
 
+        if (isGuest) {
+          setPendingSession({
+            date: todayStr(),
+            level: currentState.itemCount,
+            category: currentState.category,
+            score: currentState.correctCount,
+            totalItems: currentState.itemCount,
+            assignments: currentState.assignments,
+            placeName: currentState.placeName,
+            stops: currentState.stops,
+            dayCount: progressData.dayCount,
+          });
+        }
+
         setTimeout(() => {
           setPhase("results");
         }, 500);
@@ -469,7 +484,64 @@ export default function Amble() {
           authFetch("/api/sessions/latest"),
         ]);
 
-        const pd: ProgressData = await progressRes.json();
+        let pd: ProgressData = await progressRes.json();
+
+        // Migrate guest session data if the user just signed up / signed in
+        const pendingSessionStr = localStorage.getItem("memory-amble-pending-session");
+        if (pendingSessionStr && pd.dayCount === 0) {
+          try {
+            const ps: PendingSessionData = JSON.parse(pendingSessionStr);
+            const nextDayCount = ps.dayCount + 1;
+            const nextLevel = getNextLevel(
+              pd.currentLevel,
+              ps.score,
+              ps.totalItems,
+            );
+            const nextCategory = shouldSwitchCategory(nextDayCount, pd.currentCategory as "objects" | "names");
+            const migratedProgress: ProgressData = {
+              currentDay: ps.dayCount + 2,
+              currentLevel: nextLevel,
+              currentCategory: nextCategory,
+              dayCount: nextDayCount,
+              streak: 1,
+              lastLogin: todayStr(),
+            };
+            const locations = ps.stops.map((name, i) => ({ locationName: name, position: i + 1 }));
+            await Promise.all([
+              authFetch("/api/sessions", {
+                method: "POST",
+                body: JSON.stringify({
+                  date: ps.date,
+                  level: ps.level,
+                  category: ps.category,
+                  score: ps.score,
+                  totalItems: ps.totalItems,
+                  assignments: ps.assignments,
+                  placeName: ps.placeName,
+                  stops: ps.stops,
+                }),
+              }),
+              authFetch("/api/palaces", {
+                method: "POST",
+                body: JSON.stringify({ locations }),
+              }),
+              authFetch("/api/progress", {
+                method: "POST",
+                body: JSON.stringify({
+                  currentDay: migratedProgress.currentDay,
+                  currentLevel: migratedProgress.currentLevel,
+                  currentCategory: migratedProgress.currentCategory,
+                  dayCount: migratedProgress.dayCount,
+                }),
+              }),
+            ]);
+            localStorage.removeItem("memory-amble-pending-session");
+            pd = migratedProgress;
+          } catch (e) {
+            console.error("Guest migration failed:", e);
+          }
+        }
+
         setProgressData(pd);
 
         let latestSession: SessionData | null = null;
@@ -897,6 +969,12 @@ export default function Amble() {
         totalItems={resultsSummary.totalItems}
         streak={resultsSummary.streak}
         onContinue={handleFinish}
+        isGuest={isGuest}
+        userName={state.userName}
+        dayCount={progressData.dayCount}
+        placeName={state.placeName}
+        stops={state.stops}
+        pendingSession={pendingSession}
       />
     );
   }

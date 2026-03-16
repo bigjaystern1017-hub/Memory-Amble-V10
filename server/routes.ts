@@ -17,19 +17,18 @@ const openai = new OpenAI({
 });
 
 const RANDOM_OBJECTS = [
-  "penguin", "flamingo", "jellyfish", "lobster", "peacock",
-  "sloth", "ostrich", "pelican", "toucan", "platypus",
-  "accordion", "trombone", "tuba", "banjo", "xylophone",
-  "guitar", "jukebox", "typewriter", "telescope", "periscope",
-  "anchor", "canoe", "kayak", "surfboard", "propeller",
-  "globe", "compass", "sundial", "weathervane", "lantern",
-  "beehive", "cactus", "sunflower", "pineapple", "watermelon",
-  "trophy", "crown", "scepter", "monocle", "top hat",
-  "grandfather clock", "abacus", "chessboard", "dartboard", "easel",
-  "fire hydrant", "mailbox", "parking meter", "wheelbarrow", "birdbath",
-  "disco ball", "pinball machine", "bowling ball", "boxing gloves", "fencing sword",
-  "hot air balloon", "parachute", "hang glider", "diving helmet", "astronaut helmet"
+  "guitar", "violin", "trombone", "accordion", "ladder", "ironing board",
+  "wheelbarrow", "birdbath", "garden gnome", "park bench", "mailbox", "fire hydrant",
+  "traffic cone", "watermelon", "wedding cake", "pineapple", "lobster", "gingerbread house",
+  "rocking horse", "grandfather clock", "typewriter", "jukebox", "telephone booth", "globe",
+  "gramophone", "bowling ball", "trophy", "dartboard", "sunflower", "cactus",
+  "beehive", "fishing rod", "anchor", "canoe", "surfboard",
+  "penguin", "flamingo", "tortoise", "parrot", "goldfish", "swan", "peacock",
+  "telescope", "compass", "lantern", "weathervane", "top hat", "monocle",
+  "crown", "scepter", "disco ball", "pinball machine", "parachute", "hot air balloon"
 ];
+
+const RESTRICTED_ANIMALS = new Set(["penguin", "flamingo", "tortoise", "parrot", "goldfish", "swan", "peacock"]);
 
 const RANDOM_NAMES = [
   "Margaret",
@@ -56,7 +55,26 @@ const RANDOM_NAMES = [
 
 function pickRandom(list: string[], count: number): string[] {
   const shuffled = [...list].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count);
+  const result: string[] = [];
+  let animalCount = 0;
+  
+  for (const item of shuffled) {
+    if (result.length >= count) break;
+    
+    if (RESTRICTED_ANIMALS.has(item)) {
+      // This is a restricted animal
+      if (animalCount === 0) {
+        result.push(item);
+        animalCount++;
+      }
+      // Otherwise skip it since we already have an animal
+    } else {
+      // Not a restricted animal, always add it
+      result.push(item);
+    }
+  }
+  
+  return result;
 }
 
 const assignItemsSchema = z.object({

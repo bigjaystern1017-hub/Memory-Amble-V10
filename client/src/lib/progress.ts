@@ -3,11 +3,12 @@ import { BOOTCAMP_CURRICULUM } from "@shared/curriculum";
 
 export interface LessonConfig {
   itemCount: number;
-  category: "objects" | "names";
+  category: "objects" | "names" | "practical";
   cleaning: boolean;
   reverse: boolean;
   focus: string;
   title: string;
+  graduation?: boolean;
 }
 
 export interface SessionData {
@@ -71,11 +72,12 @@ export function getLessonConfig(level: number, dayCount: number, category: "obje
 
   return {
     itemCount: curriculumDay.itemCount,
-    category,
+    category: (curriculumDay.category as "objects" | "names" | "practical") ?? category,
     cleaning: curriculumDay.cleaning,
     reverse: curriculumDay.reverse,
     focus: curriculumDay.focus,
     title: curriculumDay.title,
+    graduation: curriculumDay.graduation,
   };
 }
 

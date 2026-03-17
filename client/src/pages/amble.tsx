@@ -88,7 +88,7 @@ export default function Amble() {
   const [typewriterBusy, setTypewriterBusy] = useState(false);
   const [fastForward, setFastForward] = useState(false);
   const [state, setState] = useState<ConversationState>(createFreshState());
-  const [resultsSummary, setResultsSummary] = useState({ correctCount: 0, totalItems: 0, streak: 0 });
+  const [resultsSummary, setResultsSummary] = useState({ correctCount: 0, totalItems: 0, streak: 0, justCompletedDay: 0 });
   const [pendingSession, setPendingSession] = useState<PendingSessionData | undefined>(undefined);
 
   const [progressData, setProgressData] = useState<ProgressData>({
@@ -347,6 +347,7 @@ export default function Amble() {
           correctCount: currentState.correctCount,
           totalItems: currentState.itemCount,
           streak: newProgress.streak,
+          justCompletedDay: progressData.dayCount + 1,
         });
 
         if (isGuest) {
@@ -603,6 +604,10 @@ export default function Amble() {
         s.itemCount = lesson.itemCount;
         s.category = lesson.category;
         s.dayCount = pd.dayCount;
+        if (latestSession && latestSession.date !== todayStr()) {
+          s.yesterdayScore = latestSession.score;
+          s.yesterdayTotal = latestSession.totalItems;
+        }
 
         const savedPalace = await loadSavedPalace();
         if (savedPalace && savedPalace.length > 0) {
@@ -1021,6 +1026,7 @@ export default function Amble() {
         isGuest={isGuest}
         userName={state.userName}
         dayCount={progressData.dayCount}
+        currentDay={resultsSummary.justCompletedDay}
         placeName={state.placeName}
         stops={state.stops}
         pendingSession={pendingSession}

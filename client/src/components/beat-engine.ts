@@ -20,6 +20,7 @@ export type BeatId =
   | "place-object"
   | "mirror-object"
   | "walkthrough-intro"
+  | "reverse-intro"
   | "recall"
   | "react-recall"
   | "palace-wipe"
@@ -36,7 +37,7 @@ export interface ConversationState {
   correctCount: number;
   itemCount: number;
   stepIndex: number;
-  category: "objects" | "names";
+  category: "objects" | "names" | "practical";
   checkInAssignments: Assignment[];
   checkInAnswers: string[];
   checkInCorrectCount: number;
@@ -48,6 +49,8 @@ export interface ConversationState {
   lastPalaceName: string;
   lastStops: string[];
   cleaningAnswers: string[];
+  yesterdayScore: number;
+  yesterdayTotal: number;
 }
 
 export function isReverseRecall(state: ConversationState): boolean {
@@ -84,6 +87,8 @@ export function createFreshState(): ConversationState {
     lastPalaceName: "",
     lastStops: [],
     cleaningAnswers: [],
+    yesterdayScore: -1,
+    yesterdayTotal: 0,
   };
 }
 
@@ -121,7 +126,7 @@ export function getProgressStep(beatId: BeatId): number {
   const cleaningBeats: BeatId[] = ["cleaning-intro", "cleaning-recall", "react-cleaning"];
   const palaceBeats: BeatId[] = ["ask-place", "confirm-same-place", "react-place", "ask-stop", "react-stop", "assigning"];
   const rememberBeats: BeatId[] = ["placement-intro", "place-object", "mirror-object"];
-  const recallBeats: BeatId[] = ["walkthrough-intro", "recall", "react-recall"];
+  const recallBeats: BeatId[] = ["walkthrough-intro", "reverse-intro", "recall", "react-recall"];
 
   if (beatId === "welcome") return 0;
   if (checkInBeats.includes(beatId)) return 0;
@@ -186,11 +191,11 @@ function fuzzyMatch(userAnswer: string, correctObject: string): boolean {
   return false;
 }
 
-function itemLabel(category: "objects" | "names"): string {
+function itemLabel(category: "objects" | "names" | "practical"): string {
   return category === "names" ? "names" : "items";
 }
 
-function placeVerb(category: "objects" | "names"): string {
+function placeVerb(category: "objects" | "names" | "practical"): string {
   return category === "names" ? "imagine meeting" : "place";
 }
 
@@ -285,17 +290,49 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       return `${name}, that's cleared. Next...`;
     }
 
-    case "welcome":
-      if (state.isReturningUser && state.stops.length > 0) {
-        const stopsStr = state.stops.slice(0, 3).join(", ");
-        const catLabel = isNames ? "people's names" : `${total} ${itemLabel(cat)}`;
-        return `Welcome back, ${name}! I see we have your ${stopsStr}${state.stops.length > 3 ? ", and more" : ""} ready. Today we're working with ${catLabel} -- let's plant some new memories!`;
+    case "welcome": {
+      const ys = state.yesterdayScore;
+      const yt = state.yesterdayTotal;
+      const isPerfect = yt > 0 && ys === yt;
+      const isGood = yt > 0 && ys >= yt / 2 && !isPerfect;
+
+      if (dayNum === 1) {
+        return `${name}! What a pleasure. I have been looking forward to our walk together. Today we are going to build something really special — your very own Memory Palace. It has been around for thousands of years, and honestly? It is a lot of fun. Shall we get started?`;
       }
-      if (state.isReturningUser) {
-        const catLabel = isNames ? "people's names" : `${total} ${itemLabel(cat)}`;
-        return `Alright, ${name}, welcome to Day ${dayNum}! Today's focus is ${lesson?.focus || "memory"}. We're working with ${catLabel}. Let's build!`;
+      if (dayNum === 2) {
+        if (isPerfect) return `Welcome back, ${name}! Yesterday you remembered every single one — a perfect score on your very first palace. That tells me everything I need to know about you. Every day we work together your memory gets stronger and your palace more vivid. Today we expand. Ready?`;
+        if (isGood) return `Welcome back, ${name}! Yesterday you remembered ${ys} out of ${yt} — and that is a genuinely strong start. Memory palace is a skill and skills take practice. Every day we work together it gets sharper. Today we build on what you started. Ready to expand?`;
+        return `Welcome back, ${name} — and well done for coming back. That is the most important thing. Yesterday was your very first memory palace ever built. The fact that you are here today means the technique is already working on you. Today we go again, and I promise it gets easier. Let us build something together.`;
       }
-      return `${name}! What a pleasure. I've been looking forward to our walk together. Today we're going to build something really special -- your very own Memory Palace. It's been around for thousands of years, and honestly? It's a lot of fun. Shall we get started?`;
+      if (dayNum === 3) {
+        if (isPerfect) return `${name}! Welcome back — and a warm huzzah for everything you have accomplished! Three days in and I am genuinely impressed. You remembered every single one yesterday. You built your palace, expanded it, and cleaned it like a pro. I hope you are noticing little improvements out there in your daily life — because I am certainly seeing them in here. Today we try something new that is going to stretch your memory in a brilliant new direction. Trust me on this one.`;
+        if (isGood) return `${name}! Welcome back — and a warm huzzah for everything you have accomplished! Three days in and you are doing beautifully. Yesterday you got ${ys} out of ${yt} — and every single attempt is strengthening your palace. I hope you are noticing little improvements out there in your daily life. Today we try something new that is going to stretch your memory in a brilliant direction. Trust me on this one.`;
+        return `${name}! Welcome back — and a warm huzzah just for showing up three days in a row. That takes real commitment. Memory palace is a skill — it grows with repetition, not perfection. I promise you, something is clicking in there even when it does not feel like it. Today we try something new. Stay with me.`;
+      }
+      if (dayNum === 4) {
+        if (isPerfect) return `Welcome back, ${name}! Look at you — four days and a perfect score yesterday. Do you know how rare that is? Your memory palace is becoming second nature. Today we stretch to eight stops. A bigger palace. Your mind has been training for exactly this — I promise you are ready.`;
+        if (isGood) return `Welcome back, ${name}! Four days and still going strong — that alone puts you ahead of most. Yesterday you got ${ys} out of ${yt} and every day it gets a little easier. Today we stretch to eight stops. A bigger palace. Your mind is ready for this.`;
+        return `Welcome back, ${name}! Four days. Do you know how rare that is? Most people never make it this far. The palace is building in your mind whether you feel it or not. Today we stretch — eight stops. Stay with me. You are closer than you think.`;
+      }
+      if (dayNum === 5) {
+        if (isPerfect) return `${name}, five days in — and yesterday you were flawless. Today is my absolute favourite because today we stop practicing and start using this for real life. We are going to fill your palace with things you actually need to remember. A grocery list. Appointments. Things from your week. This is what the memory palace was built for.`;
+        if (isGood) return `${name}, five days in and you are doing beautifully. Today is my absolute favourite — because today we make this useful. Real items. Real life. Groceries, appointments, things from your week. This is what the memory palace was always meant for. Ready to see how practical this gets?`;
+        return `${name}, five days. I want you to hear this — showing up every day IS the training. Today we do something different that I think is going to surprise you. We use the palace for real life. Groceries. Appointments. Things you actually need. Sometimes the technique clicks when it gets personal. Let us find out.`;
+      }
+      if (dayNum === 6) {
+        if (isPerfect) return `Welcome back, ${name}! Six days — and yesterday you were remarkable. Today we try something most people find even more useful than objects — names. You are going to a dinner party tonight and you are going to remember every single person you meet. Here is the secret: turn every name into a vivid picture and attach it to the person's most memorable feature. Margaret? A giant magnet on her nose. The sillier the better. Ready?`;
+        if (isGood) return `Welcome back, ${name}! Six days in and your palace is growing stronger every session. Today we try names — and I think this might be your favourite day yet. Turn every name into a vivid picture attached to something memorable about the person. Frederick? Picture him with a Fred Flintstone hat. Silly works. Ready?`;
+        return `Welcome back, ${name}! Six days — that is something to be genuinely proud of. Today we switch things up completely and try names instead of objects. A fresh start, a new challenge. Sometimes a change is exactly what the palace needs. I think today is going to surprise you.`;
+      }
+      if (dayNum === 7) {
+        if (isPerfect) return `${name}. Day seven. Take a breath and feel proud — because what you have done this week is genuinely extraordinary. Yesterday you were flawless. Today you graduate. Ten stops, full walk, reverse recall. Your biggest session yet. And when we are done — I have something special waiting for you. Let us make this one count.`;
+        if (isGood) return `${name}. Day seven. I want you to take a breath and feel proud for a moment. You came in knowing nothing about memory palaces. Look at you now. Today is your graduation — ten stops, full walk, reverse recall. Your biggest session yet. And when we are done, I have something special waiting. Let us finish strong.`;
+        return `${name}. Day seven. Do you realize what you have done? You showed up every single day for a week. That is the whole game. The palace is in you now whether it feels like it or not. Today we do your graduation session — and when we are done, I have something waiting that I think will mean a lot. Let us go.`;
+      }
+      // Days 8+: generic returning user message
+      const catLabel = isNames ? "people's names" : `${total} ${itemLabel(cat)}`;
+      return `Alright, ${name}, welcome to Day ${dayNum}! Today's focus is ${lesson?.focus || "memory"}. We're working with ${catLabel}. Let's build!`;
+    }
 
     case "ask-place":
       if (state.isReturningUser) {
@@ -382,10 +419,11 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     }
 
     case "walkthrough-intro": {
-      if (hasReverse) {
-        return `Close your eyes if you like, ${name}. You're at the entrance of ${place.toLowerCase()}. And here's the twist -- we're walking backwards this time. Start at your last stop and work your way back. What do you see?`;
-      }
-      return `Close your eyes if you like, ${name}. You're at the entrance of ${place.toLowerCase()}. Walk to your first stop...`;
+      return `Now here is the magic part. Close your eyes if you like. Picture yourself back at the entrance of ${place.toLowerCase()}. Just walk. Do not try to remember — just look at each stop. Whatever you placed there will be waiting.`;
+    }
+
+    case "reverse-intro": {
+      return `Same palace, same objects. But this time we start at the end and walk back to the beginning. It sounds harder. It is a little harder. That is the point. Ready?`;
     }
 
     case "recall": {
@@ -530,6 +568,10 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
       return "walkthrough-intro";
 
     case "walkthrough-intro":
+      if (state.lessonConfig?.reverse) return "reverse-intro";
+      return "recall";
+
+    case "reverse-intro":
       return "recall";
 
     case "recall":
@@ -569,7 +611,7 @@ export function beatNeedsUserInput(beatId: BeatId): boolean {
 }
 
 export function beatNeedsContinueButton(beatId: BeatId): boolean {
-  return beatId === "welcome" || beatId === "palace-wipe" || beatId === "check-in-done" || beatId === "cleaning-intro" || beatId === "graduation-offer";
+  return beatId === "welcome" || beatId === "palace-wipe" || beatId === "check-in-done" || beatId === "cleaning-intro" || beatId === "graduation-offer" || beatId === "reverse-intro";
 }
 
 export function getInputPlaceholder(beatId: BeatId, state: ConversationState): string {

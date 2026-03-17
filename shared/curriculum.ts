@@ -1,11 +1,20 @@
-export const BOOTCAMP_CURRICULUM = [
+export const BOOTCAMP_CURRICULUM: {
+  day: number;
+  title: string;
+  focus: string;
+  itemCount: number;
+  cleaning: boolean;
+  reverse: boolean;
+  category?: "objects" | "names" | "practical";
+  graduation?: boolean;
+}[] = [
   { day: 1, title: "The Foundation", focus: "Vivid Imagery", itemCount: 3, cleaning: false, reverse: false },
   { day: 2, title: "The Expansion", focus: "Making Space", itemCount: 5, cleaning: true, reverse: false },
   { day: 3, title: "The Reverse", focus: "Mental Agility", itemCount: 5, cleaning: true, reverse: true },
   { day: 4, title: "The Stretch", focus: "Volume", itemCount: 8, cleaning: true, reverse: false },
-  { day: 5, title: "The Graduation", focus: "Mastery", itemCount: 10, cleaning: true, reverse: true },
-  { day: 6, title: "The Deepening", focus: "Vivid Imagery", itemCount: 8, cleaning: false, reverse: false },
-  { day: 7, title: "The Layering", focus: "Making Space", itemCount: 8, cleaning: true, reverse: false },
+  { day: 5, title: "The Practical", focus: "Real Life", itemCount: 8, cleaning: true, reverse: false, category: "practical" },
+  { day: 6, title: "The Names", focus: "Faces & Names", itemCount: 8, cleaning: false, reverse: false, category: "names" },
+  { day: 7, title: "The Graduation", focus: "Mastery", itemCount: 10, cleaning: true, reverse: true, graduation: true },
   { day: 8, title: "The Architecture", focus: "Mental Agility", itemCount: 8, cleaning: true, reverse: true },
   { day: 9, title: "The Navigator", focus: "Volume", itemCount: 8, cleaning: true, reverse: false },
   { day: 10, title: "The Double Down", focus: "Mastery", itemCount: 8, cleaning: true, reverse: true },

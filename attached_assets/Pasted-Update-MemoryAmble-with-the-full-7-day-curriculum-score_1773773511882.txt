@@ -1,0 +1,65 @@
+Update MemoryAmble with the full 7-day curriculum, score-aware welcome messages, practical items for Day 5, confetti on perfect scores, and a Day 7 graduation screen. Here is everything to implement:
+1. IN shared/curriculum.ts:
+- Update Day 5 to use category 'practical'
+- Update Day 6 to use category 'names'
+- Add a graduation: true flag to Day 7
+- Make sure days 1-7 all exist with correct itemCount, cleaning, and reverse flags
+2. IN server/routes.ts:
+- Add a PRACTICAL_ITEMS array: 'milk', 'bread', 'eggs', 'call the doctor', 'pick up prescription', 'water the plants', 'pay the bills', 'call Sarah', 'dentist appointment', 'buy birthday card', 'return library books', 'take vitamins'
+- When category is 'practical', pick from PRACTICAL_ITEMS instead of RANDOM_OBJECTS
+- Keep the existing one-animal-per-session rule for RANDOM_OBJECTS
+3. IN amble.tsx:
+- When initializing a returning user session, fetch their most recent session from /api/sessions/latest and extract score and totalItems
+- Pass these as yesterdayScore and yesterdayTotal props into the beat engine
+4. IN beat-engine.ts, update ALL day welcome messages with these exact strings. For days 2-7, use three variants based on yesterdayScore vs yesterdayTotal:
+DAY 1 welcome (no variants needed):
+"[Name]! What a pleasure. I have been looking forward to our walk together. Today we are going to build something really special — your very own Memory Palace. It has been around for thousands of years, and honestly? It is a lot of fun. Shall we get started?"
+DAY 2 welcome — perfect score variant (yesterdayScore === yesterdayTotal):
+"Welcome back, [Name]! Yesterday you remembered every single one — a perfect score on your very first palace. That tells me everything I need to know about you. Every day we work together your memory gets stronger and your palace more vivid. Today we expand. Ready?"
+DAY 2 welcome — good score variant (yesterdayScore >= yesterdayTotal/2):
+"Welcome back, [Name]! Yesterday you remembered [yesterdayScore] out of [yesterdayTotal] — and that is a genuinely strong start. Memory palace is a skill and skills take practice. Every day we work together it gets sharper. Today we build on what you started. Ready to expand?"
+DAY 2 welcome — struggling variant (yesterdayScore < yesterdayTotal/2):
+"Welcome back, [Name] — and well done for coming back. That is the most important thing. Yesterday was your very first memory palace ever built. The fact that you are here today means the technique is already working on you. Today we go again, and I promise it gets easier. Let us build something together."
+DAY 3 welcome — perfect:
+"[Name]! Welcome back — and a warm huzzah for everything you have accomplished! Three days in and I am genuinely impressed. You remembered every single one yesterday. You built your palace, expanded it, and cleaned it like a pro. I hope you are noticing little improvements out there in your daily life — because I am certainly seeing them in here. Today we try something new that is going to stretch your memory in a brilliant new direction. Trust me on this one."
+DAY 3 welcome — good:
+"[Name]! Welcome back — and a warm huzzah for everything you have accomplished! Three days in and you are doing beautifully. Yesterday you got [yesterdayScore] out of [yesterdayTotal] — and every single attempt is strengthening your palace. I hope you are noticing little improvements out there in your daily life. Today we try something new that is going to stretch your memory in a brilliant direction. Trust me on this one."
+DAY 3 welcome — struggling:
+"[Name]! Welcome back — and a warm huzzah just for showing up three days in a row. That takes real commitment. Memory palace is a skill — it grows with repetition, not perfection. I promise you, something is clicking in there even when it does not feel like it. Today we try something new. Stay with me."
+DAY 4 welcome — perfect:
+"Welcome back, [Name]! Look at you — four days and a perfect score yesterday. Do you know how rare that is? Your memory palace is becoming second nature. Today we stretch to eight stops. A bigger palace. Your mind has been training for exactly this — I promise you are ready."
+DAY 4 welcome — good:
+"Welcome back, [Name]! Four days and still going strong — that alone puts you ahead of most. Yesterday you got [yesterdayScore] out of [yesterdayTotal] and every day it gets a little easier. Today we stretch to eight stops. A bigger palace. Your mind is ready for this."
+DAY 4 welcome — struggling:
+"Welcome back, [Name]! Four days. Do you know how rare that is? Most people never make it this far. The palace is building in your mind whether you feel it or not. Today we stretch — eight stops. Stay with me. You are closer than you think."
+DAY 5 welcome — perfect:
+"[Name], five days in — and yesterday you were flawless. Today is my absolute favourite because today we stop practicing and start using this for real life. We are going to fill your palace with things you actually need to remember. A grocery list. Appointments. Things from your week. This is what the memory palace was built for."
+DAY 5 welcome — good:
+"[Name], five days in and you are doing beautifully. Today is my absolute favourite — because today we make this useful. Real items. Real life. Groceries, appointments, things from your week. This is what the memory palace was always meant for. Ready to see how practical this gets?"
+DAY 5 welcome — struggling:
+"[Name], five days. I want you to hear this — showing up every day IS the training. Today we do something different that I think is going to surprise you. We use the palace for real life. Groceries. Appointments. Things you actually need. Sometimes the technique clicks when it gets personal. Let us find out."
+DAY 6 welcome — perfect:
+"Welcome back, [Name]! Six days — and yesterday you were remarkable. Today we try something most people find even more useful than objects — names. You are going to a dinner party tonight and you are going to remember every single person you meet. Here is the secret: turn every name into a vivid picture and attach it to the person's most memorable feature. Margaret? A giant magnet on her nose. The sillier the better. Ready?"
+DAY 6 welcome — good:
+"Welcome back, [Name]! Six days in and your palace is growing stronger every session. Today we try names — and I think this might be your favourite day yet. Turn every name into a vivid picture attached to something memorable about the person. Frederick? Picture him with a Fred Flintstone hat. Silly works. Ready?"
+DAY 6 welcome — struggling:
+"Welcome back, [Name]! Six days — that is something to be genuinely proud of. Today we switch things up completely and try names instead of objects. A fresh start, a new challenge. Sometimes a change is exactly what the palace needs. I think today is going to surprise you."
+DAY 7 welcome — perfect:
+"[Name]. Day seven. Take a breath and feel proud — because what you have done this week is genuinely extraordinary. Yesterday you were flawless. Today you graduate. Ten stops, full walk, reverse recall. Your biggest session yet. And when we are done — I have something special waiting for you. Let us make this one count."
+DAY 7 welcome — good:
+"[Name]. Day seven. I want you to take a breath and feel proud for a moment. You came in knowing nothing about memory palaces. Look at you now. Today is your graduation — ten stops, full walk, reverse recall. Your biggest session yet. And when we are done, I have something special waiting. Let us finish strong."
+DAY 7 welcome — struggling:
+"[Name]. Day seven. Do you realize what you have done? You showed up every single day for a week. That is the whole game. The palace is in you now whether it feels like it or not. Today we do your graduation session — and when we are done, I have something waiting that I think will mean a lot. Let us go."
+5. Add a pre-recall explanation beat on ALL days, shown before the recall phase begins:
+"Now here is the magic part. Close your eyes if you like. Picture yourself back at the entrance of [place]. Just walk. Do not try to remember — just look at each stop. Whatever you placed there will be waiting."
+6. Add a pre-reverse explanation beat on days where reverse is true:
+"Same palace, same objects. But this time we start at the end and walk back to the beginning. It sounds harder. It is a little harder. That is the point. Ready?"
+7. IN amble-results.tsx:
+- Add confetti animation when score === totalItems (perfect score). Use simple CSS — small amber and cream colored squares falling from the top of the screen using keyframe animation.
+- Add a special graduation screen that shows when currentDay === 7 and score >= totalItems * 0.8. The screen should display:
+'[Name]. Stop for a moment. Look what you did this week. You built your first Memory Palace. Cleaned it. Walked it forward and backward. Used it for real life. Learned names. Seven days ago you had never heard of a Memory Palace. Today you have one. That is not nothing, [Name]. That is actually extraordinary.'
+Then show a badge graphic — a warm amber circle with the words Memory Wiz in the center in a serif font.
+Then show:
+'Wear it proudly. Rest that noggin this weekend. When you come back, we start Week 2. Good memorizing, [Name]. Over and out.'
+- Add a Save Badge button that uses the Canvas API to generate a simple shareable image of the badge with the user's name
+8. Do not break any existing functionality. Guest users should still work. The paywall bypass for beta should remain in place. Run a check after all changes to confirm the app compiles cleanly

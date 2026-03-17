@@ -30,6 +30,12 @@ const RANDOM_OBJECTS = [
 
 const RESTRICTED_ANIMALS = new Set(["penguin", "flamingo", "tortoise", "parrot", "goldfish", "swan", "peacock"]);
 
+const PRACTICAL_ITEMS = [
+  "milk", "bread", "eggs", "call the doctor", "pick up prescription",
+  "water the plants", "pay the bills", "call Sarah", "dentist appointment",
+  "buy birthday card", "return library books", "take vitamins",
+];
+
 const RANDOM_NAMES = [
   "Margaret",
   "Frederick",
@@ -79,7 +85,7 @@ function pickRandom(list: string[], count: number): string[] {
 
 const assignItemsSchema = z.object({
   stops: z.array(z.string()).min(1).max(10),
-  category: z.enum(["objects", "names"]).default("objects"),
+  category: z.enum(["objects", "names", "practical"]).default("objects"),
 });
 
 const sparkSchema = z.object({
@@ -125,7 +131,8 @@ export async function registerRoutes(
     }
 
     const { stops, category } = parsed.data;
-    let pool = category === "names" ? RANDOM_NAMES : RANDOM_OBJECTS;
+    const basePool = category === "names" ? RANDOM_NAMES : category === "practical" ? PRACTICAL_ITEMS : RANDOM_OBJECTS;
+    let pool = [...basePool];
 
     // If user is authenticated, exclude objects from their last 3 sessions
     if (req.user?.id) {
@@ -151,12 +158,12 @@ export async function registerRoutes(
 
         // If we filtered out too many, fall back to full pool
         if (pool.length < stops.length) {
-          pool = category === "names" ? RANDOM_NAMES : RANDOM_OBJECTS;
+          pool = [...basePool];
         }
       } catch (error) {
         console.error("Error excluding previous objects:", error);
         // Fall back to full pool on error
-        pool = category === "names" ? RANDOM_NAMES : RANDOM_OBJECTS;
+        pool = [...basePool];
       }
     }
 

@@ -614,6 +614,19 @@ export function beatNeedsContinueButton(beatId: BeatId): boolean {
   return beatId === "welcome" || beatId === "palace-wipe" || beatId === "check-in-done" || beatId === "cleaning-intro" || beatId === "graduation-offer" || beatId === "reverse-intro";
 }
 
+const STRUGGLE_PHRASES = [
+  "stuck", "help", "i don't know", "i dont know", "no idea",
+  "what was it", "forgot", "idk", "hint",
+];
+
+export function isStrugglePhrase(text: string): boolean {
+  const lower = text.toLowerCase().trim();
+  if (lower === "?") return true;
+  return STRUGGLE_PHRASES.some(
+    (p) => lower === p || (lower.length < 35 && lower.includes(p))
+  );
+}
+
 export function getInputPlaceholder(beatId: BeatId, state: ConversationState): string {
   const isNames = state.category === "names";
   switch (beatId) {

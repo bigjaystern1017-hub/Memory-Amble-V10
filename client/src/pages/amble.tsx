@@ -17,6 +17,7 @@ import {
   getInputPlaceholder,
   getProgressStep,
   recallAssignmentIndex,
+  isStrugglePhrase,
 } from "@/components/beat-engine";
 import {
   getLessonConfig,
@@ -85,6 +86,8 @@ export default function Amble() {
   const [genError, setGenError] = useState(false);
   const [showSparkButton, setShowSparkButton] = useState(false);
   const [sparkLoading, setSparkLoading] = useState(false);
+  const [recallHint, setRecallHint] = useState<string | null>(null);
+  const [recallHintLoading, setRecallHintLoading] = useState(false);
   const [typewriterBusy, setTypewriterBusy] = useState(false);
   const [fastForward, setFastForward] = useState(false);
   const [state, setState] = useState<ConversationState>(createFreshState());
@@ -387,6 +390,7 @@ export default function Amble() {
       if (beatNeedsUserInput(beat)) {
         setInputEnabled(true);
         setShowSparkButton(beat === "place-object");
+        if (beat !== "recall") setRecallHint(null);
         return;
       }
 
@@ -750,6 +754,32 @@ export default function Amble() {
     setSparkLoading(false);
   }, [sparkLoading, addTimbukInstant]);
 
+  const handleRecallHint = useCallback(async () => {
+    if (recallHintLoading) return;
+    const s = stateRef.current;
+    const ri = recallAssignmentIndex(s.stepIndex, s);
+    const assignment = s.assignments[ri];
+    if (!assignment) return;
+
+    setRecallHintLoading(true);
+    try {
+      const response = await fetch("/api/spark", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          object: assignment.object,
+          stopName: assignment.stopName,
+          placeName: s.placeName,
+        }),
+      });
+      const data = await response.json();
+      setRecallHint(data.spark || "Close your eyes and picture that stop — something is waiting there for you.");
+    } catch {
+      setRecallHint("Close your eyes and picture that stop — something strange is waiting there for you.");
+    }
+    setRecallHintLoading(false);
+  }, [recallHintLoading]);
+
   const processUserInput = useCallback(
     async (text: string) => {
       let s = { ...stateRef.current };
@@ -848,14 +878,42 @@ export default function Amble() {
     async (text: string) => {
       if (processingRef.current) return;
       processingRef.current = true;
-      
+
       addUserMessage(text);
       setShowSparkButton(false);
-      
+
+      // Detect struggle phrases during recall — re-prompt without counting wrong
+      if (currentBeat === "recall" && isStrugglePhrase(text)) {
+        const s = stateRef.current;
+        const ri = recallAssignmentIndex(s.stepIndex, s);
+        const assignment = s.assignments[ri];
+        if (assignment) {
+          try {
+            const response = await fetch("/api/spark", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                object: assignment.object,
+                stopName: assignment.stopName,
+                placeName: s.placeName,
+              }),
+            });
+            const data = await response.json();
+            const sparkText = data.spark || "Close your eyes and picture that stop...";
+            setRecallHint(sparkText);
+            addTimbukInstant(`No worries. Here is a little nudge: "${sparkText}" — have another look. What do you see?`);
+          } catch {
+            addTimbukInstant("That is perfectly fine. Close your eyes, picture yourself at that stop, and tell me the first thing you see.");
+          }
+        }
+        processingRef.current = false;
+        return;
+      }
+
       await processUserInputRef.current?.(text);
       processingRef.current = false;
     },
-    [addUserMessage]
+    [addUserMessage, addTimbukInstant, currentBeat]
   );
 
   const handleFinish = useCallback(() => {
@@ -1250,11 +1308,34 @@ export default function Amble() {
             </div>
           ) : (
             <div className="space-y-2">
-              <ChatInput
-                onSend={handleUserInput}
-                placeholder={getInputPlaceholder(currentBeat, state)}
-                disabled={!inputEnabled || isTyping || typewriterBusy}
-              />
+              {recallHint && currentBeat === "recall" && (
+                <div className="px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 flex items-start gap-2" data-testid="recall-hint-display">
+                  <Lightbulb className="w-3.5 h-3.5 text-primary/60 mt-0.5 shrink-0" />
+                  <p className="text-xs text-muted-foreground italic leading-snug">{recallHint}</p>
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <ChatInput
+                    onSend={handleUserInput}
+                    placeholder={getInputPlaceholder(currentBeat, state)}
+                    disabled={!inputEnabled || isTyping || typewriterBusy}
+                  />
+                </div>
+                {currentBeat === "recall" && inputEnabled && !typewriterBusy && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRecallHint}
+                    disabled={recallHintLoading}
+                    className="shrink-0 h-14 px-3 text-xs text-muted-foreground hover:text-primary gap-1.5 border border-border/50 rounded-xl"
+                    data-testid="button-recall-hint"
+                  >
+                    <Lightbulb className="w-3.5 h-3.5" />
+                    {recallHintLoading ? "..." : "Hint?"}
+                  </Button>
+                )}
+              </div>
               {showSparkButton && inputEnabled && !typewriterBusy && (
                 <div className="flex justify-center">
                   <Button

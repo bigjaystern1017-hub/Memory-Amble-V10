@@ -390,7 +390,7 @@ export default function Amble() {
       if (beatNeedsUserInput(beat)) {
         setInputEnabled(true);
         setShowSparkButton(beat === "place-object");
-        if (beat !== "recall") setRecallHint(null);
+        setRecallHint(null);
         return;
       }
 
@@ -891,6 +891,7 @@ export default function Amble() {
 
       addUserMessage(text);
       setShowSparkButton(false);
+      if (currentBeat === "recall") setRecallHint(null);
 
       // Detect struggle phrases during recall — re-prompt without counting wrong
       if (currentBeat === "recall" && isStrugglePhrase(text)) {

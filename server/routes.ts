@@ -185,13 +185,20 @@ export async function registerRoutes(
 
       const { object, stopName, placeName } = parsed.data;
 
-      const prompt = `The object is just a noun. Create ONE short vivid sentence (15 words max) suggesting how to visualize ${object} at ${stopName} in ${placeName}. Be unexpected and sensory. Just the sentence.`;
-
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
-        messages: [{ role: "user", content: prompt }],
+        messages: [
+          {
+            role: "system",
+            content: `You are a warm memory coach. The user is trying to remember what they placed at a location. Give a short sensory nudge (10 words max) that hints at the feeling or action without naming the object directly. For example if the object is accordion say something like: think music... something you squeeze... it makes a sound. Never say the object name.`,
+          },
+          {
+            role: "user",
+            content: `The object is: ${object}. The location is: ${stopName} in ${placeName}. Give the hint now.`,
+          },
+        ],
         temperature: 1.0,
-        max_tokens: 60,
+        max_tokens: 40,
       });
 
       const spark = response.choices[0]?.message?.content?.trim() || "";

@@ -270,10 +270,8 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       return `${correct} out of ${ciTotal}. The palace is still there, ${name} -- it just needs a bit more practice. Let's build some new memories today.`;
     }
 
-    case "cleaning-intro": {
-      const lastRoute = state.lastStops.map((s) => asStop(s)).join(", ");
-      return `${name}! Welcome back. Let's clean ${lastRoute}.`;
-    }
+    case "cleaning-intro":
+      return "";
 
     case "cleaning-recall": {
       const idx = state.stepIndex;

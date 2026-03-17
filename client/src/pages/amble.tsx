@@ -401,12 +401,17 @@ export default function Amble() {
           (beat === "react-stop" && next === "ask-stop") ||
           (beat === "mirror-object" && next === "place-object") ||
           (beat === "react-recall" && next === "recall") ||
-          (beat === "react-check-in" && next === "check-in-recall")
+          (beat === "react-check-in" && next === "check-in-recall") ||
+          (beat === "cleaning-walkthrough" && next === "cleaning-walkthrough")
         ) {
           nextState = { ...currentState, stepIndex: currentState.stepIndex + 1 };
           updateState(nextState);
         }
         if (beat === "react-stop" && next === "assigning") {
+          nextState = { ...currentState, stepIndex: 0 };
+          updateState(nextState);
+        }
+        if (beat === "cleaning-walkthrough-done" && next === "ask-place") {
           nextState = { ...currentState, stepIndex: 0 };
           updateState(nextState);
         }
@@ -611,6 +616,11 @@ export default function Amble() {
         if (latestSession && latestSession.date !== todayStr()) {
           s.yesterdayScore = latestSession.score;
           s.yesterdayTotal = latestSession.totalItems;
+        }
+        // Pre-session palace cleaning: populate previous session data for Days 2+
+        if (pd.dayCount > 0 && latestSession && Array.isArray(latestSession.assignments) && latestSession.assignments.length > 0) {
+          s.preCleanAssignments = latestSession.assignments;
+          s.preCleanStops = Array.isArray(latestSession.stops) ? latestSession.stops : [];
         }
 
         const savedPalace = await loadSavedPalace();

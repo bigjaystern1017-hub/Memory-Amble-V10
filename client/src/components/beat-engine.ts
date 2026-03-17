@@ -9,6 +9,9 @@ export type BeatId =
   | "cleaning-intro"
   | "cleaning-recall"
   | "react-cleaning"
+  | "pre-clean"
+  | "cleaning-walkthrough"
+  | "cleaning-walkthrough-done"
   | "welcome"
   | "ask-place"
   | "confirm-same-place"
@@ -51,6 +54,8 @@ export interface ConversationState {
   cleaningAnswers: string[];
   yesterdayScore: number;
   yesterdayTotal: number;
+  preCleanStops: string[];
+  preCleanAssignments: Assignment[];
 }
 
 export function isReverseRecall(state: ConversationState): boolean {
@@ -89,6 +94,8 @@ export function createFreshState(): ConversationState {
     cleaningAnswers: [],
     yesterdayScore: -1,
     yesterdayTotal: 0,
+    preCleanStops: [],
+    preCleanAssignments: [],
   };
 }
 
@@ -124,6 +131,7 @@ function withYour(stopName: string): string {
 export function getProgressStep(beatId: BeatId): number {
   const checkInBeats: BeatId[] = ["check-in-intro", "check-in-recall", "react-check-in", "check-in-done"];
   const cleaningBeats: BeatId[] = ["cleaning-intro", "cleaning-recall", "react-cleaning"];
+  const preCleanBeats: BeatId[] = ["pre-clean", "cleaning-walkthrough", "cleaning-walkthrough-done"];
   const palaceBeats: BeatId[] = ["ask-place", "confirm-same-place", "react-place", "ask-stop", "react-stop", "assigning"];
   const rememberBeats: BeatId[] = ["placement-intro", "place-object", "mirror-object"];
   const recallBeats: BeatId[] = ["walkthrough-intro", "reverse-intro", "recall", "react-recall"];
@@ -131,6 +139,7 @@ export function getProgressStep(beatId: BeatId): number {
   if (beatId === "welcome") return 0;
   if (checkInBeats.includes(beatId)) return 0;
   if (cleaningBeats.includes(beatId)) return 0;
+  if (preCleanBeats.includes(beatId)) return 1;
   if (palaceBeats.includes(beatId)) return 1;
   if (rememberBeats.includes(beatId)) return 2;
   if (recallBeats.includes(beatId)) return 3;
@@ -288,6 +297,21 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
         return `Perfect. The palace is clean now, ${name}. Ready for something new.`;
       }
       return `${name}, that's cleared. Next...`;
+    }
+
+    case "pre-clean": {
+      return `Before we build today, let's clear your palace from yesterday. You left some vivid things in there — let us make sure they float away so you have fresh space for today.`;
+    }
+
+    case "cleaning-walkthrough": {
+      const a = state.preCleanAssignments[idx];
+      if (!a) return "";
+      const stopLabel = withYour(asStop(a.stopName));
+      return `At ${stopLabel}, you left a ${a.object}. Picture it clearly... now watch it lift away on the breeze.`;
+    }
+
+    case "cleaning-walkthrough-done": {
+      return `The palace is clean. Fresh. Ready for today.`;
     }
 
     case "welcome": {
@@ -535,7 +559,18 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
       if (idx < state.lastStops.length - 1) return "cleaning-recall";
       return "welcome";
 
+    case "pre-clean":
+      return "cleaning-walkthrough";
+
+    case "cleaning-walkthrough":
+      if (idx < state.preCleanAssignments.length - 1) return "cleaning-walkthrough";
+      return "cleaning-walkthrough-done";
+
+    case "cleaning-walkthrough-done":
+      return "ask-place";
+
     case "welcome":
+      if (state.preCleanAssignments.length > 0) return "pre-clean";
       return "ask-place";
 
     case "ask-place":
@@ -611,7 +646,15 @@ export function beatNeedsUserInput(beatId: BeatId): boolean {
 }
 
 export function beatNeedsContinueButton(beatId: BeatId): boolean {
-  return beatId === "welcome" || beatId === "palace-wipe" || beatId === "check-in-done" || beatId === "cleaning-intro" || beatId === "graduation-offer" || beatId === "reverse-intro";
+  return beatId === "welcome"
+    || beatId === "palace-wipe"
+    || beatId === "check-in-done"
+    || beatId === "cleaning-intro"
+    || beatId === "graduation-offer"
+    || beatId === "reverse-intro"
+    || beatId === "pre-clean"
+    || beatId === "cleaning-walkthrough"
+    || beatId === "cleaning-walkthrough-done";
 }
 
 const STRUGGLE_PHRASES = [

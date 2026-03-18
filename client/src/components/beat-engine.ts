@@ -101,63 +101,10 @@ export function createFreshState(): ConversationState {
   };
 }
 
-function flipPronoun(input: string): string {
-  let text = input.trim();
-  text = text.replace(/^my\s+/i, "your ");
-  text = text.replace(/^i\s+call\s+it\s+/i, "");
-  text = text.replace(/^it's\s+/i, "");
-  text = text.replace(/^the\s+/i, (m) => m.toLowerCase());
-  return text.charAt(0).toLowerCase() + text.slice(1);
-}
-
-function cap(s: string): string {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-function asPlace(raw: string): string {
-  const processed = cap(flipPronoun(raw));
-  return capitalizeLocationNames(processed);
-}
-
-function asStop(raw: string): string {
-  return flipPronoun(raw);
-}
-
-function capitalize(input: string): string {
-  return input.charAt(0).toUpperCase() + input.slice(1);
-}
-
-function capitalizeLocationNames(input: string): string {
-  // Capitalize words over 4 chars that follow location prepositions
-  const prepositions = ["in", "at", "on", "near"];
-  const words = input.split(/\s+/);
-  return words
-    .map((word, i) => {
-      if (i > 0 && prepositions.includes(words[i - 1].toLowerCase())) {
-        return word.length > 4 ? capitalize(word) : word;
-      }
-      return word;
-    })
-    .join(" ");
-}
-
-function withYour(stopName: string): string {
-  const lower = stopName.toLowerCase().trim();
-  const words = lower.split(/\s+/);
-  const descriptiveWords = new Set(["had", "was", "with", "is", "are", "were", "has", "our", "my"]);
-  
-  // Don't add 'your' if: already has my/your, more than 4 words, or contains descriptive words
-  if (lower.startsWith("my ") || lower.startsWith("your ")) {
-    return capitalize(lower);
-  }
-  if (words.length > 4 || words.some(w => descriptiveWords.has(w))) {
-    return capitalize(lower);
-  }
-  return `your ${capitalize(lower)}`;
-}
-
-export function formatPlaceName(placeName: string): string {
-  return capitalizeLocationNames(placeName);
+function firstCap(s: string): string {
+  const t = s.trim();
+  if (!t) return t;
+  return t.charAt(0).toUpperCase() + t.slice(1);
 }
 
 export function getProgressStep(beatId: BeatId): number {
@@ -241,7 +188,7 @@ function placeVerb(category: "objects" | "names" | "practical"): string {
 
 export function getTimbukMessage(beatId: BeatId, state: ConversationState): string {
   const name = state.userName || "friend";
-  const place = asPlace(state.placeName);
+  const place = firstCap(state.placeName);
   const idx = state.stepIndex;
   const total = state.itemCount;
   const lesson = state.lessonConfig;
@@ -251,19 +198,19 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
   const cat = state.category;
   const isNames = cat === "names";
 
-  const stop = (i: number) => asStop(state.stops[i] || "");
-  const aStop = (i: number) => asStop(state.assignments[i]?.stopName || "");
+  const stop = (i: number) => firstCap(state.stops[i] || "");
+  const aStop = (i: number) => firstCap(state.assignments[i]?.stopName || "");
 
   switch (beatId) {
     case "check-in-intro": {
-      const lastPlace = asPlace(state.checkInPlace);
+      const lastPlace = firstCap(state.checkInPlace);
       return `${name}! Welcome back. Before we start today, let's take a quick stroll through ${lastPlace.toLowerCase()} and see what stuck from last time.`;
     }
 
     case "check-in-recall": {
       const a = state.checkInAssignments[idx];
       if (!a) return "";
-      const stopLabel = asStop(a.stopName);
+      const stopLabel = firstCap(a.stopName);
       if (idx === 0) {
         return `You're at ${stopLabel}. What was waiting for you there?`;
       }
@@ -306,7 +253,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
 
     case "cleaning-recall": {
       const idx = state.stepIndex;
-      const stop = asStop(state.lastStops[idx] || "");
+      const stop = firstCap(state.lastStops[idx] || "");
       if (idx === 0) {
         return `You're at ${stop}. Close your eyes. Imagine a gentle breeze blowing away everything you planted there. What do you see happening?`;
       }
@@ -390,7 +337,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       return `So here's how this works, ${name}. I want you to think of a place that feels like home to you. Somewhere you could walk through with your eyes closed -- maybe your house, your garden, a favourite shop you've visited a hundred times. Tell me about a place you love.`;
 
     case "confirm-same-place": {
-      const prev = asPlace(state.lastPalaceName);
+      const prev = firstCap(state.lastPalaceName);
       return `Back to ${prev.toLowerCase()}? Just say yes to keep it, or tell me somewhere new.`;
     }
 
@@ -402,10 +349,10 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
         return `Let's start right at the beginning. You've just arrived at ${place.toLowerCase()}. Look around -- what's the first thing that catches your eye? Whatever jumps out at you, ${name}, that's your first stop.`;
       }
       if (idx === total - 1) {
-        const prevStops = state.stops.slice(0, idx).map((s) => asStop(s)).join(", ");
+        const prevStops = state.stops.slice(0, idx).map((s) => firstCap(s)).join(", ");
         return `You're past ${prevStops} now. As you continue through ${place.toLowerCase()}, where do you end up? What's your last stop?`;
       }
-      return `You've passed ${withYour(asStop(state.stops[idx - 1]))} and you're moving through the space. What do you notice next?`;
+      return `You've passed ${firstCap(state.stops[idx - 1] || "")} and you're moving through the space. What do you notice next?`;
     }
 
     case "react-stop":
@@ -424,7 +371,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     case "place-object": {
       const a = state.assignments[idx];
       if (!a) return "";
-      const stopLabel = cap(asStop(a.stopName));
+      const stopLabel = firstCap(a.stopName);
       if (isNames) {
         if (idx === 0) {
           return `${stopLabel}. Imagine you bump into ${a.object} right here. What are they doing? What do they look like?`;
@@ -458,7 +405,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       const ri = recallAssignmentIndex(idx, state);
       const a = state.assignments[ri];
       if (!a) return "";
-      const stopLabel = cap(asStop(a.stopName));
+      const stopLabel = firstCap(a.stopName);
       if (isNames) {
         if (idx === 0) {
           return `${stopLabel}. Someone's here. Who did you meet?`;
@@ -528,16 +475,16 @@ Now, close your eyes and picture yourself at the entrance of ${place.toLowerCase
 
 export function getReactPlaceFallback(state: ConversationState): string {
   const name = state.userName || "friend";
-  const place = asPlace(state.placeName);
+  const place = firstCap(state.placeName);
   const total = state.itemCount;
   if (state.isReturningUser) {
-    return `${place} -- lovely choice. Let's find ${total} stops along your path.`;
+    return `${place} -- good choice. Let's find ${total} stops along your path.`;
   }
   return `Oh, ${place}! I love that you picked that, ${name}. I can already picture you there. A place you really know is worth its weight in gold for this.`;
 }
 
 export function getReactPlaceStopIntro(state: ConversationState): string {
-  const place = asPlace(state.placeName);
+  const place = firstCap(state.placeName);
   const total = state.itemCount;
   return `\n\nNow, imagine you're walking through ${place.toLowerCase()} right now. We're going to choose ${total} spots along your path -- little landmarks you'd naturally pass by.`;
 }
@@ -545,25 +492,25 @@ export function getReactPlaceStopIntro(state: ConversationState): string {
 export function getReactStopFallback(state: ConversationState): string {
   const name = state.userName || "friend";
   const idx = state.stepIndex;
-  const rawStop = state.stops[idx] || "";
+  const rawStop = firstCap(state.stops[idx] || "");
   if (idx === 0) {
-    return `Oh, ${withYour(rawStop)} -- I can see it. That's a lovely first stop, ${name}. Keep walking for me.`;
+    return `${rawStop} -- I can see it. That's your first stop, ${name}. Keep walking for me.`;
   }
-  return `Ah, ${withYour(rawStop)} -- I love it. ${name}, you know this place inside and out.`;
+  return `${rawStop} -- good. ${name}, you know this place inside and out.`;
 }
 
 export function getReactStopRouteAppend(state: ConversationState): string {
   const name = state.userName || "friend";
-  const place = asPlace(state.placeName);
+  const place = firstCap(state.placeName);
   const cat = state.lessonConfig?.category || "objects";
   const isNames = cat === "names";
-  const routeList = state.stops.map((s, i) => `${ordinal(i + 1)}, ${withYour(asStop(s))}`).join(".\n");
+  const routeList = state.stops.map((s, i) => `${ordinal(i + 1)}, ${firstCap(s)}`).join(".\n");
   return `So here's your route through ${place.toLowerCase()}:\n\n${routeList}.\n\nThat, ${name}, is the skeleton of your Memory Palace. Now let me find some ${itemLabel(cat)} to ${isNames ? "introduce" : "put in it"}...`;
 }
 
 export function getMirrorObjectFallback(state: ConversationState): string {
   const name = state.userName || "friend";
-  const place = asPlace(state.placeName);
+  const place = firstCap(state.placeName);
   const idx = state.stepIndex;
   const total = state.itemCount;
   const scene = state.userScenes[idx] || "";

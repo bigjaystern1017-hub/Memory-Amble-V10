@@ -49,6 +49,18 @@ interface Message {
   typewriter?: boolean;
 }
 
+function cleanPlaceName(input: string): string {
+  let s = input.trim();
+  if (s.toLowerCase().startsWith('my ')) {
+    s = 'your ' + s.slice(3);
+  }
+  s = s.charAt(0).toUpperCase() + s.slice(1);
+  s = s.replace(/\b(in|at|near|on)\s+([a-z])/g, 
+    (_, prep, letter) => `${prep} ${letter.toUpperCase()}`
+  );
+  return s;
+}
+
 async function authFetch(path: string, options: RequestInit = {}) {
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
@@ -933,7 +945,7 @@ export default function Amble() {
             s = { ...s, placeName: s.lastPalaceName, stops: [] };
             nextBeatOverride = "confirm-same-place";
           } else {
-            s = { ...s, placeName: text, stops: [] };
+            s = { ...s, placeName: cleanPlaceName(text), stops: [] };
           }
           break;
 
@@ -941,7 +953,7 @@ export default function Amble() {
           if (isConfirmation(text)) {
             s = { ...s, stops: [] };
           } else {
-            s = { ...s, placeName: text, stops: [] };
+            s = { ...s, placeName: cleanPlaceName(text), stops: [] };
           }
           break;
 

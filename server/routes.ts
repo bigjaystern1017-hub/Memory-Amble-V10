@@ -217,6 +217,30 @@ export async function registerRoutes(
     }
   });
 
+  function cleanPlaceNameForStorage(input: string): string {
+    let s = input.trim().toLowerCase();
+    
+    if (s.startsWith('my ')) {
+      s = 'your ' + s.slice(3);
+    }
+    
+    s = s.charAt(0).toUpperCase() + s.slice(1);
+    
+    s = s.replace(/\b(in|near|at|on)\s+([\w]+)(\s+([\w]+))?/g, 
+      (match, prep, word1, space, word2) => {
+        const cap1 = word1.charAt(0).toUpperCase() + word1.slice(1);
+        const result = `${prep} ${cap1}`;
+        if (word2) {
+          const cap2 = word2.charAt(0).toUpperCase() + word2.slice(1);
+          return result + ` ${cap2}`;
+        }
+        return result;
+      }
+    );
+    
+    return s;
+  }
+
   app.post("/api/smart-confirm", async (req, res) => {
     try {
       const parsed = smartConfirmSchema.safeParse(req.body);
@@ -253,7 +277,13 @@ export async function registerRoutes(
       });
 
       const confirmation = response.choices[0]?.message?.content?.trim() || "";
-      res.json({ confirmation });
+      
+      if (isPlaceConfirmation) {
+        const cleanedInput = cleanPlaceNameForStorage(userAssociation);
+        res.json({ response: confirmation, cleanedInput });
+      } else {
+        res.json({ confirmation });
+      }
     } catch (error: any) {
       console.error("Error generating smart confirmation:", error);
       res.status(500).json({ error: "Could not generate confirmation." });

@@ -362,7 +362,10 @@ export default function Amble() {
               }),
             });
             const data = await resp.json();
-            const ack = data.confirmation || fallback;
+            const ack = data.response || fallback;
+            if (data.cleanedInput) {
+              currentState.placeName = data.cleanedInput;
+            }
             displayText = !currentState.isReturningUser
               ? `${ack}${getReactPlaceStopIntro(currentState)}`
               : ack;

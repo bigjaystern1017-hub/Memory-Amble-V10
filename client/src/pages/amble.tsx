@@ -330,10 +330,12 @@ export default function Amble() {
 
       let displayText = text;
       if (text === SMART_CONFIRM) {
+        console.log("SMART_CONFIRM block entered for beat:", beat, "text value:", text, "SMART_CONFIRM sentinel:", SMART_CONFIRM);
         setIsTyping(true);
         scrollToBottom();
 
         if (beat === "react-stop") {
+          console.log("react-stop SMART_CONFIRM branch reached");
           const idx = currentState.stepIndex;
           const total = currentState.itemCount;
           const isLast = idx === total - 1;

@@ -316,7 +316,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       const isGood = yt > 0 && ys >= yt / 2 && !isPerfect;
 
       if (dayNum === 1) {
-        return `${name}! What a pleasure. I have been looking forward to our walk together. Today we are going to build something really special — your very own Memory Palace. It has been around for thousands of years, and honestly? It is a lot of fun. Shall we get started?`;
+        return `${name}! What a pleasure. I have been looking forward to our walk together. Today we are going to build something really special — your very own Memory Palace — a technique that has been around for thousands of years, and honestly? It is a lot of fun. Shall we get started?`;
       }
       if (dayNum === 2) {
         if (isPerfect) return `Welcome back, ${name}! Yesterday you remembered every single one — a perfect score on your very first palace. That tells me everything I need to know about you. Every day we work together your memory gets stronger and your palace more vivid. Today we expand. Ready?`;

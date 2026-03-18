@@ -115,17 +115,29 @@ function cap(s: string): string {
 }
 
 function asPlace(raw: string): string {
-  return cap(flipPronoun(raw));
+  const processed = cap(flipPronoun(raw));
+  return capitalizeLocationNames(processed);
 }
 
 function asStop(raw: string): string {
   return flipPronoun(raw);
 }
 
-function titleCase(input: string): string {
-  return input
-    .split(/\s+/)
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+function capitalize(input: string): string {
+  return input.charAt(0).toUpperCase() + input.slice(1);
+}
+
+function capitalizeLocationNames(input: string): string {
+  // Capitalize words over 4 chars that follow location prepositions
+  const prepositions = ["in", "at", "on", "near"];
+  const words = input.split(/\s+/);
+  return words
+    .map((word, i) => {
+      if (i > 0 && prepositions.includes(words[i - 1].toLowerCase())) {
+        return word.length > 4 ? capitalize(word) : word;
+      }
+      return word;
+    })
     .join(" ");
 }
 
@@ -136,12 +148,16 @@ function withYour(stopName: string): string {
   
   // Don't add 'your' if: already has my/your, more than 4 words, or contains descriptive words
   if (lower.startsWith("my ") || lower.startsWith("your ")) {
-    return titleCase(stopName);
+    return capitalize(lower);
   }
   if (words.length > 4 || words.some(w => descriptiveWords.has(w))) {
-    return titleCase(stopName);
+    return capitalize(lower);
   }
-  return `your ${titleCase(stopName)}`;
+  return `your ${capitalize(lower)}`;
+}
+
+export function formatPlaceName(placeName: string): string {
+  return capitalizeLocationNames(placeName);
 }
 
 export function getProgressStep(beatId: BeatId): number {

@@ -232,7 +232,7 @@ export async function registerRoutes(
       let systemPrompt = "";
       let userMessage = "";
 
-      const baseInstruction = `Do not repeat the user's words back to them. Instead make a brief observation or inference about what their association reveals — the feeling, the memory, the personality behind it. Show you understood the meaning not just the content. Keep responses under 15 words, warm, specific, and fresh. Never say brilliant, perfect, wonderful, lovely, or charming.`;
+      const baseInstruction = `Do not repeat the user's words back to them. Instead make a brief observation or inference about what their association reveals — the feeling, the memory, the personality behind it. Show you understood the meaning not just the content. Keep responses under 15 words, warm, specific, and fresh. Never say brilliant, perfect, wonderful, lovely, or charming. Examples: 'That Yankees door knew exactly who lived there.' A sharp observation in one breath, not multiple clauses.`;
 
       if (isPlaceConfirmation) {
         systemPrompt = `You are Timbuk, a warm memory coach. The user just named the place for their memory palace. ${baseInstruction}`;

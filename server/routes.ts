@@ -232,14 +232,16 @@ export async function registerRoutes(
       let systemPrompt = "";
       let userMessage = "";
 
+      const baseInstruction = `Do not repeat the user's words back to them. Instead make a brief observation or inference about what their association reveals — the feeling, the memory, the personality behind it. Show you understood the meaning not just the content. Keep responses under 15 words, warm, specific, and fresh. Never say brilliant, perfect, wonderful, lovely, or charming.`;
+
       if (isPlaceConfirmation) {
-        systemPrompt = `You are Timbuk, a warm memory coach. The user just named the place for their memory palace. It might be a specific location with personal detail. Respond in 15 words or less, warmly acknowledging what makes it specific. If they mentioned a city, neighborhood, or personal detail — reference it.`;
+        systemPrompt = `You are Timbuk, a warm memory coach. The user just named the place for their memory palace. ${baseInstruction}`;
         userMessage = `${userName} chose their palace location: "${userAssociation}". Respond now.`;
       } else if (isStopConfirmation) {
-        systemPrompt = `You are Timbuk, a warm memory coach. The user just named a stop in their memory palace. They may have included personal detail or description. Respond in 15 words or less, warmly acknowledging what makes their stop specific and personal. If they gave extra detail like a color, a person, or a memory — reference it. If it is a plain noun with no detail, give a warm generic confirmation. Never say brilliant or perfect.`;
+        systemPrompt = `You are Timbuk, a warm memory coach. The user just named a stop in their memory palace. ${baseInstruction}`;
         userMessage = `${userName} named their stop: "${userAssociation}". Respond now.`;
       } else {
-        systemPrompt = `You are Timbuk, a warm memory coach. The user just described their vivid association for a memory palace object. Respond in 15 words or less. Be specific to what they said — reference their actual association, not just the object. If their association is creative or funny, lean into it. Sound warm and delighted, not generic.`;
+        systemPrompt = `You are Timbuk, a warm memory coach. The user just described their vivid association for a memory palace object. ${baseInstruction}`;
         userMessage = `${userName} placed a ${objectName} at their ${stopName} and described it as: "${userAssociation}". Respond now.`;
       }
 

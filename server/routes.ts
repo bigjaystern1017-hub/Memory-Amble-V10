@@ -96,9 +96,10 @@ const sparkSchema = z.object({
 
 const smartConfirmSchema = z.object({
   userName: z.string(),
-  objectName: z.string(),
+  objectName: z.string().optional().default(""),
   userAssociation: z.string(),
-  stopName: z.string(),
+  stopName: z.string().optional().default(""),
+  context: z.enum(["object-placement", "stop-confirmation"]).default("object-placement"),
 });
 
 const savePalaceSchema = z.object({
@@ -223,19 +224,23 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Invalid request" });
       }
 
-      const { userName, objectName, userAssociation, stopName } = parsed.data;
+      const { userName, objectName, userAssociation, stopName, context } = parsed.data;
+
+      const isStopConfirmation = context === "stop-confirmation";
+
+      const systemPrompt = isStopConfirmation
+        ? `You are Timbuk, a warm memory coach. The user just named a stop in their memory palace. They may have included personal detail or description. Respond in 15 words or less, warmly acknowledging what makes their stop specific and personal. If they gave extra detail like a color, a person, or a memory — reference it. If it is a plain noun with no detail, give a warm generic confirmation. Never say brilliant or perfect.`
+        : `You are Timbuk, a warm memory coach. The user just described their vivid association for a memory palace object. Respond in 15 words or less. Be specific to what they said — reference their actual association, not just the object. If their association is creative or funny, lean into it. Sound warm and delighted, not generic.`;
+
+      const userMessage = isStopConfirmation
+        ? `${userName} named their stop: "${userAssociation}". Respond now.`
+        : `${userName} placed a ${objectName} at their ${stopName} and described it as: "${userAssociation}". Respond now.`;
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
-          {
-            role: "system",
-            content: `You are Timbuk, a warm memory coach. The user just described their vivid association for a memory palace object. Respond in 15 words or less. Be specific to what they said — reference their actual association, not just the object. If their association is creative or funny, lean into it. Sound warm and delighted, not generic.`,
-          },
-          {
-            role: "user",
-            content: `${userName} placed a ${objectName} at their ${stopName} and described it as: "${userAssociation}". Respond now.`,
-          },
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userMessage },
         ],
         temperature: 1.1,
         max_tokens: 50,

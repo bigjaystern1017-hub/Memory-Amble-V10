@@ -14,6 +14,11 @@ import {
   getInputPlaceholder,
   getProgressStep,
   recallAssignmentIndex,
+  SMART_CONFIRM,
+  getMirrorObjectFallback,
+  getReactRecallFallback,
+  getReactStopFallback,
+  getReactStopRouteAppend,
 } from "@/components/beat-engine";
 import {
   getLessonConfig,
@@ -265,7 +270,75 @@ export default function Home() {
       const text = getTimbukMessage(beat, currentState);
       if (!text) return;
 
-      await showTimbukWithTypewriter(text);
+      let displayText = text;
+      if (text === SMART_CONFIRM) {
+        setIsTyping(true);
+        scrollToBottom();
+
+        if (beat === "react-stop") {
+          const idx = currentState.stepIndex;
+          const total = currentState.itemCount;
+          const isLast = idx === total - 1;
+          const fallback = getReactStopFallback(currentState);
+          const userAssociation = currentState.stops[idx] || "";
+          try {
+            const resp = await fetch("/api/smart-confirm", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                userName: currentState.userName,
+                userAssociation,
+                context: "stop-confirmation",
+              }),
+            });
+            const data = await resp.json();
+            const ack = data.confirmation || fallback;
+            displayText = isLast ? `${ack}\n\n${getReactStopRouteAppend(currentState)}` : ack;
+          } catch {
+            displayText = isLast
+              ? `${fallback}\n\n${getReactStopRouteAppend(currentState)}`
+              : fallback;
+          }
+        } else {
+          const fallback = beat === "mirror-object"
+            ? getMirrorObjectFallback(currentState)
+            : getReactRecallFallback(currentState);
+          try {
+            let objectName = "";
+            let userAssociation = "";
+            let stopName = "";
+            if (beat === "mirror-object") {
+              const a = currentState.assignments[currentState.stepIndex];
+              objectName = a?.object || "";
+              userAssociation = currentState.userScenes[currentState.stepIndex] || "";
+              stopName = a?.stopName || "";
+            } else {
+              const ri = recallAssignmentIndex(currentState.stepIndex, currentState);
+              const a = currentState.assignments[ri];
+              objectName = a?.object || "";
+              userAssociation = currentState.userAnswers[currentState.stepIndex] || "";
+              stopName = a?.stopName || "";
+            }
+            const resp = await fetch("/api/smart-confirm", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                userName: currentState.userName,
+                objectName,
+                userAssociation,
+                stopName,
+                context: "object-placement",
+              }),
+            });
+            const data = await resp.json();
+            displayText = data.confirmation || fallback;
+          } catch {
+            displayText = fallback;
+          }
+        }
+      }
+
+      await showTimbukWithTypewriter(displayText);
 
       if (beat === "graduation-offer") {
         const graduated = { ...currentState, graduated: true };

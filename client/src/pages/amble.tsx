@@ -1486,6 +1486,7 @@ export default function Amble() {
           )}
         </div>
       </div>
+      {/* Dev Buttons - commented out
       <div className="fixed bottom-2 right-2 z-[9999] flex flex-col gap-1">
         <button
           onClick={() => { 
@@ -1543,6 +1544,7 @@ export default function Amble() {
           Dev: Skip to Day 2
         </button>
       </div>
+      */}
     </div>
   );
 }

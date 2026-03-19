@@ -14,6 +14,7 @@ import {
   getNextBeat,
   beatNeedsUserInput,
   beatNeedsContinueButton,
+  getContinueButtonLabel,
   getInputPlaceholder,
   getProgressStep,
   recallAssignmentIndex,
@@ -943,6 +944,10 @@ export default function Amble() {
           break;
         }
 
+        case "onboard-skill":
+          s = { ...s, placeName: cleanPlaceName(text), stops: [] };
+          break;
+
         case "ask-place":
           if (isSamePlaceIntent(text) && s.lastPalaceName) {
             s = { ...s, placeName: s.lastPalaceName, stops: [] };
@@ -1433,7 +1438,7 @@ export default function Amble() {
                 className="gap-2"
                 data-testid="button-continue"
               >
-                I'm Ready, Let's Go!
+                {getContinueButtonLabel(currentBeat)}
                 <ArrowRight className="w-5 h-5" />
               </Button>
             </div>

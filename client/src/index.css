@@ -295,3 +295,27 @@
     inset: -1px;
   }
 }
+
+@keyframes palace-particle {
+  0%   { transform: translate(0, 0) scale(0.3); opacity: 1; }
+  60%  { opacity: 0.7; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(1.4); opacity: 0; }
+}
+
+@keyframes palace-chat-fade {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.palace-burst-particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  animation: palace-particle 600ms ease-out forwards;
+  pointer-events: none;
+}
+
+.palace-chat-fading {
+  animation: palace-chat-fade 500ms ease-out forwards;
+}

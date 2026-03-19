@@ -50,6 +50,21 @@ interface Message {
   typewriter?: boolean;
 }
 
+const BURST_PARTICLES: { tx: string; ty: string; color: string; delay: string; size: number }[] = [
+  { tx: "120px",   ty: "0px",    color: "#f59e0b", delay: "0ms",  size: 10 },
+  { tx: "104px",   ty: "-60px",  color: "#fcd34d", delay: "30ms", size: 8  },
+  { tx: "60px",    ty: "-104px", color: "#f59e0b", delay: "0ms",  size: 12 },
+  { tx: "0px",     ty: "-120px", color: "#fbbf24", delay: "50ms", size: 8  },
+  { tx: "-60px",   ty: "-104px", color: "#f59e0b", delay: "20ms", size: 10 },
+  { tx: "-104px",  ty: "-60px",  color: "#fcd34d", delay: "0ms",  size: 8  },
+  { tx: "-120px",  ty: "0px",    color: "#f59e0b", delay: "40ms", size: 12 },
+  { tx: "-104px",  ty: "60px",   color: "#fbbf24", delay: "10ms", size: 8  },
+  { tx: "-60px",   ty: "104px",  color: "#f59e0b", delay: "0ms",  size: 10 },
+  { tx: "0px",     ty: "120px",  color: "#fcd34d", delay: "30ms", size: 8  },
+  { tx: "60px",    ty: "104px",  color: "#f59e0b", delay: "50ms", size: 12 },
+  { tx: "104px",   ty: "60px",   color: "#fbbf24", delay: "20ms", size: 8  },
+];
+
 function cleanPlaceName(input: string): string {
   let s = input.trim();
   if (s.toLowerCase().startsWith('my ')) {
@@ -110,6 +125,8 @@ export default function Amble() {
   const [recallHintLoading, setRecallHintLoading] = useState(false);
   const [typewriterBusy, setTypewriterBusy] = useState(false);
   const [fastForward, setFastForward] = useState(false);
+  const [showBurst, setShowBurst] = useState(false);
+  const [chatFading, setChatFading] = useState(false);
   const [state, setState] = useState<ConversationState>(createFreshState());
   const [resultsSummary, setResultsSummary] = useState({ correctCount: 0, totalItems: 0, streak: 0, justCompletedDay: 0 });
   const [pendingSession, setPendingSession] = useState<PendingSessionData | undefined>(undefined);
@@ -836,11 +853,26 @@ export default function Amble() {
     setShowContinue(false);
 
     const s = stateRef.current;
-    const next = getNextBeat(currentBeat, s);
-    if (next) {
+    const beat = currentBeat;
+    const next = getNextBeat(beat, s);
+
+    if (beat === "onboard-secret" && next) {
+      setShowBurst(true);
+      setChatFading(true);
+      await new Promise<void>((resolve) => setTimeout(resolve, 600));
+      setMessages([]);
+      setShowBurst(false);
+      setChatFading(false);
+      if (scrollRef.current) {
+        scrollRef.current.scrollTo({ top: 0 });
+      }
+      setCurrentBeat(next);
+      await advanceBeatRef.current(next, s);
+    } else if (next) {
       setCurrentBeat(next);
       await advanceBeatRef.current(next, s);
     }
+
     processingRef.current = false;
   }, [currentBeat]);
 
@@ -1357,9 +1389,28 @@ export default function Amble() {
         </div>
       </header>
 
+      {showBurst && (
+        <div className="fixed inset-0 z-[9998] pointer-events-none flex items-center justify-center">
+          {BURST_PARTICLES.map((p, i) => (
+            <div
+              key={i}
+              className="palace-burst-particle"
+              style={{
+                "--tx": p.tx,
+                "--ty": p.ty,
+                backgroundColor: p.color,
+                width: `${p.size}px`,
+                height: `${p.size}px`,
+                animationDelay: p.delay,
+              } as React.CSSProperties}
+            />
+          ))}
+        </div>
+      )}
+
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto"
+        className={`flex-1 overflow-y-auto${chatFading ? " palace-chat-fading" : ""}`}
         data-testid="chat-scroll"
       >
         <div className="max-w-3xl mx-auto px-4 md:px-6 py-6 space-y-4">

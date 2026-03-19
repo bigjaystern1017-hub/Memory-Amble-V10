@@ -78,7 +78,7 @@ export function ChatMessage({ sender, text, isTyping, typewriter, onTypewriterDo
       data-testid={`message-${sender}`}
     >
       {isTimbuk && (
-        <div className="shrink-0 mt-1" style={{ width: 44, height: 44, borderRadius: "50%", overflow: "hidden" }}>
+        <div className="shrink-0 mt-1" style={{ width: 56, height: 56, borderRadius: "50%", overflow: "hidden" }}>
           <img src={timbukAvatarPath} alt="Timbuk" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         </div>
       )}

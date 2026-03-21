@@ -1081,6 +1081,14 @@ export default function Amble() {
     setRecallHintLoading(false);
   }, [recallHintLoading]);
 
+  function cleanStopName(input: string): string {
+    const t = input.trim();
+    if (t.toLowerCase().startsWith('my ')) {
+      return 'Your ' + t.slice(3);
+    }
+    return t.charAt(0).toUpperCase() + t.slice(1);
+  }
+
   const processUserInput = useCallback(
     async (text: string) => {
       let s = { ...stateRef.current };
@@ -1136,7 +1144,7 @@ export default function Amble() {
           break;
 
         case "ask-stop":
-          s = { ...s, stops: [...s.stops, text] };
+          s = { ...s, stops: [...s.stops, cleanStopName(text)] };
           break;
 
         case "practice-item": {

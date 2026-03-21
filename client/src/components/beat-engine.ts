@@ -485,7 +485,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
 
     case "practice-item": {
       const firstStop = firstCap(state.stops[0] || "your first stop");
-      return `${firstStop} — 🍍 Pineapple. What do you see there?`;
+      return `${firstStop} — 🍍 Pineapple. Now make it YOURS — what is happening with that Pineapple at your ${state.stops[0] || "first stop"}?`;
     }
 
     case "react-practice":
@@ -524,16 +524,17 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       if (!a) return "";
       const stopLabel = firstCap(a.stopName);
       const emoji = getItemEmoji(a.object);
+      const prompt = `Now make it YOURS — what is happening with that ${a.object} at your ${a.stopName}?`;
       if (isNames) {
         if (idx === total - 1) {
-          return `Last one. ${stopLabel} — 👤 ${a.object}. What do you see?`;
+          return `Last one. ${stopLabel} — 👤 ${a.object}. ${prompt}`;
         }
-        return `${stopLabel} — 👤 ${a.object}. What do you see?`;
+        return `${stopLabel} — 👤 ${a.object}. ${prompt}`;
       }
       if (idx === total - 1) {
-        return `Last one. ${stopLabel} — ${emoji} ${a.object}. What do you see?`;
+        return `Last one. ${stopLabel} — ${emoji} ${a.object}. ${prompt}`;
       }
-      return `${stopLabel} — ${emoji} ${a.object}. What do you see?`;
+      return `${stopLabel} — ${emoji} ${a.object}. ${prompt}`;
     }
 
     case "mirror-object":

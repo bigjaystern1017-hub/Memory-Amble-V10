@@ -399,7 +399,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       return `The more vivid, the more ridiculous, the more personal — the harder your brain works to file it. And the harder it works, the longer it sticks. That is the whole secret right there. And ${name} — there is no failing here. No test. No pressure. This is a skill and the most important thing is practice. The more we walk together the sharper it gets. You can take this skill into your real life — grocery lists, names, appointments, whatever you like. Now hit that magic button...`;
 
     case "onboard-ready":
-      return `Right then. If you can picture a room in your home, you have already done half the work. I have a hint button if you ever get a little stuck. Ready? Let us find your palace.`;
+      return `Right then. If you can picture your home, you have already done half the work. I have a hint button if you ever get a little stuck. Ready? Let us find your palace.`;
 
     case "welcome": {
       if (state.sessionOpenerGreeting) {
@@ -465,13 +465,13 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
 
     case "ask-stop": {
       if (idx === 0) {
-        return `Let's start right at the beginning. You've just arrived at ${place.toLowerCase()}. Look around -- what's the first thing that catches your eye? Whatever jumps out at you, ${name}, that's your first stop.`;
+        return `You are at the entrance of your ${place.toLowerCase()}. What is the first thing that catches your eye? That is your first stop.`;
       }
       if (idx === total - 1) {
         const prevStops = state.stops.slice(0, idx).map((s) => firstCap(s)).join(", ");
-        return `You're past ${prevStops} now. As you continue through ${place.toLowerCase()}, where do you end up? What's your last stop?`;
+        return `You're past ${prevStops} now. As you continue through your ${place.toLowerCase()}, where do you end up? What's your last stop?`;
       }
-      return `You've passed ${firstCap(state.stops[idx - 1] || "")} and you're moving through the space. What do you notice next?`;
+      return `Past your ${state.stops[idx - 1] || ""}. What do you notice next?`;
     }
 
     case "react-stop":
@@ -497,8 +497,8 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     case "item-preview": {
       const itemLines = state.assignments
         .map((a) => `${getItemEmoji(a.object)} ${a.object}`)
-        .join(", ");
-      return `Today's items: ${itemLines}`;
+        .join("\n\n");
+      return `Today's items:\n\n${itemLines}`;
     }
 
     case "palace-return": {

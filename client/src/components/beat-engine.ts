@@ -28,6 +28,9 @@ export type BeatId =
   | "practice-intro"
   | "practice-item"
   | "react-practice"
+  | "practice-buffer"
+  | "practice-recall"
+  | "practice-success"
   | "practice-done"
   | "item-preview"
   | "palace-return"
@@ -71,6 +74,7 @@ export interface ConversationState {
   preCleanStops: string[];
   preCleanAssignments: Assignment[];
   practiceScene: string;
+  practiceRecallAnswer: string;
   wisdomDropFired: boolean;
   sessionOpenerGreeting: string;
 }
@@ -116,6 +120,7 @@ export function createFreshState(): ConversationState {
     preCleanStops: [],
     preCleanAssignments: [],
     practiceScene: "",
+    practiceRecallAnswer: "",
     wisdomDropFired: false,
     sessionOpenerGreeting: "",
   };
@@ -205,7 +210,7 @@ export function getProgressStep(beatId: BeatId): number {
   const checkInBeats: BeatId[] = ["check-in-intro", "check-in-recall", "react-check-in", "check-in-done"];
   const cleaningBeats: BeatId[] = ["cleaning-intro", "cleaning-recall", "react-cleaning"];
   const palaceBeats: BeatId[] = ["ask-place", "confirm-same-place", "react-place", "ask-stop", "react-stop", "assigning", "palace-return"];
-  const practiceBeats: BeatId[] = ["practice-intro", "practice-item", "react-practice", "practice-done", "item-preview"];
+  const practiceBeats: BeatId[] = ["practice-intro", "practice-item", "react-practice", "practice-buffer", "practice-recall", "practice-success", "practice-done", "item-preview"];
   const rememberBeats: BeatId[] = ["placement-intro", "place-object", "mirror-object", "palace-buffer"];
   const recallBeats: BeatId[] = ["walkthrough-intro", "reverse-intro", "recall", "react-recall"];
 
@@ -490,6 +495,15 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
 
     case "react-practice":
       return SMART_CONFIRM;
+
+    case "practice-buffer":
+      return `Good. Now let us see if it stuck. Close your eyes for a moment. Picture your ${firstCap(state.stops[0] || "front door")}.`;
+
+    case "practice-recall":
+      return `${firstCap(state.stops[0] || "Front door")}. What do you see there?`;
+
+    case "practice-success":
+      return `Yes! That is the palace at work, ${name}. You just remembered something using a technique that is 2,000 years old. And you did it in under a minute. That is all this is. Ready to do it for real?`;
 
     case "practice-done":
       return `Perfect. That is the whole technique. Now we do it for real — and I promise it gets more fun. Ready?`;
@@ -789,7 +803,16 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
       return "react-practice";
 
     case "react-practice":
-      return "practice-done";
+      return "practice-buffer";
+
+    case "practice-buffer":
+      return "practice-recall";
+
+    case "practice-recall":
+      return "practice-success";
+
+    case "practice-success":
+      return "item-preview";
 
     case "practice-done":
       return "item-preview";
@@ -858,6 +881,7 @@ export function beatNeedsUserInput(beatId: BeatId): boolean {
     "ask-stop",
     "place-object",
     "practice-item",
+    "practice-recall",
     "recall",
     "check-in-recall",
     "cleaning-recall",
@@ -880,6 +904,8 @@ export function beatNeedsContinueButton(beatId: BeatId): boolean {
     || beatId === "pre-clean"
     || beatId === "cleaning-walkthrough"
     || beatId === "cleaning-walkthrough-done"
+    || beatId === "practice-buffer"
+    || beatId === "practice-success"
     || beatId === "practice-done"
     || beatId === "item-preview"
     || beatId === "palace-buffer"
@@ -890,6 +916,7 @@ export function getContinueButtonLabel(beatId: BeatId): string {
   if (beatId === "onboard-welcome") return "Yes, let us go!";
   if (beatId === "onboard-secret") return "Let the Memory-Ambling Begin!";
   if (beatId === "item-preview") return "Ready to place them →";
+  if (beatId === "practice-success") return "Let us do it!";
   if (beatId === "practice-done") return "Let's do it!";
   if (beatId === "palace-buffer") return "I'm ready";
   if (beatId === "wisdom-drop") return "Continue →";
@@ -919,6 +946,8 @@ export function getInputPlaceholder(beatId: BeatId, state: ConversationState): s
     case "ask-stop":
       return "What do you see?";
     case "practice-item":
+      return "What do you see there?";
+    case "practice-recall":
       return "What do you see there?";
     case "place-object":
       return isNames ? "Describe the scene..." : "Describe what you imagine...";

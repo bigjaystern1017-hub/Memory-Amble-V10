@@ -112,7 +112,7 @@ const smartConfirmSchema = z.object({
   objectName: z.string().optional().default(""),
   userAssociation: z.string(),
   stopName: z.string().optional().default(""),
-  context: z.enum(["object-placement", "stop-confirmation", "place-confirmation"]).default("object-placement"),
+  context: z.enum(["object-placement", "stop-confirmation", "place-confirmation", "recall-confirmation"]).default("object-placement"),
 });
 
 const savePalaceSchema = z.object({
@@ -312,6 +312,9 @@ export async function registerRoutes(
       } else if (isStopConfirmation) {
         systemPrompt = `You are Timbuk, a warm memory coach. The user just named a stop in their memory palace. Respond in 6 words or fewer. Be warm and human. Sound like a friend not a philosopher. Never analyze their personality. Never say what their choice reveals or suggests. Just acknowledge the stop simply. Examples: front door → Perfect. Right where it all begins. hat rack → Good. Something you pass every day. kitchen → Central command. Perfect. fridge → The fridge. Everyone has one. Never use these words: reveals, suggests, symbolizes, reflects, anchors, signifies, practical, playful, spirit, belonging, meaning, routines.`;
         userMessage = `${userName} named their stop: "${userAssociation}". Respond now.`;
+      } else if (context === "recall-confirmation") {
+        systemPrompt = `You are Timbuk, a warm memory coach. The user just recalled what they placed at a stop during a practice round. Respond in 8 words or fewer. Be warm and celebratory — they just proved the technique works. Reference what they actually said if it's vivid. Never use: brilliant, perfect, wonderful, lovely.`;
+        userMessage = `${userName} recalled: "${userAssociation}" at their ${stopName || "stop"}. Respond now.`;
       } else {
         systemPrompt = `You are Timbuk, a warm sharp memory coach. The user just described what they imagine for a memory palace object. Respond in under 12 words. First check if the association is weak. A weak association is: fewer than 3 words, OR is just the object name repeated back (e.g. the object is "${objectName}" and the user says "${objectName}" or "a ${objectName}" or "it's a ${objectName}" or just echoes the name with minimal addition). If weak, respond with exactly: "That is a start — now make it stranger. What is happening with that ${objectName}?" If the association is strong (vivid, specific, imaginative — something personal or unexpected), give a warm sharp one-line reaction in under 12 words. Reference their actual image. Be unexpected. Never use: cherished, warmth, nostalgia, pride, memories, personal, lovely, brilliant, perfect, wonderful.`;
         userMessage = `${userName} placed a ${objectName} at their ${stopName} and described it as: "${userAssociation}". Respond now.`;

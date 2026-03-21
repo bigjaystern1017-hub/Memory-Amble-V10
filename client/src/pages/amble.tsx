@@ -512,6 +512,26 @@ export default function Amble() {
         }
       }
 
+      if (beat === "practice-success" && currentState.practiceRecallAnswer) {
+        const recallFallback = `You got it!`;
+        try {
+          const resp = await fetch("/api/smart-confirm", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userName: currentState.userName,
+              userAssociation: currentState.practiceRecallAnswer,
+              stopName: currentState.stops[0] || "front door",
+              context: "recall-confirmation",
+            }),
+          });
+          const data = await resp.json();
+          await showTimbukWithTypewriter(data.confirmation || recallFallback);
+        } catch {
+          await showTimbukWithTypewriter(recallFallback);
+        }
+      }
+
       if (beat === "wisdom-drop") {
         await showWisdomMessage(displayText);
       } else {
@@ -965,7 +985,7 @@ export default function Amble() {
       }
       setCurrentBeat(next);
       await advanceBeatRef.current(next, s);
-    } else if ((beat === "practice-done" || beat === "item-preview" || beat === "palace-buffer") && next) {
+    } else if ((beat === "practice-success" || beat === "practice-done" || beat === "item-preview" || beat === "palace-buffer") && next) {
       await doScreenWipe();
       setCurrentBeat(next);
       await advanceBeatRef.current(next, s);
@@ -1112,6 +1132,11 @@ export default function Amble() {
 
         case "practice-item": {
           s = { ...s, practiceScene: text };
+          break;
+        }
+
+        case "practice-recall": {
+          s = { ...s, practiceRecallAnswer: text };
           break;
         }
 

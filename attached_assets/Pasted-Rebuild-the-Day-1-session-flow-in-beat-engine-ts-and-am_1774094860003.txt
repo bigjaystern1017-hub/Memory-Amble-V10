@@ -1,0 +1,27 @@
+Rebuild the Day 1 session flow in beat-engine.ts and amble.tsx for V5. The goal is a tight, low-cognitive-load experience with clear phases separated by screen wipes. Here is the exact new flow:
+PHASE 1 — PALACE SETUP (Day 1 only, then permanent)
+Keep the existing ask-place and ask-stop beats exactly as they are. After the user names their stops, save them permanently to the database — these stops should persist across ALL future sessions and never be rebuilt. On Day 2+ skip palace setup entirely and use the saved stops.
+PHASE 2 — PRACTICE ROUND (Day 1 only, after palace setup)
+Add a new beat called practice-intro with this message: 'Before we place your real items — let me show you exactly how this works. I will give you one practice item. Just tell me the first thing that comes to mind when you picture it at your first stop.'
+Then a new beat called practice-item that shows: '[first stop name] — 🍍 Pineapple. What do you see there?'
+User responds. Smart Timbuk fires with a warm one-liner amplifying their image.
+Then a new beat called practice-done: 'Perfect. That is the whole technique. Now we do it for real — and I promise it gets more fun. Ready?'
+Screen wipe after practice-done.
+PHASE 3 — ITEM PREVIEW (every session)
+Add a new beat called item-preview that shows ALL of today's items at once as a clean list with emojis before any placement begins. Format: Today's items: [emoji] [item1], [emoji] [item2], [emoji] [item3]. Use these emojis for common objects: guitar 🎸, penguin 🐧, compass 🧭, pineapple 🍍, anchor ⚓, trophy 🏆, telescope 🔭, jukebox 🎵, crown 👑, globe 🌍, mailbox 📬, fishing rod 🎣, violin 🎻, accordion 🪗, beehive 🐝, cactus 🌵, sunflower 🌻, flamingo 🦩, lobster 🦞, peacock 🦚, tortoise 🐢, parrot 🦜, goldfish 🐟, swan 🦢, bowling ball 🎳, dartboard 🎯, top hat 🎩, monocle 🧐, grandfather clock 🕰️, typewriter ⌨️, hot air balloon 🎈, parachute 🪂, surfboard 🏄, canoe 🛶, lantern 🏮, weathervane 🌬️, disco ball 🪩, pinball machine 🕹️, rocking horse 🐴, ladder 🪜, ironing board 👔, fire hydrant 🚒, garden gnome 🧙, park bench 🪑, birdbath 🐦, watermelon 🍉, wedding cake 🎂, gingerbread house 🏠, lobster 🦞, trophy 🏆. For practical items use: eggs 🥚, milk 🥛, bread 🍞, dentist appointment 🦷, vitamins 💊, call doctor 📞, pay bills 💳, birthday card 🎂, library books 📚, call Sarah 📱.
+Below the list show one continue button: 'Ready to place them →'
+Screen wipe after user clicks.
+PHASE 4 — RAPID PLACEMENT (every session)
+Modify the existing place-object beat to be faster and tighter. Timbuk names the stop and shows the item with its emoji. User responds with their vivid image. Smart Timbuk fires ONE warm line — maximum 12 words — referencing their specific association. Immediately next stop. No long exchanges. No philosophical commentary.
+After the LAST item is placed — screen wipe.
+PHASE 5 — BUFFER BEAT (every session)
+Add a new beat called palace-buffer after the last placement. Message: 'Good. All [number] planted, [Name]. Take a breath. Picture your [place name].'
+Show a continue button. After 3 seconds auto-advance even without clicking — the pause should feel deliberate.
+Screen wipe.
+PHASE 6 — IMMEDIATE RECALL (every session)
+Keep existing recall beats but make them faster. Timbuk names the stop, user names the object. Smart Timbuk reacts in ONE line — warm, specific, referencing their image if correct. If wrong: one warm line, reveal the answer, move on. No dwelling.
+SCREEN WIPE IMPLEMENTATION
+A screen wipe should: fade existing chat messages to 0 opacity over 400ms, pause 200ms, then fade in the new phase message from 0 opacity. This creates a clear visual break between phases. Implement this as a CSS transition triggered when specific beat transitions occur: after practice-done, after item-preview click, after last placement, after palace-buffer.
+PALACE PERSISTENCE
+Save the user's stops to the palaces table after Day 1. On Day 2+, fetch saved stops at session start and skip the ask-place and ask-stop beats entirely. Timbuk should reference the saved palace: 'Back to your [place name] — your [stop 1], [stop 2], [stop 3] are waiting.'
+Do not change the onboarding flow. Do not change the results screen. Do not change Smart Timbuk API calls. Only restructure the session phases as described

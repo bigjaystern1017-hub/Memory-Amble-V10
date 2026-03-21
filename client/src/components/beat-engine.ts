@@ -25,9 +25,16 @@ export type BeatId =
   | "ask-stop"
   | "react-stop"
   | "assigning"
+  | "practice-intro"
+  | "practice-item"
+  | "react-practice"
+  | "practice-done"
+  | "item-preview"
+  | "palace-return"
   | "placement-intro"
   | "place-object"
   | "mirror-object"
+  | "palace-buffer"
   | "walkthrough-intro"
   | "reverse-intro"
   | "recall"
@@ -62,6 +69,7 @@ export interface ConversationState {
   yesterdayTotal: number;
   preCleanStops: string[];
   preCleanAssignments: Assignment[];
+  practiceScene: string;
 }
 
 export const SMART_CONFIRM = "__SMART_CONFIRM__";
@@ -104,6 +112,7 @@ export function createFreshState(): ConversationState {
     yesterdayTotal: 0,
     preCleanStops: [],
     preCleanAssignments: [],
+    practiceScene: "",
   };
 }
 
@@ -113,11 +122,86 @@ function firstCap(s: string): string {
   return t.charAt(0).toUpperCase() + t.slice(1);
 }
 
+const ITEM_EMOJIS: Record<string, string> = {
+  "guitar": "🎸",
+  "violin": "🎻",
+  "trombone": "🎺",
+  "accordion": "🪗",
+  "ladder": "🪜",
+  "ironing board": "👔",
+  "wheelbarrow": "🛺",
+  "birdbath": "🐦",
+  "garden gnome": "🧙",
+  "park bench": "🪑",
+  "mailbox": "📬",
+  "fire hydrant": "🚒",
+  "traffic cone": "🚧",
+  "watermelon": "🍉",
+  "wedding cake": "🎂",
+  "pineapple": "🍍",
+  "lobster": "🦞",
+  "gingerbread house": "🏠",
+  "rocking horse": "🐎",
+  "grandfather clock": "🕰️",
+  "typewriter": "⌨️",
+  "jukebox": "🎵",
+  "telephone booth": "📞",
+  "globe": "🌍",
+  "gramophone": "📻",
+  "bowling ball": "🎳",
+  "trophy": "🏆",
+  "dartboard": "🎯",
+  "sunflower": "🌻",
+  "cactus": "🌵",
+  "beehive": "🐝",
+  "fishing rod": "🎣",
+  "anchor": "⚓",
+  "canoe": "🛶",
+  "surfboard": "🏄",
+  "penguin": "🐧",
+  "flamingo": "🦩",
+  "tortoise": "🐢",
+  "parrot": "🦜",
+  "goldfish": "🐟",
+  "swan": "🦢",
+  "peacock": "🦚",
+  "telescope": "🔭",
+  "compass": "🧭",
+  "lantern": "🏮",
+  "weathervane": "🌬️",
+  "top hat": "🎩",
+  "monocle": "🧐",
+  "crown": "👑",
+  "scepter": "⚜️",
+  "disco ball": "🪩",
+  "pinball machine": "🎮",
+  "parachute": "🪂",
+  "hot air balloon": "🎈",
+  "milk": "🥛",
+  "bread": "🍞",
+  "eggs": "🥚",
+  "call the doctor": "📞",
+  "pick up prescription": "💊",
+  "water the plants": "🌱",
+  "pay the bills": "💸",
+  "call sarah": "📱",
+  "dentist appointment": "🦷",
+  "buy birthday card": "🎂",
+  "return library books": "📚",
+  "take vitamins": "💊",
+};
+
+function getItemEmoji(item: string): string {
+  const lower = item.toLowerCase().replace(/^a\s+|^an\s+|^the\s+/i, "").trim();
+  return ITEM_EMOJIS[lower] || "📦";
+}
+
 export function getProgressStep(beatId: BeatId): number {
   const checkInBeats: BeatId[] = ["check-in-intro", "check-in-recall", "react-check-in", "check-in-done"];
   const cleaningBeats: BeatId[] = ["cleaning-intro", "cleaning-recall", "react-cleaning"];
-  const palaceBeats: BeatId[] = ["ask-place", "confirm-same-place", "react-place", "ask-stop", "react-stop", "assigning"];
-  const rememberBeats: BeatId[] = ["placement-intro", "place-object", "mirror-object"];
+  const palaceBeats: BeatId[] = ["ask-place", "confirm-same-place", "react-place", "ask-stop", "react-stop", "assigning", "palace-return"];
+  const practiceBeats: BeatId[] = ["practice-intro", "practice-item", "react-practice", "practice-done", "item-preview"];
+  const rememberBeats: BeatId[] = ["placement-intro", "place-object", "mirror-object", "palace-buffer"];
   const recallBeats: BeatId[] = ["walkthrough-intro", "reverse-intro", "recall", "react-recall"];
 
   if (beatId === "welcome") return 0;
@@ -126,6 +210,7 @@ export function getProgressStep(beatId: BeatId): number {
   if (beatId === "pre-clean" || beatId === "cleaning-walkthrough" || beatId === "cleaning-walkthrough-done") return 0;
   if (beatId === "onboard-welcome" || beatId === "onboard-skill" || beatId === "onboard-palace" || beatId === "onboard-vivid" || beatId === "onboard-secret" || beatId === "onboard-ready") return 1;
   if (palaceBeats.includes(beatId)) return 1;
+  if (practiceBeats.includes(beatId)) return 2;
   if (rememberBeats.includes(beatId)) return 2;
   if (recallBeats.includes(beatId)) return 3;
   if (beatId === "palace-wipe") return 2;
@@ -386,6 +471,38 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     case "assigning":
       return "";
 
+    case "practice-intro":
+      return `Before we place your real items — let me show you exactly how this works. I will give you one practice item. Just tell me the first thing that comes to mind when you picture it at your first stop.`;
+
+    case "practice-item": {
+      const firstStop = firstCap(state.stops[0] || "your first stop");
+      return `${firstStop} — 🍍 Pineapple. What do you see there?`;
+    }
+
+    case "react-practice":
+      return SMART_CONFIRM;
+
+    case "practice-done":
+      return `Perfect. That is the whole technique. Now we do it for real — and I promise it gets more fun. Ready?`;
+
+    case "item-preview": {
+      const itemLines = state.assignments
+        .map((a) => `${getItemEmoji(a.object)} ${a.object}`)
+        .join(", ");
+      return `Today's items: ${itemLines}`;
+    }
+
+    case "palace-return": {
+      const stopList = state.stops
+        .slice(0, Math.min(state.stops.length, 3))
+        .map((s) => firstCap(s))
+        .join(", ");
+      const extra = state.stops.length > 3 ? ` and ${state.stops.length - 3} more` : "";
+      const placeLower = place.toLowerCase();
+      const placePhrase = placeLower.startsWith("your ") ? placeLower : `your ${placeLower}`;
+      return `Back to ${placePhrase} — your ${stopList}${extra} are waiting.`;
+    }
+
     case "placement-intro": {
       if (isNames) {
         return `Right, ${name}, here's where the fun really starts. I've picked ${total} people, and we're going to imagine meeting each one at your stops. The more vivid and personal the scene, the better you'll remember. Ready?`;
@@ -397,26 +514,25 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       const a = state.assignments[idx];
       if (!a) return "";
       const stopLabel = firstCap(a.stopName);
+      const emoji = getItemEmoji(a.object);
       if (isNames) {
-        if (idx === 0) {
-          return `${stopLabel}. Imagine you bump into ${a.object} right here. What are they doing? What do they look like?`;
-        }
         if (idx === total - 1) {
-          return `Last one. ${stopLabel}, and it's ${a.object}. Picture something memorable about meeting them here. What do you see?`;
+          return `Last one. ${stopLabel} — 👤 ${a.object}. What do you see?`;
         }
-        return `${stopLabel}. You meet ${a.object}. What's happening?`;
-      }
-      if (idx === 0) {
-        return `${stopLabel}. Place a ${a.object} right there. Remember to make it bold, vivid, and unique to you. What do you see happening?`;
+        return `${stopLabel} — 👤 ${a.object}. What do you see?`;
       }
       if (idx === total - 1) {
-        return `Last one. ${stopLabel}, and it's a ${a.object}. Go wild, ${name} -- make it yours. What do you see?`;
+        return `Last one. ${stopLabel} — ${emoji} ${a.object}. What do you see?`;
       }
-      return `${stopLabel}. The item is a ${a.object}. What do you see happening there?`;
+      return `${stopLabel} — ${emoji} ${a.object}. What do you see?`;
     }
 
     case "mirror-object":
       return SMART_CONFIRM;
+
+    case "palace-buffer": {
+      return `Good. All ${total} planted, ${name}. Take a breath. Picture your ${place.toLowerCase()}.`;
+    }
 
     case "walkthrough-intro": {
       return `Now here is the magic part. Close your eyes if you like. Picture yourself back at the entrance of ${place.toLowerCase()}. Just walk. Do not try to remember — just look at each stop. Whatever you placed there will be waiting.`;
@@ -598,6 +714,7 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
       return "cleaning-walkthrough-done";
 
     case "cleaning-walkthrough-done":
+      if (state.stops.length > 0) return "palace-return";
       return "ask-place";
 
     case "welcome":
@@ -639,7 +756,26 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
       return "assigning";
 
     case "assigning":
+      if (state.dayCount === 0) return "practice-intro";
+      return "item-preview";
+
+    case "practice-intro":
+      return "practice-item";
+
+    case "practice-item":
+      return "react-practice";
+
+    case "react-practice":
+      return "practice-done";
+
+    case "practice-done":
+      return "item-preview";
+
+    case "item-preview":
       return "placement-intro";
+
+    case "palace-return":
+      return "assigning";
 
     case "placement-intro":
       return "place-object";
@@ -649,6 +785,9 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
 
     case "mirror-object":
       if (idx < total - 1) return "place-object";
+      return "palace-buffer";
+
+    case "palace-buffer":
       return "walkthrough-intro";
 
     case "walkthrough-intro":
@@ -688,6 +827,7 @@ export function beatNeedsUserInput(beatId: BeatId): boolean {
     "confirm-same-place",
     "ask-stop",
     "place-object",
+    "practice-item",
     "recall",
     "check-in-recall",
     "cleaning-recall",
@@ -709,12 +849,18 @@ export function beatNeedsContinueButton(beatId: BeatId): boolean {
     || beatId === "reverse-intro"
     || beatId === "pre-clean"
     || beatId === "cleaning-walkthrough"
-    || beatId === "cleaning-walkthrough-done";
+    || beatId === "cleaning-walkthrough-done"
+    || beatId === "practice-done"
+    || beatId === "item-preview"
+    || beatId === "palace-buffer";
 }
 
 export function getContinueButtonLabel(beatId: BeatId): string {
   if (beatId === "onboard-welcome") return "Yes, let us go!";
   if (beatId === "onboard-secret") return "Let the Memory-Ambling Begin!";
+  if (beatId === "item-preview") return "Ready to place them →";
+  if (beatId === "practice-done") return "Let's do it!";
+  if (beatId === "palace-buffer") return "I'm ready";
   return "I'm Ready, Let's Go!";
 }
 
@@ -740,6 +886,8 @@ export function getInputPlaceholder(beatId: BeatId, state: ConversationState): s
       return "Tell me about a place you love...";
     case "ask-stop":
       return "What do you see?";
+    case "practice-item":
+      return "What do you see there?";
     case "place-object":
       return isNames ? "Describe the scene..." : "Describe what you imagine...";
     case "recall":

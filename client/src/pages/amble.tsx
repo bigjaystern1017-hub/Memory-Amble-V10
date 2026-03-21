@@ -147,6 +147,8 @@ export default function Amble() {
   const initRef = useRef(false);
   const stateRef = useRef(state);
   stateRef.current = state;
+  const currentBeatRef = useRef(currentBeat);
+  currentBeatRef.current = currentBeat;
 
   const progressStep = getProgressStep(currentBeat);
   const isCleaning = ["cleaning-intro", "cleaning-recall", "react-cleaning"].includes(currentBeat);
@@ -234,6 +236,16 @@ export default function Amble() {
   const updateState = useCallback((s: ConversationState) => {
     stateRef.current = s;
     setState(s);
+  }, []);
+
+  const doScreenWipe = useCallback(async () => {
+    setChatFading(true);
+    await new Promise<void>((r) => setTimeout(r, 600));
+    setMessages([]);
+    setChatFading(false);
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ top: 0 });
+    }
   }, []);
 
   const savePalaceToDB = useCallback(async (stops: string[]) => {
@@ -422,6 +434,26 @@ export default function Amble() {
               displayText = fallback;
             }
           }
+        } else if (beat === "react-practice") {
+          const firstStop = currentState.stops[0] || "your first stop";
+          const fallback = `That is exactly how it works. Vivid, personal, yours.`;
+          try {
+            const resp = await fetch("/api/smart-confirm", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                userName: currentState.userName,
+                objectName: "pineapple",
+                userAssociation: currentState.practiceScene || "",
+                stopName: firstStop,
+                context: "object-placement",
+              }),
+            });
+            const data = await resp.json();
+            displayText = data.confirmation || fallback;
+          } catch {
+            displayText = fallback;
+          }
         } else {
           const fallback = beat === "mirror-object"
             ? getMirrorObjectFallback(currentState)
@@ -529,6 +561,21 @@ export default function Amble() {
 
       if (beatNeedsContinueButton(beat)) {
         setShowContinue(true);
+        if (beat === "palace-buffer") {
+          setTimeout(async () => {
+            if (processingRef.current) return;
+            if (currentBeatRef.current !== "palace-buffer") return;
+            processingRef.current = true;
+            setShowContinue(false);
+            await doScreenWipe();
+            const next = getNextBeat("palace-buffer", stateRef.current);
+            if (next) {
+              setCurrentBeat(next);
+              await advanceBeatRef.current(next, stateRef.current);
+            }
+            processingRef.current = false;
+          }, 3000);
+        }
         return;
       }
 
@@ -556,7 +603,7 @@ export default function Amble() {
           nextState = { ...currentState, stepIndex: 0 };
           updateState(nextState);
         }
-        if (beat === "cleaning-walkthrough-done" && next === "ask-place") {
+        if (beat === "cleaning-walkthrough-done" && (next === "ask-place" || next === "palace-return")) {
           nextState = { ...currentState, stepIndex: 0 };
           updateState(nextState);
         }
@@ -564,9 +611,10 @@ export default function Amble() {
           nextState = { ...currentState, stepIndex: 0 };
           updateState(nextState);
         }
-        if (beat === "mirror-object" && next === "walkthrough-intro") {
+        if (beat === "mirror-object" && next === "palace-buffer") {
           nextState = { ...currentState, stepIndex: 0 };
           updateState(nextState);
+          await doScreenWipe();
         }
         if (beat === "check-in-done") {
           nextState = { ...currentState, stepIndex: 0 };
@@ -576,7 +624,7 @@ export default function Amble() {
         await advanceBeat(next, nextState);
       }
     },
-    [showTimbukWithTypewriter, addTimbukInstant, scrollToBottom, fetchAssignments, updateState, saveProgressToDB, saveSessionToDB, savePalaceToDB, progressData]
+    [showTimbukWithTypewriter, addTimbukInstant, scrollToBottom, fetchAssignments, updateState, saveProgressToDB, saveSessionToDB, savePalaceToDB, progressData, doScreenWipe]
   );
 
   const advanceBeatRef = useRef(advanceBeat);
@@ -769,7 +817,7 @@ export default function Amble() {
 
         const savedPalace = await loadSavedPalace();
         if (savedPalace && savedPalace.length > 0) {
-          s.placeName = "Your Palace";
+          s.placeName = latestSession?.placeName || "Your Palace";
           s.stops = savedPalace;
         }
 
@@ -868,13 +916,17 @@ export default function Amble() {
       }
       setCurrentBeat(next);
       await advanceBeatRef.current(next, s);
+    } else if ((beat === "practice-done" || beat === "item-preview" || beat === "palace-buffer") && next) {
+      await doScreenWipe();
+      setCurrentBeat(next);
+      await advanceBeatRef.current(next, s);
     } else if (next) {
       setCurrentBeat(next);
       await advanceBeatRef.current(next, s);
     }
 
     processingRef.current = false;
-  }, [currentBeat]);
+  }, [currentBeat, doScreenWipe]);
 
   const handleRetry = useCallback(async () => {
     if (processingRef.current) return;
@@ -1000,6 +1052,11 @@ export default function Amble() {
         case "ask-stop":
           s = { ...s, stops: [...s.stops, text] };
           break;
+
+        case "practice-item": {
+          s = { ...s, practiceScene: text };
+          break;
+        }
 
         case "place-object": {
           const newScenes = [...s.userScenes];

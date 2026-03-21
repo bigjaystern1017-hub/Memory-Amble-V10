@@ -533,9 +533,9 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
 
     case "placement-intro": {
       if (isNames) {
-        return `Right, ${name}, here's where the fun really starts. I've picked ${total} people, and we're going to imagine meeting each one at your stops. The more vivid and personal the scene, the better you'll remember. Ready?`;
+        return `Right, ${name} — ${total} people to meet, one at each stop. The more vivid the scene, the harder it sticks.`;
       }
-      return `Right, ${name}, here's where the fun really starts. I've picked ${total} items, and we're going to plant one at each of your stops. The weirder you make the picture, the stickier the memory. Make each one bold, vivid, and unique to you.`;
+      return `Right, ${name} — ${total} items, one at each stop. The weirder your picture, the stickier it sticks.`;
     }
 
     case "place-object": {
@@ -564,11 +564,11 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     }
 
     case "walkthrough-intro": {
-      return `Now here is the magic part. Close your eyes if you like. Picture yourself back at the entrance of ${place.toLowerCase()}. Just walk. Do not try to remember — just look at each stop. Whatever you placed there will be waiting.`;
+      return `Close your eyes. You are back at the entrance of your ${place.toLowerCase()}. Just walk — whatever you placed will be waiting.`;
     }
 
     case "reverse-intro": {
-      return `Same palace, same objects. But this time we start at the end and walk back to the beginning. It sounds harder. It is a little harder. That is the point. Ready?`;
+      return `Same palace. This time we walk it backwards. A little harder — that is the point. Ready?`;
     }
 
     case "recall": {

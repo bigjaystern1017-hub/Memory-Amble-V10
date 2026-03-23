@@ -475,11 +475,11 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
 
     case "ask-stop": {
       if (idx === 0) {
-        return `You are at the entrance of your ${place.toLowerCase()}. What is the first thing that catches your eye? That is your first stop.`;
+        return `You are at the entrance of your ${place.toLowerCase().replace(/^your\s+/i, '')}. What is the first thing that catches your eye? That is your first stop.`;
       }
       if (idx === total - 1) {
         const prevStops = state.stops.slice(0, idx).map((s) => firstCap(s)).join(", ");
-        return `You're past ${prevStops} now. As you continue through your ${place.toLowerCase()}, where do you end up? What's your last stop?`;
+        return `You're past ${prevStops} now. As you continue through your ${place.toLowerCase().replace(/^your\s+/i, '')}, where do you end up? What's your last stop?`;
       }
       return `Past your ${state.stops[idx - 1] || ""}. What do you notice next?`;
     }
@@ -560,11 +560,11 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       return SMART_CONFIRM;
 
     case "palace-buffer": {
-      return `Good. All ${total} planted, ${name}. Take a breath. Picture your ${place.toLowerCase()}.`;
+      return `Good. All ${total} planted, ${name}. Take a breath. Picture your ${place.toLowerCase().replace(/^your\s+/i, '')}.`;
     }
 
     case "walkthrough-intro": {
-      return `Close your eyes. You are back at the entrance of your ${place.toLowerCase()}. Just walk — whatever you placed will be waiting.`;
+      return `Close your eyes. You are back at the entrance of your ${place.toLowerCase().replace(/^your\s+/i, '')}. Just walk — whatever you placed will be waiting.`;
     }
 
     case "reverse-intro": {
@@ -623,7 +623,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     case "palace-wipe": {
       return `${name}, before we finish, we need to clear the palace. Over time, if we don't, the images pile up and clutter the space, making it harder to remember new things. So we'll give it a good cleaning today to keep it fresh and ready for whatever comes next.
 
-Now, close your eyes and picture yourself at the entrance of ${place.toLowerCase()}. Imagine a gentle breeze blowing through the whole place. As it passes each stop, the images float away like leaves. Take a slow breath. The palace is clean -- ready for new memories whenever you need it.`;
+Now, close your eyes and picture yourself at the entrance of ${place.toLowerCase().replace(/^your\s+/i, '')}. Imagine a gentle breeze blowing through the whole place. As it passes each stop, the images float away like leaves. Take a slow breath. The palace is clean -- ready for new memories whenever you need it.`;
     }
 
     case "graduation-offer": {
@@ -688,7 +688,7 @@ export function getReactStopRouteAppend(state: ConversationState): string {
   const cat = state.lessonConfig?.category || "objects";
   const isNames = cat === "names";
   const routeList = state.stops.map((s, i) => `${ordinal(i + 1)}, ${firstCap(s)}`).join(".\n");
-  return `So here's your route through ${place.toLowerCase()}:\n\n${routeList}.\n\nThat, ${name}, is the skeleton of your Memory Palace. Now let me find some ${itemLabel(cat)} to ${isNames ? "introduce" : "put in it"}...`;
+  return `So here's your route through ${place.toLowerCase().replace(/^your\s+/i, '')}:\n\n${routeList}.\n\nThat, ${name}, is the skeleton of your Memory Palace. Now let me find some ${itemLabel(cat)} to ${isNames ? "introduce" : "put in it"}...`;
 }
 
 export function getMirrorObjectFallback(state: ConversationState): string {

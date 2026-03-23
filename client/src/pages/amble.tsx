@@ -1082,13 +1082,10 @@ export default function Amble() {
   }, [recallHintLoading]);
 
   function cleanStopName(input: string): string {
-    const t = input.trim();
-    if (t.toLowerCase().startsWith('my ')) {
-      return 'Your ' + t.slice(3);
-    }
-    if (t.toLowerCase().startsWith('your ')) {
-      return 'Your ' + t.slice(5);
-    }
+    let t = input.trim();
+    if (t.toLowerCase().startsWith('my ')) t = t.slice(3).trim();
+    else if (t.toLowerCase().startsWith('your ')) t = t.slice(5).trim();
+    else if (t.toLowerCase().startsWith('the ')) t = t.slice(4).trim();
     return t.charAt(0).toUpperCase() + t.slice(1);
   }
 

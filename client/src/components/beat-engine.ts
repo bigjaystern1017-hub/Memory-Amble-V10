@@ -129,12 +129,6 @@ export function createFreshState(): ConversationState {
 function firstCap(s: string): string {
   const t = s.trim();
   if (!t) return t;
-  if (t.toLowerCase().startsWith("my ")) {
-    return "Your " + t.slice(3);
-  }
-  if (t.toLowerCase().startsWith("your ")) {
-    return "Your " + t.slice(5);
-  }
   return t.charAt(0).toUpperCase() + t.slice(1);
 }
 
@@ -481,7 +475,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
         const prevStops = state.stops.slice(0, idx).map((s) => firstCap(s)).join(", ");
         return `You're past ${prevStops} now. As you continue through your ${place.toLowerCase().replace(/^your\s+/i, '')}, where do you end up? What's your last stop?`;
       }
-      return `Past your ${state.stops[idx - 1] || ""}. What do you notice next?`;
+      return `Past your ${(state.stops[idx - 1] || "").toLowerCase()}. What do you notice next?`;
     }
 
     case "react-stop":
@@ -495,14 +489,14 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
 
     case "practice-item": {
       const firstStop = firstCap(state.stops[0] || "your first stop");
-      return `${firstStop} — 🍍 Pineapple. Now make it YOURS — what is happening with that Pineapple at your ${state.stops[0] || "first stop"}?`;
+      return `${firstStop} — 🍍 Pineapple. Now make it YOURS — what is happening with that Pineapple at your ${(state.stops[0] || "first stop").toLowerCase()}?`;
     }
 
     case "react-practice":
       return SMART_CONFIRM;
 
     case "practice-buffer":
-      return `Good. Now let us see if it stuck. Close your eyes for a moment. Picture ${state.stops[0] || "Your front door"}.`;
+      return `Good. Now let us see if it stuck. Close your eyes for a moment. Picture your ${(state.stops[0] || "front door").toLowerCase()}.`;
 
     case "practice-recall":
       return `${firstCap(state.stops[0] || "Front door")}. What do you see there?`;
@@ -543,7 +537,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       if (!a) return "";
       const stopLabel = firstCap(a.stopName);
       const emoji = getItemEmoji(a.object);
-      const prompt = `Now make it YOURS — what is happening with that ${a.object} at your ${a.stopName}?`;
+      const prompt = `Now make it YOURS — what is happening with that ${a.object} at your ${a.stopName.toLowerCase()}?`;
       if (isNames) {
         if (idx === total - 1) {
           return `Last one. ${stopLabel} — 👤 ${a.object}. ${prompt}`;

@@ -502,7 +502,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       return SMART_CONFIRM;
 
     case "practice-buffer":
-      return `Good. Now let us see if it stuck. Close your eyes for a moment. Picture your ${firstCap(state.stops[0] || "front door")}.`;
+      return `Good. Now let us see if it stuck. Close your eyes for a moment. Picture ${state.stops[0] || "Your front door"}.`;
 
     case "practice-recall":
       return `${firstCap(state.stops[0] || "Front door")}. What do you see there?`;

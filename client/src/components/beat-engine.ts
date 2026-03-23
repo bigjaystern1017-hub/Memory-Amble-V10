@@ -913,6 +913,7 @@ export function getContinueButtonLabel(beatId: BeatId): string {
   if (beatId === "onboard-welcome") return "Yes, let us go!";
   if (beatId === "onboard-secret") return "Let the Memory-Ambling Begin!";
   if (beatId === "item-preview") return "Ready to place them →";
+  if (beatId === "practice-buffer") return "Ok, I Pictured It";
   if (beatId === "practice-success") return "Let us do it!";
   if (beatId === "practice-done") return "Let's do it!";
   if (beatId === "palace-buffer") return "I'm ready";

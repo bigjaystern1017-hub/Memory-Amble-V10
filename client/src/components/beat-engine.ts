@@ -695,13 +695,8 @@ export function getReactStopFallback(state: ConversationState): string {
   return `${rawStop} -- good. ${name}, you know this place inside and out.`;
 }
 
-export function getReactStopRouteAppend(state: ConversationState): string {
-  const name = state.userName || "friend";
-  const place = firstCap(state.placeName);
-  const cat = state.lessonConfig?.category || "objects";
-  const isNames = cat === "names";
-  const routeList = state.stops.map((s, i) => `${ordinal(i + 1)}, ${firstCap(stopPhrase(s))}`).join(".\n");
-  return `So here's your route through ${place.toLowerCase().replace(/^your\s+/i, '')}:\n\n${routeList}.\n\nThat, ${name}, is the skeleton of your Memory Palace. Now let me find some ${itemLabel(cat)} to ${isNames ? "introduce" : "put in it"}...`;
+export function getReactStopRouteAppend(_state: ConversationState): string {
+  return "__STOPS_PENDING__";
 }
 
 export function getMirrorObjectFallback(state: ConversationState): string {

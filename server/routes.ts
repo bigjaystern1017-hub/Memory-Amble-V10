@@ -198,6 +198,38 @@ export async function registerRoutes(
     res.json({ assignments });
   });
 
+  app.post("/api/format-stops", async (req, res) => {
+    try {
+      const { stops, placeName } = req.body as { stops: string[]; placeName: string };
+      if (!Array.isArray(stops) || stops.length === 0) {
+        return res.status(400).json({ error: "stops must be a non-empty array" });
+      }
+      const openai = (await import("openai")).default;
+      const client = new openai();
+      const completion = await client.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: `You are a grammar assistant. Given a list of memory palace stop names, return a JSON array of strings where each stop is naturally phrased for mid-sentence use. Rules: if stop starts with our/my → keep as-is. If stop starts with where/when/the place/the spot → use as-is without adding any article. Otherwise prepend your. Return ONLY valid JSON array, nothing else.`,
+          },
+          {
+            role: "user",
+            content: `Stop names: ${JSON.stringify(stops)}. Return the formatted JSON array now.`,
+          },
+        ],
+        temperature: 0.2,
+        max_tokens: 300,
+      });
+      const raw = completion.choices[0]?.message?.content?.trim() || "[]";
+      const formatted = JSON.parse(raw);
+      res.json({ formatted });
+    } catch (err) {
+      console.error("format-stops error:", err);
+      res.status(500).json({ error: "Failed to format stops" });
+    }
+  });
+
   app.post("/api/spark", async (req, res) => {
     try {
       const parsed = sparkSchema.safeParse(req.body);

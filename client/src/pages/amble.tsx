@@ -67,6 +67,11 @@ const BURST_PARTICLES: { tx: string; ty: string; color: string; delay: string; s
   { tx: "104px",   ty: "60px",   color: "#fbbf24", delay: "20ms", size: 8  },
 ];
 
+function ordinal(n: number): string {
+  const words = ["first","second","third","fourth","fifth","sixth","seventh","eighth","ninth","tenth"];
+  return words[n - 1] || `#${n}`;
+}
+
 function getStopNameForBeat(beat: BeatId, state: ConversationState): string {
   if (beat === "place-object") {
     return state.assignments[state.stepIndex]?.stopName || "";
@@ -548,30 +553,11 @@ export default function Amble() {
       }
 
       if (displayText.includes('__STOPS_PENDING__')) {
-        const name = currentState.userName || "friend";
-        const place = (currentState.placeName || "").toLowerCase().replace(/^your\s+/i, '');
-        const cat = currentState.lessonConfig?.category || "objects";
-        const isNames = cat === "names";
-        const itemWord = cat === "names" ? "names" : "items";
-        const verbWord = isNames ? "introduce" : "put in it";
-        const ordinals = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"];
-        let formattedStops = currentState.stops.map(s => stopPhrase(s));
-        try {
-          const resp = await fetch('/api/format-stops', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ stops: currentState.stops, placeName: currentState.placeName }),
-          });
-          const data = await resp.json();
-          if (Array.isArray(data.formatted) && data.formatted.length === currentState.stops.length) {
-            formattedStops = data.formatted;
-          }
-        } catch { /* use stopPhrase fallback */ }
-        const routeList = formattedStops
-          .map((s, i) => `${ordinals[i] || `#${i + 1}`}, ${s.charAt(0).toUpperCase() + s.slice(1)}`)
-          .join(".\n");
-        const routePart = `So here's your route through ${place}:\n\n${routeList}.\n\nThat, ${name}, is the skeleton of your Memory Palace. Now let me find some ${itemWord} to ${verbWord}...`;
-        displayText = displayText.replace('__STOPS_PENDING__', routePart);
+        const stopLines = currentState.stops
+          .map((s, i) => `${ordinal(i + 1)}, ${s}`)
+          .join('.\n');
+        const placeName = currentState.placeName.toLowerCase().replace(/^your\s+/i, '');
+        displayText = `So here's your route through your ${placeName}:\n\n${stopLines}.\n\nThat, ${currentState.userName}, is the skeleton of your Memory Palace. Now let me find some items to put in it...`;
       }
 
       if (beat === "practice-success" && currentState.practiceRecallAnswer) {

@@ -295,6 +295,18 @@ function stopInContext(stop: string): string {
   return 'your ' + s;
 }
 
+function stopPhrase(stop: string): string {
+  const s = stop.trim();
+  const lower = s.toLowerCase();
+  if (lower.startsWith('where ') || lower.startsWith('when ') || lower.startsWith('the spot') || lower.startsWith('the place')) {
+    return 'the ' + lower;
+  }
+  if (lower.startsWith('our ') || lower.startsWith('my ')) {
+    return lower;
+  }
+  return 'your ' + lower;
+}
+
 export function getTimbukMessage(beatId: BeatId, state: ConversationState): string {
   const name = state.userName || "friend";
   const place = firstCap(state.placeName);
@@ -496,14 +508,14 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
 
     case "practice-item": {
       const firstStop = firstCap(state.stops[0] || "your first stop");
-      return `${firstStop} — 🍍 Pineapple. Now make it YOURS — what is happening with that Pineapple at ${stopInContext(state.stops[0] || "first stop")}?`;
+      return `${firstStop} — 🍍 Pineapple. Now make it YOURS — what is happening with that Pineapple at ${stopPhrase(state.stops[0] || "first stop")}?`;
     }
 
     case "react-practice":
       return SMART_CONFIRM;
 
     case "practice-buffer":
-      return `Good. Now let us see if it stuck. Close your eyes for a moment. Picture ${stopInContext(state.stops[0] || "front door")}.`;
+      return `Good. Now let us see if it stuck. Close your eyes for a moment. Picture ${stopPhrase(state.stops[0] || "front door")}.`;
 
     case "practice-recall":
       return `${firstCap(state.stops[0] || "Front door")}. What do you see there?`;
@@ -544,7 +556,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       if (!a) return "";
       const stopLabel = firstCap(a.stopName);
       const emoji = getItemEmoji(a.object);
-      const prompt = `Now make it YOURS — what is happening with that ${a.object} at ${stopInContext(a.stopName)}?`;
+      const prompt = `Now make it YOURS — what is happening with that ${a.object} at ${stopPhrase(a.stopName)}?`;
       if (isNames) {
         if (idx === total - 1) {
           return `Last one. ${stopLabel} — 👤 ${a.object}. ${prompt}`;
@@ -688,7 +700,7 @@ export function getReactStopRouteAppend(state: ConversationState): string {
   const place = firstCap(state.placeName);
   const cat = state.lessonConfig?.category || "objects";
   const isNames = cat === "names";
-  const routeList = state.stops.map((s, i) => `${ordinal(i + 1)}, ${firstCap(s)}`).join(".\n");
+  const routeList = state.stops.map((s, i) => `${ordinal(i + 1)}, ${firstCap(stopPhrase(s))}`).join(".\n");
   return `So here's your route through ${place.toLowerCase().replace(/^your\s+/i, '')}:\n\n${routeList}.\n\nThat, ${name}, is the skeleton of your Memory Palace. Now let me find some ${itemLabel(cat)} to ${isNames ? "introduce" : "put in it"}...`;
 }
 

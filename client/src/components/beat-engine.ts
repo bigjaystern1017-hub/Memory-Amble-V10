@@ -695,11 +695,11 @@ Now, close your eyes and picture yourself at the entrance of ${yourify(place).to
 
     case "expansion-stop-1": {
       const lastStop = state.stops[state.stops.length - 1] || 'your last stop';
-      return `Two more stops. After your ${lastStop.toLowerCase()}?`;
+      return `Two more stops — one at a time. What comes after your ${yourify(lastStop.toLowerCase())}?`;
     }
 
     case "expansion-stop-2":
-      return `Good. And then?`;
+      return `Good. And the next one?`;
 
     case "expansion-intro": {
       const newStops = state.stops.slice(state.itemCount);

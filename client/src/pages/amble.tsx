@@ -1049,8 +1049,8 @@ export default function Amble() {
       setCurrentBeat(next);
       await advanceBeatRef.current(next, nextState);
     } else if (beat === "expansion-preview" && next) {
-      const originalItemCount = s.itemCount;
-      const nextState = { ...s, itemCount: s.itemCount + 2, stepIndex: originalItemCount };
+      const stepIdx = s.itemCount - 2;
+      const nextState = { ...s, stepIndex: stepIdx };
       updateState(nextState);
       setCurrentBeat(next);
       await advanceBeatRef.current(next, nextState);
@@ -1067,7 +1067,7 @@ export default function Amble() {
     processingRef.current = true;
     setShowContinue(false);
     const s = stateRef.current;
-    const nextState = { ...s, expansionOffered: true, expansionAccepted: true, baseCorrectCount: s.correctCount };
+    const nextState = { ...s, expansionOffered: true, expansionAccepted: true, baseCorrectCount: s.correctCount, itemCount: s.itemCount + 2 };
     updateState(nextState);
     setCurrentBeat("expansion-stop-1");
     await advanceBeatRef.current("expansion-stop-1", nextState);

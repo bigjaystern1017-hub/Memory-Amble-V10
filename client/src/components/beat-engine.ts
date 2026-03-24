@@ -526,7 +526,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       return `Good. Now let us see if it stuck. Close your eyes for a moment. Picture __STOP__.`;
 
     case "practice-recall":
-      return `${firstCap(state.stops[0] || "Front door")}. What do you see there?`;
+      return `${yourify(firstCap(state.stops[0] || "Front door"))}. What do you see there?`;
 
     case "practice-success":
       return `Yes! That is the palace at work, ${name}. You just remembered something using a technique that is 2,000 years old. And you did it in under a minute. That is all this is. Ready to do it for real?`;

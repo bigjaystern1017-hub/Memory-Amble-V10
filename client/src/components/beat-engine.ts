@@ -307,9 +307,17 @@ export function stopPhrase(stop: string): string {
   return 'your ' + lower;
 }
 
+function yourify(s: string): string {
+  return s
+    .replace(/\bour\b/gi, 'your')
+    .replace(/\bmy\b/gi, 'your')
+    .replace(/\bwe\b/gi, 'you')
+    .replace(/\bus\b/gi, 'you');
+}
+
 export function getTimbukMessage(beatId: BeatId, state: ConversationState): string {
   const name = state.userName || "friend";
-  const place = firstCap(state.placeName);
+  const place = yourify(firstCap(state.placeName));
   const idx = state.stepIndex;
   const total = state.itemCount;
   const lesson = state.lessonConfig;
@@ -319,19 +327,19 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
   const cat = state.category;
   const isNames = cat === "names";
 
-  const stop = (i: number) => firstCap(state.stops[i] || "");
-  const aStop = (i: number) => firstCap(state.assignments[i]?.stopName || "");
+  const stop = (i: number) => yourify(firstCap(state.stops[i] || ""));
+  const aStop = (i: number) => yourify(firstCap(state.assignments[i]?.stopName || ""));
 
   switch (beatId) {
     case "check-in-intro": {
       const lastPlace = firstCap(state.checkInPlace);
-      return `${name}! Welcome back. Before we start today, let's take a quick stroll through ${lastPlace.toLowerCase()} and see what stuck from last time.`;
+      return `${name}! Welcome back. Before we start today, let's take a quick stroll through ${yourify(lastPlace.toLowerCase())} and see what stuck from last time.`;
     }
 
     case "check-in-recall": {
       const a = state.checkInAssignments[idx];
       if (!a) return "";
-      const stopLabel = firstCap(a.stopName);
+      const stopLabel = yourify(firstCap(a.stopName));
       if (idx === 0) {
         return `You're at ${stopLabel}. What was waiting for you there?`;
       }
@@ -374,7 +382,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
 
     case "cleaning-recall": {
       const idx = state.stepIndex;
-      const stop = firstCap(state.lastStops[idx] || "");
+      const stop = yourify(firstCap(state.lastStops[idx] || ""));
       if (idx === 0) {
         return `You're at ${stop}. Close your eyes. Imagine a gentle breeze blowing away everything you planted there. What do you see happening?`;
       }
@@ -481,7 +489,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
 
     case "confirm-same-place": {
       const prev = firstCap(state.lastPalaceName);
-      return `Back to ${prev.toLowerCase()}? Just say yes to keep it, or tell me somewhere new.`;
+      return `Back to ${yourify(prev.toLowerCase())}? Just say yes to keep it, or tell me somewhere new.`;
     }
 
     case "react-place":
@@ -536,7 +544,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     case "palace-return": {
       const stopList = state.stops
         .slice(0, Math.min(state.stops.length, 3))
-        .map((s) => firstCap(s))
+        .map((s) => yourify(firstCap(s)))
         .join(", ");
       const extra = state.stops.length > 3 ? ` and ${state.stops.length - 3} more` : "";
       const placeLower = place.toLowerCase();
@@ -554,7 +562,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     case "place-object": {
       const a = state.assignments[idx];
       if (!a) return "";
-      const stopLabel = firstCap(a.stopName);
+      const stopLabel = yourify(firstCap(a.stopName));
       const emoji = getItemEmoji(a.object);
       const prompt = `Now make it YOURS — what is happening with that ${a.object} at __STOP__?`;
       if (isNames) {
@@ -588,7 +596,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       const ri = recallAssignmentIndex(idx, state);
       const a = state.assignments[ri];
       if (!a) return "";
-      const stopLabel = firstCap(a.stopName);
+      const stopLabel = yourify(firstCap(a.stopName));
       if (isNames) {
         if (idx === 0) {
           return `${stopLabel}. Someone's here. Who did you meet?`;
@@ -671,7 +679,7 @@ Now, close your eyes and picture yourself at the entrance of ${place.toLowerCase
 
 export function getReactPlaceFallback(state: ConversationState): string {
   const name = state.userName || "friend";
-  const place = firstCap(state.placeName);
+  const place = yourify(firstCap(state.placeName));
   const total = state.itemCount;
   if (state.isReturningUser) {
     return `${place} -- good choice. Let's find ${total} stops along your path.`;
@@ -680,7 +688,7 @@ export function getReactPlaceFallback(state: ConversationState): string {
 }
 
 export function getReactPlaceStopIntro(state: ConversationState): string {
-  const place = firstCap(state.placeName);
+  const place = yourify(firstCap(state.placeName));
   const total = state.itemCount;
   return `\n\nNow, imagine you're walking through ${place.toLowerCase()} right now. We're going to choose ${total} spots along your path -- little landmarks you'd naturally pass by.`;
 }
@@ -688,7 +696,7 @@ export function getReactPlaceStopIntro(state: ConversationState): string {
 export function getReactStopFallback(state: ConversationState): string {
   const name = state.userName || "friend";
   const idx = state.stepIndex;
-  const rawStop = firstCap(state.stops[idx] || "");
+  const rawStop = yourify(firstCap(state.stops[idx] || ""));
   if (idx === 0) {
     return `${rawStop} -- I can see it. That's your first stop, ${name}. Keep walking for me.`;
   }
@@ -701,7 +709,7 @@ export function getReactStopRouteAppend(_state: ConversationState): string {
 
 export function getMirrorObjectFallback(state: ConversationState): string {
   const name = state.userName || "friend";
-  const place = firstCap(state.placeName);
+  const place = yourify(firstCap(state.placeName));
   const idx = state.stepIndex;
   const total = state.itemCount;
   const scene = state.userScenes[idx] || "";

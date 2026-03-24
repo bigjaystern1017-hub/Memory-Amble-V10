@@ -194,13 +194,14 @@ export default function Amble() {
 
   const showTimbukWithTypewriter = useCallback(
     (text: string): Promise<void> => {
+      const cleanText = yourify(text);
       return new Promise((resolve) => {
         setIsTyping(true);
         scrollToBottom();
         setTimeout(() => {
           setIsTyping(false);
           const id = ++msgIdRef.current;
-          setMessages((prev) => [...prev, { id, sender: "timbuk", text, typewriter: true }]);
+          setMessages((prev) => [...prev, { id, sender: "timbuk", text: cleanText, typewriter: true }]);
           setTypewriterBusy(true);
           typewriterResolveRef.current = resolve;
           scrollToBottom();
@@ -212,13 +213,14 @@ export default function Amble() {
 
   const showWisdomMessage = useCallback(
     (text: string): Promise<void> => {
+      const cleanText = yourify(text);
       return new Promise((resolve) => {
         setIsTyping(true);
         scrollToBottom();
         setTimeout(() => {
           setIsTyping(false);
           const id = ++msgIdRef.current;
-          setMessages((prev) => [...prev, { id, sender: "timbuk", text, typewriter: true, variant: "wisdom" }]);
+          setMessages((prev) => [...prev, { id, sender: "timbuk", text: cleanText, typewriter: true, variant: "wisdom" }]);
           setTypewriterBusy(true);
           typewriterResolveRef.current = resolve;
           scrollToBottom();
@@ -240,8 +242,9 @@ export default function Amble() {
 
   const addTimbukInstant = useCallback(
     (text: string) => {
+      const cleanText = yourify(text);
       const id = ++msgIdRef.current;
-      setMessages((prev) => [...prev, { id, sender: "timbuk", text }]);
+      setMessages((prev) => [...prev, { id, sender: "timbuk", text: cleanText }]);
       scrollToBottom();
     },
     [scrollToBottom]

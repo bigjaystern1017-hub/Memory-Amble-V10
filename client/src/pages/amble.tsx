@@ -141,6 +141,7 @@ export default function Amble() {
   const [typewriterBusy, setTypewriterBusy] = useState(false);
   const [fastForward, setFastForward] = useState(false);
   const [showBurst, setShowBurst] = useState(false);
+  const [showPenguin, setShowPenguin] = useState(false);
   const [chatFading, setChatFading] = useState(false);
   const [state, setState] = useState<ConversationState>(createFreshState());
   const [resultsSummary, setResultsSummary] = useState({ correctCount: 0, totalItems: 0, streak: 0, justCompletedDay: 0 });
@@ -233,6 +234,10 @@ export default function Amble() {
   const handleTypewriterDone = useCallback(() => {
     setTypewriterBusy(false);
     setFastForward(false);
+    if (currentBeatRef.current === "onboard-vivid") {
+      setShowPenguin(true);
+      setTimeout(() => setShowPenguin(false), 3000);
+    }
     if (typewriterResolveRef.current) {
       const resolve = typewriterResolveRef.current;
       typewriterResolveRef.current = null;
@@ -1833,6 +1838,11 @@ export default function Amble() {
           Dev: Skip to Recall
         </button>
       </div>
+      {showPenguin && (
+        <div className="fixed bottom-16 left-0 z-[9999] pointer-events-none penguin-waddle">
+          🐧
+        </div>
+      )}
     </div>
   );
 }

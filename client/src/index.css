@@ -319,3 +319,17 @@
 .palace-chat-fading {
   animation: palace-chat-fade 500ms ease-out forwards;
 }
+
+.penguin-waddle {
+  font-size: 2.5rem;
+  animation: waddle 3s ease-in-out forwards;
+}
+
+@keyframes waddle {
+  0% { transform: translateX(-60px) rotate(-10deg); }
+  20% { transform: translateX(20vw) rotate(10deg); }
+  40% { transform: translateX(40vw) rotate(-10deg); }
+  60% { transform: translateX(60vw) rotate(10deg); }
+  80% { transform: translateX(80vw) rotate(-10deg); }
+  100% { transform: translateX(110vw) rotate(10deg); }
+}

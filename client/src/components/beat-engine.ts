@@ -310,9 +310,7 @@ export function stopPhrase(stop: string): string {
 export function yourify(s: string): string {
   return s
     .replace(/\bour\b/gi, 'your')
-    .replace(/\bmy\b/gi, 'your')
-    .replace(/\bwe\b/gi, 'you')
-    .replace(/\bus\b/gi, 'you');
+    .replace(/\bmy\b/gi, 'your');
 }
 
 export function getTimbukMessage(beatId: BeatId, state: ConversationState): string {

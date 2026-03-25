@@ -1895,15 +1895,51 @@ export default function Amble() {
         </div>
       )}
       {window.location.hostname.includes('replit.dev') && (
-        <div className="fixed bottom-2 right-2 z-[9999]">
+        <div className='fixed bottom-2 right-2 z-[9999] flex flex-col gap-1'>
           <button
             onClick={() => {
               localStorage.clear();
               window.location.reload();
             }}
-            className="px-2 py-1 text-xs text-muted-foreground/50 hover:text-muted-foreground bg-transparent cursor-pointer"
+            className='px-2 py-1 text-xs text-muted-foreground/50 hover:text-muted-foreground bg-transparent cursor-pointer'
           >
             Dev Reset
+          </button>
+          <button
+            onClick={() => {
+              const palace = ['Front door', 'Kitchen', 'Living room'];
+              const assignments = [
+                { stopName: 'Front door', object: 'penguin' },
+                { stopName: 'Kitchen', object: 'typewriter' },
+                { stopName: 'Living room', object: 'crown' },
+              ];
+              const s = createFreshState();
+              s.userName = 'Joe';
+              s.placeName = 'house';
+              s.stops = palace;
+              s.isReturningUser = true;
+              s.dayCount = 1;
+              s.itemCount = 3;
+              s.lessonConfig = getLessonConfig(3, 1, 'objects');
+              s.checkInAssignments = assignments;
+              s.checkInPlace = 'house';
+              s.yesterdayScore = 3;
+              s.yesterdayTotal = 3;
+              s.lastPalaceName = 'house';
+              s.lastStops = palace;
+              s.preCleanAssignments = assignments;
+              s.preCleanStops = palace;
+              updateState(s);
+              setMessages([]);
+              setPhase('chat');
+              setTimeout(() => {
+                setCurrentBeat('check-in-intro');
+                advanceBeatRef.current('check-in-intro', s);
+              }, 200);
+            }}
+            className='px-2 py-1 text-xs text-muted-foreground/50 hover:text-muted-foreground bg-transparent cursor-pointer'
+          >
+            Dev: Day 2
           </button>
         </div>
       )}

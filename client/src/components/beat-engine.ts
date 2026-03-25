@@ -324,6 +324,24 @@ export function yourify(s: string): string {
     .replace(/\bmy\b/gi, 'your');
 }
 
+function practicalItemPhrase(item: string): string {
+  const lower = item.toLowerCase();
+  if (lower.startsWith('call ') || lower.startsWith('pick up') ||
+      lower.startsWith('water ') || lower.startsWith('pay ') ||
+      lower.startsWith('buy ') || lower.startsWith('return ') ||
+      lower.startsWith('take ') || lower.startsWith('dentist') ||
+      lower.startsWith('doctor')) {
+    return lower;
+  }
+  if (lower.endsWith('s') && !lower.endsWith('ss')) {
+    return 'some ' + lower;
+  }
+  if ('aeiou'.includes(lower[0])) {
+    return 'an ' + lower;
+  }
+  return 'a ' + lower;
+}
+
 export function getTimbukMessage(beatId: BeatId, state: ConversationState): string {
   const name = state.userName || "friend";
   const place = yourify(firstCap(state.placeName));
@@ -484,8 +502,8 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
         return `Welcome back, ${name}! Six days — that is something to be genuinely proud of. Today we switch things up completely and try names instead of objects. A fresh start, a new challenge. Sometimes a change is exactly what the palace needs. I think today is going to surprise you.`;
       }
       if (dayNum === 7) {
-        if (isPerfect) return `${name}. Day seven. Take a breath and feel proud — because what you have done this week is genuinely extraordinary. Yesterday you were flawless. Today you graduate. Ten stops, full walk, reverse recall. Your biggest session yet. And when we are done — I have something special waiting for you. Let us make this one count.`;
-        if (isGood) return `${name}. Day seven. I want you to take a breath and feel proud for a moment. You came in knowing nothing about memory palaces. Look at you now. Today is your graduation — ten stops, full walk, reverse recall. Your biggest session yet. And when we are done, I have something special waiting. Let us finish strong.`;
+        if (isPerfect) return `${name}. Day seven. Take a breath and feel proud — because what you have done this week is genuinely extraordinary. Yesterday you were flawless. Today you graduate. Your biggest session yet. Full walk, reverse recall. And when we are done — I have something special waiting for you. Let us make this one count.`;
+        if (isGood) return `${name}. Day seven. I want you to take a breath and feel proud for a moment. You came in knowing nothing about memory palaces. Look at you now. Today is your graduation — your biggest session yet. Full walk, reverse recall. And when we are done, I have something special waiting. Let us finish strong.`;
         return `${name}. Day seven. Do you realize what you have done? You showed up every single day for a week. That is the whole game. The palace is in you now whether it feels like it or not. Today we do your graduation session — and when we are done, I have something waiting that I think will mean a lot. Let us go.`;
       }
       // Days 8+: generic returning user message
@@ -548,7 +566,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
 
     case "item-preview": {
       const itemLines = state.assignments
-        .map((a) => `${getItemEmoji(a.object)} ${a.object}`)
+        .map((a) => `${cat === 'names' ? '👤' : getItemEmoji(a.object)} ${a.object}`)
         .join("\n\n");
       return `Today's items:\n\n${itemLines}`;
     }
@@ -576,17 +594,15 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       if (!a) return "";
       const stopLabel = yourify(firstCap(a.stopName));
       const emoji = getItemEmoji(a.object);
-      const prompt = `Now make it YOURS — what is happening with that ${a.object} at __STOP__?`;
+      const isLast = idx === total - 1;
+      const prefix = isLast ? `Last one. ${stopLabel}` : stopLabel;
       if (isNames) {
-        if (idx === total - 1) {
-          return `Last one. ${stopLabel} — 👤 ${a.object}. ${prompt}`;
-        }
-        return `${stopLabel} — 👤 ${a.object}. ${prompt}`;
+        return `${prefix} — 👤 ${a.object}. Now make it YOURS — picture meeting ${a.object} here. What do you notice about them?`;
       }
-      if (idx === total - 1) {
-        return `Last one. ${stopLabel} — ${emoji} ${a.object}. ${prompt}`;
+      if (cat === 'practical') {
+        return `${prefix} — ${emoji} ${a.object}. Now make it YOURS — how are you going to remember ${practicalItemPhrase(a.object)}?`;
       }
-      return `${stopLabel} — ${emoji} ${a.object}. ${prompt}`;
+      return `${prefix} — ${emoji} ${a.object}. Now make it YOURS — what is happening with that ${a.object} at __STOP__?`;
     }
 
     case "mirror-object":
@@ -611,12 +627,12 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       const stopLabel = yourify(firstCap(a.stopName));
       if (isNames) {
         if (idx === 0) {
-          return `${stopLabel}. Someone's here. Who did you meet?`;
+          return `${stopLabel}. You met someone here. Who was it?`;
         }
         if (idx === total - 1) {
-          return `${stopLabel}. Last one. Who's waiting for you?`;
+          return `${stopLabel}. Last one. Who did you meet here?`;
         }
-        return `${stopLabel}. There's someone here. Who is it?`;
+        return `${stopLabel}. Someone you met. Who are they?`;
       }
       if (idx === 0) {
         return `${stopLabel}. Something strange is here. What do you see?`;
@@ -660,6 +676,9 @@ Now, close your eyes and picture yourself at the entrance of your ${yourify(plac
     }
 
     case "graduation-offer": {
+      if (state.dayCount === 6) {
+        return `${name}. Stop for a moment. Look what you did this week.\n\nYou built your first Memory Palace. Cleaned it. Walked it forward and backward. Used it for real life. Learned names.\n\nSeven days ago you had never heard of a Memory Palace. Today you have one. That is not nothing, ${name}. That is actually extraordinary.\n\nWear it proudly. Rest that noggin this weekend. When you come back, we start Week 2. Good memorizing, ${name}. Over and out.`;
+      }
       const nextLevel = Math.min(state.itemCount + 2, 9);
       return `${name}, you got every single one right! That tells me you're ready for more. Next time, we'll step up to ${nextLevel} ${itemLabel(cat)}. Your memory palace is growing!`;
     }

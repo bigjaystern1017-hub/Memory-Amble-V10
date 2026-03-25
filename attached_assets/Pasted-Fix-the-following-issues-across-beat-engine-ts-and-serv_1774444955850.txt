@@ -1,0 +1,56 @@
+Fix the following issues across beat-engine.ts and server/routes.ts:
+1. In beat-engine.ts, fix names phrasing in place-object beat:
+Find the place-object case. Currently for names it says 'Now make it YOURS — what is happening with that ${a.object} at __STOP__?'. Change the names prompt to: 'Now make it YOURS — picture meeting ${a.object} here. What do you notice about them?'
+Also fix the names recall prompts — they currently say 'Someone's here' which is fine but the mid-session ones say 'There's someone here. Who is it?' Change all three recall variants for names to feel more personal:
+
+idx === 0: '${stopLabel}. You met someone here. Who was it?'
+idx === total - 1: '${stopLabel}. Last one. Who did you meet here?'
+middle: '${stopLabel}. Someone you met. Who are they?'
+
+2. In beat-engine.ts, fix practical item article handling:
+Add a helper function above getTimbukMessage:
+typescriptfunction practicalItemPhrase(item: string): string {
+  const lower = item.toLowerCase();
+  // Actions/tasks — use 'your'
+  if (lower.startsWith('call ') || lower.startsWith('pick up') || 
+      lower.startsWith('water ') || lower.startsWith('pay ') || 
+      lower.startsWith('buy ') || lower.startsWith('return ') || 
+      lower.startsWith('take ') || lower.startsWith('dentist') ||
+      lower.startsWith('doctor')) {
+    return lower;
+  }
+  // Plurals — use 'some'
+  if (lower.endsWith('s') && !lower.endsWith('ss')) {
+    return 'some ' + lower;
+  }
+  // Vowel — use 'an'
+  if ('aeiou'.includes(lower[0])) {
+    return 'an ' + lower;
+  }
+  return 'a ' + lower;
+}
+Then in place-object, when category === 'practical', change the prompt from 'what is happening with that ${a.object}' to 'how are you going to remember ${practicalItemPhrase(a.object)}'.
+Also fix item preview for practical items — change the prompt line to 'Picture ${practicalItemPhrase(a.object)} at your ${a.stopName.toLowerCase()}' in the placement display.
+3. In beat-engine.ts, fix Day 7 welcome message:
+Find the Day 7 welcome messages. They currently say 'Ten stops' but Day 7 has 7 items. Remove all references to specific stop counts from the Day 7 welcome — replace 'Ten stops, full walk, reverse recall. Your biggest session yet.' with 'Your biggest session yet. Full walk, reverse recall.' in all three Day 7 variants.
+4. In beat-engine.ts, fix Day 7 graduation screen:
+Find the graduation-offer case. Currently it shows the same message for all days. Add a special Day 7 graduation message:
+typescriptcase 'graduation-offer': {
+  if (state.dayCount === 6) {
+    return `${name}. Stop for a moment. Look what you did this week.\n\nYou built your first Memory Palace. Cleaned it. Walked it forward and backward. Used it for real life. Learned names.\n\nSeven days ago you had never heard of a Memory Palace. Today you have one. That is not nothing, ${name}. That is actually extraordinary.\n\nWear it proudly. Rest that noggin this weekend. When you come back, we start Week 2. Good memorizing, ${name}. Over and out.`;
+  }
+  const nextLevel = Math.min(state.itemCount + 2, 9);
+  return `${name}, you got every single one right! That tells me you're ready for more. Next time, we'll step up to ${nextLevel} ${itemLabel(cat)}. Your memory palace is growing!`;
+}
+5. In beat-engine.ts, fix names emoji in item-preview:
+In the item-preview case, when category === 'names', use 👤 emoji instead of falling back to 📦. Change:
+typescriptconst itemLines = state.assignments
+  .map((a) => `${getItemEmoji(a.object)} ${a.object}`)
+  .join('\n\n');
+to:
+typescriptconst itemLines = state.assignments
+  .map((a) => `${cat === 'names' ? '👤' : getItemEmoji(a.object)} ${a.object}`)
+  .join('\n\n');
+6. In server/routes.ts, update object-placement prompt for names context:
+Find the object-placement system prompt. Add handling for when objectName appears to be a person's name (starts with capital, single word). Add to the system prompt: 'If the object is a person's name, respond to how the user pictured meeting that person — reference their physical description or action, not an object. Keep it warm and specific.'
+Do not change scoring, beat routing, or guest functionality. Compile cleanly

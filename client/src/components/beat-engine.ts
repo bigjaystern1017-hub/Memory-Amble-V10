@@ -653,7 +653,8 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       const isCorrect = fuzzyMatch(answer, a.object);
       const isLast = idx === total - 1;
 
-      if (isCorrect || isLast) return SMART_CONFIRM;
+      if (isCorrect) return SMART_CONFIRM;
+      if (isLast) return `That one was ${a.object}. The pictures will get clearer with practice, ${name}.`;
       return `It was ${a.object}. No worries -- keep walking...`;
     }
 

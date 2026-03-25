@@ -578,25 +578,17 @@ export default function Amble() {
             displayText = fallback;
           }
         } else if (beat === "react-recall") {
-          const ri = recallAssignmentIndex(currentState.stepIndex, currentState);
-          const a = currentState.assignments[ri];
-          const isLast = currentState.stepIndex === currentState.itemCount - 1;
-          const answer = currentState.userAnswers[currentState.stepIndex] || "";
-          const isCorrect = fuzzyMatch(answer, a?.object || "");
-          
-          let fallback = getReactRecallFallback(currentState);
-          if (isLast && !isCorrect && a) {
-            fallback = `That one was ${a.object}. The pictures will get clearer with practice, ${currentState.userName}.`;
-          }
-          
+          const fallback = getReactRecallFallback(currentState);
           try {
+            const ri = recallAssignmentIndex(currentState.stepIndex, currentState);
+            const a = currentState.assignments[ri];
             const resp = await fetch("/api/smart-confirm", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 userName: currentState.userName,
                 objectName: a?.object || "",
-                userAssociation: answer,
+                userAssociation: currentState.userAnswers[currentState.stepIndex] || "",
                 originalScene: currentState.userScenes[ri] || "",
                 stopName: a?.stopName || "",
                 context: "recall-confirmation",

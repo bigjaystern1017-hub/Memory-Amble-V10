@@ -425,7 +425,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     }
 
     case "onboard-welcome":
-      return `Ah, ${name}! What a pleasure — I am so happy to meet you. My name is Timbuk and I would be honored to be your guide on this journey. Today we are going to build something really special — your very own Memory Palace — a technique that has been around for thousands of years, and honestly? It is a lot of fun. Shall we get started?`;
+      return `Ah, ${name}! What a pleasure — I am so happy to meet you. I am Timbuk and I would be honored to be your guide on this journey. Today we are going to build something really special — your very own Memory Palace — a technique that has been around for thousands of years, and honestly? It is a lot of fun. Shall we get started?`;
 
     case "onboard-skill":
       return `Fantastic — I was hoping you would say that. Before we begin, one important thing. Memory is not fixed. It is a skill — like playing piano or riding a bike. And like any skill it can be trained and improved. Which is exactly why I am so excited to work with you today. ${name}, I have a question. Is there a place you know so well you could walk through it with your eyes closed? Your home, a garden, somewhere you have been a thousand times? Tell me — where shall we walk today?`;
@@ -474,8 +474,8 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
         return `Welcome back, ${name}! Four days. Do you know how rare that is? Most people never make it this far. The palace is building in your mind whether you feel it or not. Today we stretch — eight stops. Stay with me. You are closer than you think.`;
       }
       if (dayNum === 5) {
-        if (isPerfect) return `${name}, five days in — and yesterday you were flawless. Today is my absolute favourite because today we stop practicing and start using this for real life. We are going to fill your palace with things you actually need to remember. A grocery list. Appointments. Things from your week. This is what the memory palace was built for.`;
-        if (isGood) return `${name}, five days in and you are doing beautifully. Today is my absolute favourite — because today we make this useful. Real items. Real life. Groceries, appointments, things from your week. This is what the memory palace was always meant for. Ready to see how practical this gets?`;
+        if (isPerfect) return `${name}, five days in — and yesterday you were flawless. Today is the absolute favourite because today we stop practicing and start using this for real life. We are going to fill your palace with things you actually need to remember. A grocery list. Appointments. Things from your week. This is what the memory palace was built for.`;
+        if (isGood) return `${name}, five days in and you are doing beautifully. Today is the absolute favourite — because today we make this useful. Real items. Real life. Groceries, appointments, things from your week. This is what the memory palace was always meant for. Ready to see how practical this gets?`;
         return `${name}, five days. I want you to hear this — showing up every day IS the training. Today we do something different that I think is going to surprise you. We use the palace for real life. Groceries. Appointments. Things you actually need. Sometimes the technique clicks when it gets personal. Let us find out.`;
       }
       if (dayNum === 6) {

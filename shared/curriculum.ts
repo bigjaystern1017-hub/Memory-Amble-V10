@@ -9,7 +9,7 @@ export const BOOTCAMP_CURRICULUM: {
   graduation?: boolean;
 }[] = [
   { day: 1, title: "The Foundation", focus: "Vivid Imagery", itemCount: 3, cleaning: false, reverse: false },
-  { day: 2, title: "The Expansion", focus: "Making Space", itemCount: 5, cleaning: true, reverse: false },
+  { day: 2, title: "The Expansion", focus: "Making Space", itemCount: 3, cleaning: true, reverse: false },
   { day: 3, title: "The Reverse", focus: "Mental Agility", itemCount: 5, cleaning: true, reverse: true },
   { day: 4, title: "The Stretch", focus: "Volume", itemCount: 8, cleaning: true, reverse: false },
   { day: 5, title: "The Practical", focus: "Real Life", itemCount: 8, cleaning: true, reverse: false, category: "practical" },

@@ -807,6 +807,10 @@ export default function Amble() {
             s.isReturningUser = true;
             s.lessonConfig = lesson;
             s.itemCount = lesson.itemCount;
+            // Cap itemCount to actual palace size for Days 2+
+            if (s.stops && s.stops.length > 0) {
+              s.itemCount = Math.min(s.itemCount, s.stops.length);
+            }
             s.category = lesson.category;
             s.dayCount = guestProgress.dayCount;
             s.lastPalaceName = "Your Palace";
@@ -950,6 +954,10 @@ export default function Amble() {
         s.isReturningUser = pd.dayCount > 0;
         s.lessonConfig = lesson;
         s.itemCount = lesson.itemCount;
+        // Cap itemCount to actual palace size for Days 2+
+        if (s.stops && s.stops.length > 0) {
+          s.itemCount = Math.min(s.itemCount, s.stops.length);
+        }
         s.category = lesson.category;
         s.dayCount = pd.dayCount;
         if (latestSession && latestSession.date !== todayStr()) {
@@ -1059,6 +1067,10 @@ export default function Amble() {
     s.userName = enteredName;
     s.lessonConfig = lesson;
     s.itemCount = lesson.itemCount;
+    // Cap itemCount to actual palace size for Days 2+
+    if (s.stops && s.stops.length > 0) {
+      s.itemCount = Math.min(s.itemCount, s.stops.length);
+    }
     s.category = lesson.category;
     s.dayCount = progressData.dayCount;
     updateState(s);
@@ -1442,6 +1454,10 @@ export default function Amble() {
     s.userName = displayName;
     s.lessonConfig = lesson;
     s.itemCount = lesson.itemCount;
+    // Cap itemCount to actual palace size for Days 2+
+    if (s.stops && s.stops.length > 0) {
+      s.itemCount = Math.min(s.itemCount, s.stops.length);
+    }
     s.category = lesson.category;
     s.dayCount = progressData.dayCount;
     s.isReturningUser = true;

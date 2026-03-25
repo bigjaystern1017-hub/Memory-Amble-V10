@@ -7,7 +7,11 @@ import {
 } from './client/src/components/beat-engine';
 import { getLessonConfig } from './client/src/lib/progress';
 
-function runFlow(label: string, initialState: ConversationState, startBeat: BeatId) {
+interface RunFlowOptions {
+  wrongAnswerIndices?: number[];  // indices where wrong answers are given
+}
+
+function runFlow(label: string, initialState: ConversationState, startBeat: BeatId, options: RunFlowOptions = {}) {
   console.log('\n' + '='.repeat(60));
   console.log(`SCENARIO: ${label}`);
   console.log('='.repeat(60));
@@ -16,6 +20,7 @@ function runFlow(label: string, initialState: ConversationState, startBeat: Beat
   let beat: BeatId | null = startBeat;
   let stepCount = 0;
   const maxSteps = 50;
+  const { wrongAnswerIndices = [] } = options;
 
   while (beat && stepCount < maxSteps) {
     const msg = getTimbukMessage(beat, state);
@@ -39,12 +44,26 @@ function runFlow(label: string, initialState: ConversationState, startBeat: Beat
 
     if (beat === 'recall') {
       const newAnswers = [...state.userAnswers];
-      newAnswers[state.stepIndex] = state.assignments[state.stepIndex]?.object || '';
-      state = { 
-        ...state, 
-        userAnswers: newAnswers, 
-        correctCount: state.correctCount + 1 
-      };
+      const isWrong = wrongAnswerIndices.includes(state.stepIndex);
+      if (isWrong) {
+        newAnswers[state.stepIndex] = 'wrong answer';
+      } else {
+        newAnswers[state.stepIndex] = state.assignments[state.stepIndex]?.object || '';
+        state = { ...state, correctCount: state.correctCount + 1 };
+      }
+      state = { ...state, userAnswers: newAnswers };
+    }
+
+    if (beat === 'react-recall') {
+      const newAnswers = [...state.userAnswers];
+      const isWrong = wrongAnswerIndices.includes(state.stepIndex);
+      if (isWrong) {
+        newAnswers[state.stepIndex] = 'wrong answer';
+      } else {
+        newAnswers[state.stepIndex] = state.assignments[state.stepIndex]?.object || '';
+        state = { ...state, correctCount: state.correctCount + 1 };
+      }
+      state = { ...state, userAnswers: newAnswers };
     }
 
     if (beat === 'practice-item') {
@@ -261,6 +280,38 @@ day7State.assignments = [
   { stopName: 'Garden', object: 'canoe' },
 ];
 runFlow('DAY 7 - Graduation', day7State, 'check-in-intro');
+
+// WRONG ANSWERS - All incorrect recall
+const wrongAnswerState = createFreshState();
+wrongAnswerState.userName = 'Gladys';
+wrongAnswerState.dayCount = 0;
+wrongAnswerState.itemCount = 3;
+wrongAnswerState.placeName = 'Your house';
+wrongAnswerState.stops = ['Front door', 'Kitchen', 'Living room'];
+wrongAnswerState.lessonConfig = getLessonConfig(3, 0, 'objects');
+wrongAnswerState.assignments = [
+  { stopName: 'Front door', object: 'penguin' },
+  { stopName: 'Kitchen', object: 'typewriter' },
+  { stopName: 'Living room', object: 'crown' },
+];
+wrongAnswerState.userScenes = ['a vivid scene', 'another scene', 'third scene'];
+runFlow('WRONG ANSWERS - All incorrect recall', wrongAnswerState, 'walkthrough-intro', { wrongAnswerIndices: [0, 1, 2] });
+
+// MIXED - First correct, second and third wrong
+const mixedAnswerState = createFreshState();
+mixedAnswerState.userName = 'Gladys';
+mixedAnswerState.dayCount = 0;
+mixedAnswerState.itemCount = 3;
+mixedAnswerState.placeName = 'Your house';
+mixedAnswerState.stops = ['Front door', 'Kitchen', 'Living room'];
+mixedAnswerState.lessonConfig = getLessonConfig(3, 0, 'objects');
+mixedAnswerState.assignments = [
+  { stopName: 'Front door', object: 'penguin' },
+  { stopName: 'Kitchen', object: 'typewriter' },
+  { stopName: 'Living room', object: 'crown' },
+];
+mixedAnswerState.userScenes = ['a vivid scene', 'another scene', 'third scene'];
+runFlow('MIXED - First correct, second and third wrong', mixedAnswerState, 'walkthrough-intro', { wrongAnswerIndices: [1, 2] });
 
 console.log('\n' + '='.repeat(60));
 console.log('TEST COMPLETE');

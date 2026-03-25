@@ -59,6 +59,10 @@ function runFlow(label: string, initialState: ConversationState, startBeat: Beat
       state = { ...state, placeName: 'Your house', stops: [] };
     }
 
+    if (beat === 'placement-intro') {
+      state = { ...state, stepIndex: 0 };
+    }
+
     if (beat === 'expansion-offer') {
       // Simulate accepting expansion
       state = { ...state, expansionOffered: true, expansionAccepted: true, itemCount: state.itemCount + 2 };

@@ -578,6 +578,7 @@ export default function Amble() {
             displayText = fallback;
           }
         } else if (beat === "react-recall") {
+          console.log('react-recall SMART_CONFIRM block: beat=react-recall, idx=', currentState.stepIndex, 'total=', currentState.itemCount, 'dayCount=', currentState.dayCount, 'expansionOffered=', currentState.expansionOffered);
           const fallback = getReactRecallFallback(currentState);
           try {
             const ri = recallAssignmentIndex(currentState.stepIndex, currentState);
@@ -727,6 +728,9 @@ export default function Amble() {
         return;
       }
 
+      if (beat === "react-recall") {
+        console.log('react-recall advancing: beat=react-recall, idx=', currentState.stepIndex, 'total=', currentState.itemCount, 'dayCount=', currentState.dayCount, 'expansionOffered=', currentState.expansionOffered);
+      }
       const next = getNextBeat(beat, currentState);
       if (next) {
         let nextState = currentState;

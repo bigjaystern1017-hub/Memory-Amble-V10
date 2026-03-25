@@ -747,8 +747,6 @@ export default function Amble() {
           updateState(nextState);
         }
         if (beat === "mirror-object" && next === "palace-buffer") {
-          nextState = { ...currentState, stepIndex: 0 };
-          updateState(nextState);
           await doScreenWipe();
         }
         if (beat === "check-in-done") {

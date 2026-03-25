@@ -753,6 +753,10 @@ export default function Amble() {
           nextState = { ...currentState, stepIndex: 0 };
           updateState(nextState);
         }
+        if (beat === "palace-buffer" && next === "walkthrough-intro") {
+          nextState = { ...currentState, stepIndex: 0 };
+          updateState(nextState);
+        }
         if (
           (beat === "react-stop" && next === "ask-stop") ||
           (beat === "mirror-object" && next === "place-object") ||

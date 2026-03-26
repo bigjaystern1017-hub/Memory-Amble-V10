@@ -1,0 +1,30 @@
+Please make these three fixes to the expansion flow and scoring. Be careful and precise — do not change anything else.
+Fix 1 — Add baseItemCount to ConversationState interface
+In client/src/components/beat-engine.ts, find the ConversationState interface. Add this line next to where baseCorrectCount is defined:
+baseItemCount?: number;
+Fix 2 — Fix expansion scoring in processUserInput
+In client/src/pages/amble.tsx, find the recall case inside processUserInput. Find these two lines:
+typescriptconst inExpansionPhase = s.baseItemCount && idx >= s.baseItemCount;
+const correctDelta = inExpansionPhase ? 0 : addCorrect;
+Replace with:
+typescriptconst inExpansionPhase = s.expansionAccepted && s.baseItemCount !== undefined && idx >= s.baseItemCount;
+const correctDelta = inExpansionPhase ? 0 : addCorrect;
+Fix 3 — Fix final beat to show base score correctly
+In client/src/components/beat-engine.ts, find the final case. Find this line:
+typescriptconst baseCount = state.baseCorrectCount !== undefined ? Math.min(state.baseCorrectCount, state.baseItemCount || state.itemCount) : Math.min(state.correctCount, state.itemCount);
+const baseTotal = state.baseItemCount || state.itemCount;
+Replace with:
+typescriptconst baseCount = state.expansionAccepted && state.baseCorrectCount !== undefined && state.baseItemCount !== undefined
+  ? Math.min(state.baseCorrectCount, state.baseItemCount)
+  : Math.min(state.correctCount, state.itemCount);
+const baseTotal = state.expansionAccepted && state.baseItemCount !== undefined
+  ? state.baseItemCount
+  : state.itemCount;
+Fix 4 — Fix "your palace at house" display
+In client/src/components/beat-engine.ts, find the final case. Find every instance of ${place.toLowerCase()} and replace each one with:
+typescript${yourify('your ' + state.placeName.toLowerCase().replace(/^your\s+/i, ''))}
+Fix 5 — Guard expansion offer from firing mid-recall
+In client/src/components/beat-engine.ts, find the wisdom-drop case inside getNextBeat. Find:
+typescriptif (state.dayCount === 1 && !state.expansionOffered) return "expansion-offer";
+Replace with:
+typescriptif (state.dayCount === 1 && !state.expansionOffered && idx === total - 1) return "expansion-offer";

@@ -85,6 +85,7 @@ export interface ConversationState {
   expansionOffered: boolean;
   expansionAccepted: boolean;
   baseCorrectCount: number;
+  baseItemCount?: number;
 }
 
 export const SMART_CONFIRM = "__SMART_CONFIRM__";
@@ -687,8 +688,12 @@ Now, close your eyes and picture yourself at the entrance of your ${yourify(plac
     }
 
     case "final": {
-      const baseCount = state.baseCorrectCount !== undefined ? Math.min(state.baseCorrectCount, state.baseItemCount || state.itemCount) : Math.min(state.correctCount, state.itemCount);
-      const baseTotal = state.baseItemCount || state.itemCount;
+      const baseCount = state.expansionAccepted && state.baseCorrectCount !== undefined && state.baseItemCount !== undefined
+        ? Math.min(state.baseCorrectCount, state.baseItemCount)
+        : Math.min(state.correctCount, state.itemCount);
+      const baseTotal = state.expansionAccepted && state.baseItemCount !== undefined
+        ? state.baseItemCount
+        : state.itemCount;
       const count = baseCount;
       const total = baseTotal;
       const graduated = state.graduated;
@@ -697,16 +702,17 @@ Now, close your eyes and picture yourself at the entrance of your ${yourify(plac
         : "";
       const dayNote = `\n\nSee you next time for Day ${dayNum + 1}!${levelNote}`;
 
+      const palacePhrase = yourify('your ' + state.placeName.toLowerCase().replace(/^your\s+/i, ''));
       if (count === total) {
-        return `${name}, ${count} out of ${total}. A perfect walk! You clearly have a wonderful imagination.\n\nYour palace at ${place.toLowerCase()} is yours now. Walk through it in your mind tonight before bed.${dayNote}`;
+        return `${name}, ${count} out of ${total}. A perfect walk! You clearly have a wonderful imagination.\n\nYour palace at ${palacePhrase} is yours now. Walk through it in your mind tonight before bed.${dayNote}`;
       }
       if (count >= total * 0.66) {
-        return `${count} out of ${total}, ${name}! That is genuinely impressive. Your palace at ${place.toLowerCase()} is working.\n\nWalk through it one more time tonight -- those images will get even stickier.${dayNote}`;
+        return `${count} out of ${total}, ${name}! That is genuinely impressive. Your palace at ${palacePhrase} is working.\n\nWalk through it one more time tonight -- those images will get even stickier.${dayNote}`;
       }
       if (count >= 1) {
-        return `${count} out of ${total} -- and ${name}, that is a real start. The palace at ${place.toLowerCase()} is yours. The images are planted.\n\nTry walking through it one more time tonight. I think you'll surprise yourself.${dayNote}`;
+        return `${count} out of ${total} -- and ${name}, that is a real start. The palace at ${palacePhrase} is yours. The images are planted.\n\nTry walking through it one more time tonight. I think you'll surprise yourself.${dayNote}`;
       }
-      return `${name}, what you just did took courage. You built a palace at ${place.toLowerCase()} and walked through it. The pictures will get clearer.\n\nTonight, try walking through it in your mind. Each time, they'll stick a little more.${dayNote}`;
+      return `${name}, what you just did took courage. You built a palace at ${palacePhrase} and walked through it. The pictures will get clearer.\n\nTonight, try walking through it in your mind. Each time, they'll stick a little more.${dayNote}`;
     }
 
     case "expansion-offer": {
@@ -941,7 +947,7 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
       return "final";
 
     case "wisdom-drop":
-      if (state.dayCount === 1 && !state.expansionOffered) return "expansion-offer";
+      if (state.dayCount === 1 && !state.expansionOffered && idx === total - 1) return "expansion-offer";
       if (idx < total - 1) return "recall";
       if (hasCleaning) return "palace-wipe";
       if (state.correctCount === total) return "graduation-offer";

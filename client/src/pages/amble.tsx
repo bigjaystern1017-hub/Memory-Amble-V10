@@ -1352,7 +1352,7 @@ export default function Amble() {
             if (fuzzyMatch(text, keyword)) addCorrect = 1;
           }
           // Don't increment correctCount during expansion recall phase
-          const inExpansionPhase = s.baseItemCount && idx >= s.baseItemCount;
+          const inExpansionPhase = s.expansionAccepted && s.baseItemCount !== undefined && idx >= s.baseItemCount;
           const correctDelta = inExpansionPhase ? 0 : addCorrect;
           s = { ...s, userAnswers: newAnswers, correctCount: s.correctCount + correctDelta };
           break;

@@ -702,17 +702,17 @@ Now, close your eyes and picture yourself at the entrance of your ${yourify(plac
         : "";
       const dayNote = `\n\nSee you next time for Day ${dayNum + 1}!${levelNote}`;
 
-      const palacePhrase = yourify('your ' + state.placeName.toLowerCase().replace(/^your\s+/i, ''));
+      const placeName = state.placeName.toLowerCase().replace(/^your\s+/i, '');
       if (count === total) {
-        return `${name}, ${count} out of ${total}. A perfect walk! You clearly have a wonderful imagination.\n\nYour palace at ${palacePhrase} is yours now. Walk through it in your mind tonight before bed.${dayNote}`;
+        return `${name}, ${count} out of ${total}. A perfect walk! You clearly have a wonderful imagination.\n\nYour palace at ${placeName} is yours now. Walk through it in your mind tonight before bed.${dayNote}`;
       }
       if (count >= total * 0.66) {
-        return `${count} out of ${total}, ${name}! That is genuinely impressive. Your palace at ${palacePhrase} is working.\n\nWalk through it one more time tonight -- those images will get even stickier.${dayNote}`;
+        return `${count} out of ${total}, ${name}! That is genuinely impressive. Your palace at ${placeName} is working.\n\nWalk through it one more time tonight -- those images will get even stickier.${dayNote}`;
       }
       if (count >= 1) {
-        return `${count} out of ${total} -- and ${name}, that is a real start. The palace at ${palacePhrase} is yours. The images are planted.\n\nTry walking through it one more time tonight. I think you'll surprise yourself.${dayNote}`;
+        return `${count} out of ${total} -- and ${name}, that is a real start. The palace at ${placeName} is yours. The images are planted.\n\nTry walking through it one more time tonight. I think you'll surprise yourself.${dayNote}`;
       }
-      return `${name}, what you just did took courage. You built a palace at ${palacePhrase} and walked through it. The pictures will get clearer.\n\nTonight, try walking through it in your mind. Each time, they'll stick a little more.${dayNote}`;
+      return `${name}, what you just did took courage. You built a palace at ${placeName} and walked through it. The pictures will get clearer.\n\nTonight, try walking through it in your mind. Each time, they'll stick a little more.${dayNote}`;
     }
 
     case "expansion-offer": {

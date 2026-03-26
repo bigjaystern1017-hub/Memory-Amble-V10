@@ -150,6 +150,10 @@ export default function Amble() {
       if (correctWords.some(cw => cw.includes(word) || word.includes(cw))) {
         return true;
       }
+      // Check if any significant word is a prefix of the correct answer
+      if (correctWords.some(cw => cw.startsWith(word) && word.length > 2)) {
+        return true;
+      }
     }
 
     // Spelling tolerance — allow up to 2 character differences
@@ -1137,7 +1141,7 @@ export default function Amble() {
     processingRef.current = true;
     setShowContinue(false);
     const s = stateRef.current;
-    const nextState = { ...s, expansionOffered: true, expansionAccepted: true, baseCorrectCount: s.correctCount, itemCount: s.itemCount + 2 };
+    const nextState = { ...s, expansionOffered: true, expansionAccepted: true, baseCorrectCount: s.correctCount, baseItemCount: s.itemCount, itemCount: s.itemCount + 2 };
     updateState(nextState);
     setCurrentBeat("expansion-stop-1");
     await advanceBeatRef.current("expansion-stop-1", nextState);
@@ -1346,7 +1350,10 @@ export default function Amble() {
               .split(" ").pop()?.toLowerCase() || "";
             if (fuzzyMatch(text, keyword)) addCorrect = 1;
           }
-          s = { ...s, userAnswers: newAnswers, correctCount: s.correctCount + addCorrect };
+          // Don't increment correctCount during expansion recall phase
+          const inExpansionPhase = s.baseItemCount && idx >= s.baseItemCount;
+          const correctDelta = inExpansionPhase ? 0 : addCorrect;
+          s = { ...s, userAnswers: newAnswers, correctCount: s.correctCount + correctDelta };
           break;
         }
       }

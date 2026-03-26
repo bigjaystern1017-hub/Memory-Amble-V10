@@ -633,6 +633,7 @@ export default function Amble() {
         } catch {
           await showTimbukWithTypewriter(recallFallback);
         }
+        return;
       }
 
       if (beat === "wisdom-drop") {
@@ -1347,7 +1348,7 @@ export default function Amble() {
               .replace(/^a\s+/i, "")
               .replace(/^an\s+/i, "")
               .replace(/^the\s+/i, "")
-              .split(" ").pop()?.toLowerCase() || "";
+              .toLowerCase();
             if (fuzzyMatch(text, keyword)) addCorrect = 1;
           }
           // Don't increment correctCount during expansion recall phase

@@ -1822,4 +1822,135 @@ export default function Amble() {
             <div className="flex gap-3 justify-center">
               <Button
                 size="lg"
-                onClick=
+                onClick={handleExpansionAccept}
+                data-testid="button-expansion-accept"
+              >
+                Let's push it!
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={handleExpansionDecline}
+                data-testid="button-expansion-decline"
+              >
+                That's a win!
+              </Button>
+            </div>
+          ) : showContinue ? (
+            <div className="text-center">
+              <Button
+                size="lg"
+                onClick={handleContinue}
+                className="gap-2"
+                data-testid="button-continue"
+              >
+                {getContinueButtonLabel(currentBeat)}
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {recallHint && currentBeat === "recall" && (
+                <div className="px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 flex items-start gap-2" data-testid="recall-hint-display">
+                  <Lightbulb className="w-3.5 h-3.5 text-primary/60 mt-0.5 shrink-0" />
+                  <p className="text-xs text-muted-foreground italic leading-snug">{recallHint}</p>
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <ChatInput
+                    onSend={handleUserInput}
+                    placeholder={getInputPlaceholder(currentBeat, state)}
+                    disabled={!inputEnabled || isTyping || typewriterBusy}
+                  />
+                </div>
+                {currentBeat === "recall" && inputEnabled && !typewriterBusy && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRecallHint}
+                    disabled={recallHintLoading}
+                    className="shrink-0 h-14 px-3 text-xs text-muted-foreground hover:text-primary gap-1.5 border border-border/50 rounded-xl"
+                    data-testid="button-recall-hint"
+                  >
+                    <Lightbulb className="w-3.5 h-3.5" />
+                    {recallHintLoading ? "..." : "Hint?"}
+                  </Button>
+                )}
+              </div>
+              {showSparkButton && inputEnabled && !typewriterBusy && (
+                <div className="flex justify-center">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleSpark}
+                    disabled={sparkLoading}
+                    className="gap-2 text-muted-foreground"
+                    data-testid="button-spark"
+                  >
+                    <Lightbulb className="w-4 h-4" />
+                    {sparkLoading ? "Thinking..." : "Stuck? Get a spark from Timbuk"}
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+      {showPenguin && (
+        <div className="fixed bottom-16 left-0 z-[9999] pointer-events-none penguin-waddle">
+          🐧
+        </div>
+      )}
+      {window.location.hostname.includes('replit.dev') && (
+        <div className='fixed bottom-2 right-2 z-[9999] flex flex-col gap-1'>
+          <button
+            onClick={() => {
+              localStorage.clear();
+              window.location.reload();
+            }}
+            className='px-2 py-1 text-xs text-muted-foreground/50 hover:text-muted-foreground bg-transparent cursor-pointer'
+          >
+            Dev Reset
+          </button>
+          <button
+            onClick={() => {
+              const palace = ['Front door', 'Kitchen', 'Living room'];
+              const assignments = [
+                { stopName: 'Front door', object: 'penguin' },
+                { stopName: 'Kitchen', object: 'typewriter' },
+                { stopName: 'Living room', object: 'crown' },
+              ];
+              const s = createFreshState();
+              s.userName = 'Joe';
+              s.placeName = 'house';
+              s.stops = palace;
+              s.isReturningUser = true;
+              s.dayCount = 1;
+              s.itemCount = 3;
+              s.lessonConfig = getLessonConfig(3, 1, 'objects');
+              s.checkInAssignments = assignments;
+              s.checkInPlace = 'house';
+              s.yesterdayScore = 3;
+              s.yesterdayTotal = 3;
+              s.lastPalaceName = 'house';
+              s.lastStops = palace;
+              s.preCleanAssignments = assignments;
+              s.preCleanStops = palace;
+              updateState(s);
+              setMessages([]);
+              setPhase('chat');
+              setTimeout(() => {
+                setCurrentBeat('check-in-intro');
+                advanceBeatRef.current('check-in-intro', s);
+              }, 200);
+            }}
+            className='px-2 py-1 text-xs text-muted-foreground/50 hover:text-muted-foreground bg-transparent cursor-pointer'
+          >
+            Dev: Day 2
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

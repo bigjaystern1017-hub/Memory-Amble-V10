@@ -633,6 +633,11 @@ export default function Amble() {
         } catch {
           await showTimbukWithTypewriter(recallFallback);
         }
+        const nextAfterPractice = getNextBeat("practice-success", currentState);
+        if (nextAfterPractice) {
+          setCurrentBeat(nextAfterPractice);
+          await advanceBeatRef.current(nextAfterPractice, currentState);
+        }
         return;
       }
 

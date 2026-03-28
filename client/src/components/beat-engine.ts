@@ -265,29 +265,37 @@ function extractKeyword(objectName: string): string {
   return cleaned;
 }
 
-function fuzzyMatch(userAnswer: string, correctObject: string): boolean {
-  const stopWords = new Set(["a", "the", "an", "of", "and", "or", "is", "in", "at", "to", "for"]);
-
-  const getSignificantWords = (str: string): Set<string> => {
-    return new Set(
-      str
-        .toLowerCase()
-        .replace(/[^\w\s]/g, "")
-        .split(/\s+/)
-        .filter((w) => w.length > 0 && !stopWords.has(w))
-    );
-  };
-
-  const answerWords = getSignificantWords(userAnswer);
-  const correctWords = getSignificantWords(correctObject);
-
-  // Check if any significant word from answer appears in correct object
-  for (const word of answerWords) {
-    if (correctWords.has(word)) {
-      return true;
+function levenshtein(a: string, b: string): number {
+  const m = a.length, n = b.length;
+  const dp: number[][] = Array.from({length: m + 1}, (_, i) => 
+    Array.from({length: n + 1}, (_, j) => i === 0 ? j : j === 0 ? i : 0)
+  );
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] = a[i-1] === b[j-1] 
+        ? dp[i-1][j-1] 
+        : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
     }
   }
+  return dp[m][n];
+}
 
+function fuzzyMatch(userAnswer: string, correctObject: string): boolean {
+  const normalize = (s: string) => s.toLowerCase().replace(/[^\w]/g, '').trim();
+  const a = normalize(userAnswer);
+  const c = normalize(correctObject);
+  if (a === c) return true;
+  if (a.includes(c) || c.includes(a)) return true;
+  const stopWords = new Set(["a", "the", "an", "of", "and", "or", "is", "in", "at", "to", "for"]);
+  const getWords = (s: string) => s.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter(w => w.length > 1 && !stopWords.has(w));
+  const answerWords = getWords(userAnswer);
+  const correctWords = getWords(correctObject);
+  for (const word of answerWords) {
+    if (correctWords.some(cw => cw.includes(word) || word.includes(cw))) return true;
+    if (correctWords.some(cw => cw.startsWith(word) && word.length > 2)) return true;
+  }
+  const maxDist = c.length > 5 ? 2 : 1;
+  if (levenshtein(a, c) <= maxDist) return true;
   return false;
 }
 

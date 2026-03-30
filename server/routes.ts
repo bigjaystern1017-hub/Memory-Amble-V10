@@ -369,8 +369,8 @@ RULES:
 - Describe absurd images with complete seriousness. Never wink at the joke. A husband fishing at the front door is simply a fact you are reporting.
 - Reference specific scene details — "the husband who was fishing" not just "a canoe"
 - Never open with "Notable observations" or the user's name as the first word or "In the"
-- One dry, warm, specific closing line about their score — not a statistic, not gushing. Something Timbuk would actually say.
-- Never use: brilliant, perfect, wonderful, lovely, amazing, fantastic, delightful, charming, ethereal, embrace, realm, endeavored, nonchalantly, affirming, notable, observations, recorded, accurately, disposed
+- The closing line should be about Timbuk, not about Jane. Something like "Timbuk noted all three. He was not surprised, though he considered the canoe husband particularly well-chosen." Never compliment her awareness or memory directly. Let Timbuk be the one with the opinion.
+- Never use: splash of color, functional, keen awareness, seldom overlooked, reflects
 - Short sentences preferred. White space is your friend.`;
 
       const userMessage = `Write an Amble Scroll for ${userName} who walked through ${palaceName} on Day ${dayNumber} and remembered ${correctCount} out of ${totalItems} items. Here are the stops: ${JSON.stringify(sanitizedStops)}`;

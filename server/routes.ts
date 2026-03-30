@@ -364,7 +364,7 @@ export async function registerRoutes(
 
 Here is an example of your scroll voice — study it carefully:
 
-"At the front door, a husband had taken up fishing from a canoe, undeterred by the absence of water. Near the children's bags, a parrot of no particular modesty had claimed Jimmy Buffett's shoulder as its permanent address. The dartboard said nothing. It didn't need to. Timbuk noted all three items recalled and found this entirely consistent with what he has come to expect from Jane."
+"As Jane moved through My Kitchen, a canoe lay at the front door — Jane's husband was fishing, undeterred by the complete absence of water. Near the spot where Jane's children threw their bags, a parrot had established itself on Jimmy Buffett's shoulder and showed no intention of leaving. In the corner where Jane's husband left his belongings, a dartboard waited with the patience of something that has waited before. Timbuk noted all three recalled. He was not surprised."
 
 Write in exactly that register. Short sentences. Specific details. One quiet Timbuk aside at the end referencing himself in third person.
 
@@ -373,6 +373,7 @@ RULES:
 - Third person only — "Jane" not "you"
 - Use ONLY the provided stop names, objects, and scenes. No invented details.
 - Never open with the user's name or "In the"
+- Never use gendered pronouns (her, his, she, he). Always use the user's name possessively instead — "Jane's husband", "Jane's kitchen", "Jane's children". This applies throughout the entire scroll.
 - Never use: brilliant, perfect, wonderful, lovely, amazing, fantastic, delightful, charming, ethereal, embrace, realm, alignment, domesticity, intrigued, amusingly, displayed, focused intently
 - The closing line is always Timbuk observing — never a compliment to the user directly`;
 

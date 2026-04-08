@@ -1957,6 +1957,34 @@ export default function Amble() {
           >
             Dev: Day 2
           </button>
+          <button
+            onClick={() => {
+              const mockAssignments = [
+                { stopName: 'Front door', object: 'penguin' },
+                { stopName: 'Kitchen counter', object: 'canoe' },
+                { stopName: 'Hat rack', object: 'flamingo' },
+              ];
+              const mockScenes = [
+                'wearing a top hat and holding my mail',
+                'my husband is fishing from it',
+                'wearing my husbands coat and refusing to leave',
+              ];
+              const s = createFreshState();
+              s.userName = 'Gladys';
+              s.placeName = 'My House';
+              s.stops = ['Front door', 'Kitchen counter', 'Hat rack'];
+              s.assignments = mockAssignments;
+              s.userScenes = mockScenes;
+              s.correctCount = 3;
+              s.itemCount = 3;
+              updateState(s);
+              setResultsSummary({ correctCount: 3, totalItems: 3, streak: 3, justCompletedDay: 1 });
+              setPhase('results');
+            }}
+            className='px-2 py-1 text-xs text-muted-foreground/50 hover:text-muted-foreground bg-transparent cursor-pointer'
+          >
+            Dev: Scroll Test
+          </button>
         </div>
       )}
     </div>

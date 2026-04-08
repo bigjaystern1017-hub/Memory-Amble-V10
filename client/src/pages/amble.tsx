@@ -1598,6 +1598,8 @@ export default function Amble() {
         placeName={state.placeName}
         stops={state.stops}
         pendingSession={pendingSession}
+        userScenes={state.userScenes}
+        assignments={state.assignments}
       />
     );
   }

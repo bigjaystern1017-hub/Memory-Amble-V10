@@ -146,8 +146,17 @@ export default function Landing() {
         {/* SECTION 6 — MEET TIMBUK */}
         <section className="py-14 md:py-20 px-4 md:px-8 bg-amber-50">
           <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-10 md:gap-16">
-            <div className="flex-shrink-0 flex justify-center">
-              <img src={timbukAvatar} alt="Timbuk" className="w-48 h-48 md:w-64 md:h-64 rounded-full object-cover shadow-md" />
+            <div className="relative flex items-center justify-center">
+              <div
+                className="rounded-full flex items-center justify-center overflow-hidden"
+                style={{ backgroundColor: '#fef9f0', width: '280px', height: '280px' }}
+              >
+                <img
+                  src={timbukAvatar}
+                  alt="Timbuk"
+                  style={{ width: '260px', height: '260px', objectFit: 'contain' }}
+                />
+              </div>
             </div>
             <div className="text-center md:text-left space-y-4">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900" style={{ fontFamily: "Lora, serif" }}>Meet Timbuk</h2>

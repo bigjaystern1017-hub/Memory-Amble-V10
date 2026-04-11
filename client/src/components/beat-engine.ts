@@ -463,20 +463,20 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
         : goal === 'active'
         ? `Keeping your mind active and strong. That is why I am here too.`
         : `Curiosity is how every great memory palace begins. Let us see what happens.`;
-      return `Ah, ${name}! What a pleasure — I am so happy to meet you. I am Timbuk and I would be honored to be your guide on this journey. ${goalLine} Today we are going to build something really special — your very own Memory Palace. Shall we get started? Oh — and I have a small surprise waiting for you at the end.`;
+      return `Ah, ${name}! I am so happy to meet you. I am Timbuk and I would be honored to be your guide on this journey. ${goalLine} Today we are going to build something really special — your very own Memory Palace. Shall we get started? Oh — and I have a small surprise waiting for you at the end.`;
     }
 
     case "onboard-skill":
-      return `Fantastic — I was hoping you would say that. Before we begin, one important thing. Memory is not fixed. It is a skill — like playing piano or riding a bike. And like any skill it can be trained and improved. Which is exactly why I am so excited to work with you today.\n\n${name}, I have a question. Is there a place you know so well you could walk through it with your eyes closed? Your home, a garden, somewhere you have been a thousand times? Tell me — where shall we walk today?`;
+      return `Fantastic — before we begin, memory is not fixed. It is a skill. And like any skill it can be trained. Which is exactly why I am so excited to work with you today.\n\nIs there a place you know so well you could walk through it with your eyes closed? Your home, a garden, somewhere you have been a thousand times?`;
 
     case "onboard-palace":
-      return `Good. ${place} — that is your Memory Palace. It already exists. We are just going to furnish it. Scholars, orators and memory champions have been using this technique for over 2,000 years. Here is the secret, ${name}. Your brain is not great at remembering dry facts — names, lists, numbers. But it is good at remembering places.`;
+      return `Good. ${place} — that is your Memory Palace. It already exists. We are just going to furnish it. Scholars, orators and memory champions have been using this technique for over 2,000 years. Here is the secret, ${name}. Your brain is not great at remembering dry facts, names, lists, etc. But it is good at remembering places you have walked a thousand times.`;
 
     case "onboard-vivid":
-      return `The Memory Palace uses exactly that. We take an object — say, a penguin — and place it anywhere in your home. But here is where it gets fun, ${name}. We do not just plop it anywhere. We make it YOURS. Is it big — blocking the whole doorway? Is it wearing a bow tie and tap dancing? Is it that same penguin that waddled after you at the zoo when you were eight years old and your mother had to pull you away?`;
+      return `Memory Palace uses that. We take an object — say, a penguin — and place it in your home. But here is where it gets fun. We do not just plop it anywhere. We make it YOURS. Is it big — blocking the doorway? Wearing a bow tie? Is it that same penguin that waddled after you at the zoo when you were eight years old?`;
 
     case "onboard-secret":
-      return `The more vivid, the more ridiculous, the more personal — the harder your brain works to file it. And the harder it works, the more it sticks. That is the whole secret right there. And ${name} — there is no failing here. No test. No pressure. This is a skill and the most important thing is practice. The more we walk together the sharper it gets. You can take this skill into your real life — grocery lists, names, appointments, whatever you like. Now hit that magic button...`;
+      return `The more vivid, the more personal — the harder your brain works to file it. The harder it works, the more it sticks. There is no failing here. No test. No pressure. The most important thing is practice. The more we walk together the sharper it gets. You can take this skill into your real life — grocery lists, names, appointments, whatever you like. Now hit that magic button...`;
 
     case "onboard-ready":
       return `If you can picture your home, you have already done half the work. I have a hint button if you ever get a little stuck. Ready? Let us find your palace.`;

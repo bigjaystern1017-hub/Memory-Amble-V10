@@ -1,0 +1,44 @@
+Make these EXACT text changes in client/src/components/beat-engine.ts. These are copy-only changes — do not change any logic, routing, function signatures, or anything else.
+
+1. In the "onboard-welcome" case, find:
+`Ah, ${name}! What a pleasure — I am so happy to meet you.`
+
+Replace with:
+`Ah, ${name}! I am so happy to meet you.`
+
+(Remove "What a pleasure — ")
+
+2. In the "onboard-skill" case, find the entire return string and replace it. Current:
+return `Fantastic — I was hoping you would say that. Before we begin, one important thing. Memory is not fixed. It is a skill — like playing piano or riding a bike. And like any skill it can be trained and improved. Which is exactly why I am so excited to work with you today.\n\n${name}, I have a question. Is there a place you know so well you could walk through it with your eyes closed? Your home, a garden, somewhere you have been a thousand times? Tell me — where shall we walk today?`;
+
+Replace with:
+return `Fantastic — before we begin, memory is not fixed. It is a skill. And like any skill it can be trained. Which is exactly why I am so excited to work with you today.\n\nIs there a place you know so well you could walk through it with your eyes closed? Your home, a garden, somewhere you have been a thousand times?`;
+
+(Removed "I was hoping you would say that.", "one important thing.", "like playing piano or riding a bike", "and improved", "${name}, I have a question.", "Tell me — where shall we walk today?")
+
+3. In the "onboard-palace" case, the previous prompt already changed this but it needs further edits. Find the current text (after the last edit) and replace the entire return. It should now be:
+return `Good. ${place} — that is your Memory Palace. It already exists. We are just going to furnish it. Scholars, orators and memory champions have been using this technique for over 2,000 years. Here is the secret, ${name}. Your brain is not great at remembering dry facts, names, lists, etc. But it is good at remembering places you have walked a thousand times.`;
+
+(Changed "dry facts — names, lists, numbers." to "dry facts, names, lists, etc." — removed the dash, added etc. Changed "remembering places." to "remembering places you have walked a thousand times." — removed "Spaces" and "through", kept the thousand times line attached. Remove the period after "places" if it's there from the previous edit and connect it.)
+
+4. In the "onboard-vivid" case, the previous prompt already changed some of this but it needs further edits. Find the current return and replace the entire thing:
+return `Memory Palace uses that. We take an object — say, a penguin — and place it in your home. But here is where it gets fun. We do not just plop it anywhere. We make it YOURS. Is it big — blocking the doorway? Wearing a bow tie? Is it that same penguin that waddled after you at the zoo when you were eight years old?`;
+
+(Removed "The" from "The Memory Palace", removed "exactly" from "uses exactly that", removed "somewhere" replaced with nothing, removed "${name}" after "it gets fun,", removed "whole" from "whole doorway", changed "Is it wearing a bow tie and tap dancing?" to "Wearing a bow tie?", removed "and your mother had to pull you away")
+
+5. In the "onboard-secret" case, find the current return and replace the entire thing:
+return `The more vivid, the more personal — the harder your brain works to file it. The harder it works, the more it sticks. There is no failing here. No test. No pressure. The most important thing is practice. The more we walk together the sharper it gets. You can take this skill into your real life — grocery lists, names, appointments, whatever you like. Now hit that magic button...`;
+
+(Removed "the more ridiculous," — kept "the more personal". Removed "And" before "the harder". Removed "That is the whole secret right there. And ${name} —". Removed "This is a skill and" — starts with "The most important thing")
+
+6. In the "ask-stop" case for idx === 0, the previous edit changed this. Verify it currently reads:
+"You are at the entrance of your ${yourify(place).toLowerCase().replace(/^your\s+/i, '')}. What is your first stop?"
+
+That is correct — keep it as is. But ALSO: the original PDF shows the user wanted BOTH sentences struck through and replaced. Looking at the strikethrough more carefully, the entire "What is the first thing that catches your eye? That is your first stop." was struck AND "What is your first stop?" was NOT struck — so the current version is correct. No change needed here.
+
+7. In the "place-object" case for the default category, verify it currently has "Make it YOURS" (without "Now"). If it still says "Now make it YOURS", change it to "Make it YOURS". Also, the user struck through everything after "Make it YOURS —" in the placement prompt. The current text is:
+"${prefix} — ${emoji} ${a.object}. Make it YOURS — what is happening with that ${a.object} at __STOP__?"
+
+Keep this as is — the "what is happening" part is the prompt Gladys needs to know what to type. The user may have been noting it was repetitive but we need to keep the instruction for now.
+
+Do not change anything else. Do not change any logic, routing, imports, or function signatures. Only change the quoted text strings exactly as specified above.

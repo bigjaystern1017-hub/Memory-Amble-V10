@@ -216,7 +216,10 @@ export default function Landing() {
         <section className="py-14 md:py-20 px-4 md:px-8 bg-amber-50">
           <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-start gap-10 md:gap-16">
             <div className="flex-shrink-0 flex justify-center w-full md:w-auto">
-              <img src={familyDrawing} alt="Family illustration" className="w-56 md:w-72 rounded-xl shadow-md object-cover" />
+              <div className="flex flex-col items-center">
+                <img src={familyDrawing} alt="Family illustration" className="w-56 md:w-72 rounded-xl shadow-md object-cover" />
+                <p className="text-xs text-muted-foreground italic text-center mt-2">My dad and his granddaughter</p>
+              </div>
             </div>
             <div className="space-y-5">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900" style={{ fontFamily: "Lora, serif" }}>Our story</h2>
@@ -227,11 +230,9 @@ export default function Landing() {
                 <p>That was the genesis for MemoryAmble. Something warm, patient, and genuinely useful — that made him feel capable, not tested.</p>
                 <p>If you have someone in your life like my father — or if you are that person — this was built for you.</p>
                 <p className="text-lg text-muted-foreground leading-relaxed mt-4">If any of this sounds familiar — I think you'll like what we built.</p>
-                <p className="font-medium text-gray-800">— Jay</p>
               </div>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground italic text-center mt-2">My dad and his granddaughters</p>
         </section>
 
         {/* SECTION 9 — PRICING */}

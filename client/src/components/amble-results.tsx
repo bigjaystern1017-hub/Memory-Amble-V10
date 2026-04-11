@@ -287,6 +287,7 @@ export function AmbleResults({
   const handleShowScroll = async () => {
     playSound("click");
     setScrollPhase("loading");
+    playSound("magic-transition");
     try {
       const stopsWithScenes = (assignments || []).map((a, i) => ({
         stopName: a.stopName,

@@ -1081,11 +1081,13 @@ export default function Amble() {
   }, [authLoading, isGuest, displayName, updateState]);
 
   const handleEducationComplete = useCallback(() => {
+    playSound("click");
     localStorage.setItem("memoryamble_education_seen", "true");
     setPhase("name");
   }, []);
 
   const handleNameSubmit = useCallback((enteredName: string) => {
+    playSound("click");
     localStorage.setItem("memory-amble-name", enteredName);
     const lesson = getLessonConfig(
       progressData.currentLevel,
@@ -1103,6 +1105,7 @@ export default function Amble() {
     s.dayCount = progressData.dayCount;
     updateState(s);
     setPhase("reviewing");
+    playSound("magic-transition");
     setTimeout(() => {
       setPhase("chat");
       setTimeout(() => {

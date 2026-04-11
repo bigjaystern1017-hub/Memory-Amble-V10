@@ -36,11 +36,12 @@ export function ProgressBar({ currentStep, isCleaning }: ProgressBarProps) {
               <div
                 className={`w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-colors ${
                   isActive
-                    ? "bg-primary text-primary-foreground"
+                    ? "text-white"
                     : isComplete
-                    ? "bg-primary/20 text-primary"
+                    ? "text-purple-700"
                     : "bg-muted text-muted-foreground"
                 }`}
+                style={isActive ? {backgroundColor: '#7C3AED'} : isComplete ? {backgroundColor: '#ede9fe'} : {}}
                 data-testid={`progress-step-${i}`}
               >
                 <Icon className="w-4 h-4 md:w-5 md:h-5" />
@@ -50,7 +51,7 @@ export function ProgressBar({ currentStep, isCleaning }: ProgressBarProps) {
                   isActive
                     ? "text-foreground"
                     : isComplete
-                    ? "text-primary"
+                    ? "text-purple-700"
                     : "text-muted-foreground"
                 }`}
               >
@@ -60,7 +61,7 @@ export function ProgressBar({ currentStep, isCleaning }: ProgressBarProps) {
             {i < steps.length - 1 && (
               <div
                 className={`w-4 md:w-8 h-0.5 mx-1 mb-5 transition-colors ${
-                  i < currentStep ? "bg-primary/30" : "bg-muted"
+                  i < currentStep ? "bg-purple-200" : "bg-muted"
                 }`}
               />
             )}

@@ -1698,8 +1698,8 @@ export default function Amble() {
       <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50 shrink-0">
         <div className="max-w-3xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center">
-              <Brain className="w-6 h-6 text-primary-foreground" />
+            <div className="w-10 h-10 rounded-md flex items-center justify-center" style={{backgroundColor: '#7C3AED'}}>
+              <Brain className="w-6 h-6 text-white" />
             </div>
             <div>
               <h1 className="text-lg font-semibold tracking-tight" data-testid="text-app-title">

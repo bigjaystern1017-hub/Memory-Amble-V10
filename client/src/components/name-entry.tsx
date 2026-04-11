@@ -38,8 +38,8 @@ export function NameEntry({ onSubmit }: NameEntryProps) {
         transition={{ duration: 0.5 }}
         className="max-w-md w-full text-center"
       >
-        <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center mx-auto mb-6">
-          <Brain className="w-8 h-8 text-primary-foreground" />
+        <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style={{backgroundColor: '#7C3AED'}}>
+          <Brain className="w-8 h-8 text-white" />
         </div>
 
         <h2
@@ -81,6 +81,7 @@ export function NameEntry({ onSubmit }: NameEntryProps) {
             onClick={handleSubmit}
             disabled={!name.trim()}
             className="w-full gap-2 text-lg"
+            style={{backgroundColor: '#7C3AED'}}
             data-testid="button-name-submit"
           >
             Let's Go, {name.trim() || "..."}!

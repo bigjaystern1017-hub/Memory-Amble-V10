@@ -739,8 +739,10 @@ export default function Amble() {
             await doScreenWipe();
             const next = getNextBeat("palace-buffer", stateRef.current);
             if (next) {
+              const resetState = { ...stateRef.current, stepIndex: 0 };
+              updateState(resetState);
               setCurrentBeat(next);
-              await advanceBeatRef.current(next, stateRef.current);
+              await advanceBeatRef.current(next, resetState);
             }
             processingRef.current = false;
           }, 3000);

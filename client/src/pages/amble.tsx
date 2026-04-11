@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useLocation } from "wouter";
 import timbukAvatarPath from "@assets/timbuk-avatar_1773957235129.png";
+import penguinPath from "@assets/penguin-profile_1775938237755.png";
 import { ChatMessage } from "@/components/chat-message";
 import { ChatInput } from "@/components/chat-input";
 import { EducationSlides } from "@/components/education-slides";
@@ -1962,7 +1963,7 @@ export default function Amble() {
       </div>
       {showPenguin && (
         <div className="fixed bottom-16 left-0 z-[9999] pointer-events-none penguin-waddle">
-          🐧
+          <img src={penguinPath} alt="Penguin" className="w-16 h-16 object-contain" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} />
         </div>
       )}
       {window.location.hostname.includes('replit.dev') && (

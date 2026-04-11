@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { playSound } from "@/lib/sounds";
 import { Trophy, Flame, ArrowLeft, Eye, EyeOff, Download } from "lucide-react";
 import { SiGoogle } from "react-icons/si";
 import { Button } from "@/components/ui/button";
@@ -216,6 +217,7 @@ export function AmbleResults({
   };
 
   const handleSeeYouTomorrow = () => {
+    playSound("click");
     if (isGuest) {
       setShowConversion(true);
     } else {
@@ -283,6 +285,7 @@ export function AmbleResults({
   };
 
   const handleShowScroll = async () => {
+    playSound("click");
     setScrollPhase("loading");
     try {
       const stopsWithScenes = (assignments || []).map((a, i) => ({
@@ -636,6 +639,7 @@ export function AmbleResults({
                     size="lg"
                     className="w-full gap-2"
                     onClick={() => {
+                      playSound("click");
                       const text = `Timbuk just wrote me an Amble Scroll after my memory training session 😄 Build your own → MemoryAmble.com`;
                       window.open(`https://www.facebook.com/sharer/sharer.php?u=https://memoryamble.com&quote=${encodeURIComponent(text)}`, "_blank");
                     }}
@@ -648,6 +652,7 @@ export function AmbleResults({
                     variant="outline"
                     className="w-full gap-2"
                     onClick={() => {
+                      playSound("click");
                       const text = `Timbuk just wrote me an Amble Scroll after my memory training session 😄 Build your own → MemoryAmble.com`;
                       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
                     }}
@@ -658,6 +663,7 @@ export function AmbleResults({
                   <button
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                     onClick={() => {
+                      playSound("click");
                       navigator.clipboard.writeText("https://memoryamble.com?ref=scroll");
                     }}
                     data-testid="button-copy-link"

@@ -22,7 +22,26 @@ function resumeContext(ctx: AudioContext): Promise<void> {
   return Promise.resolve();
 }
 
-export function playSound(name: "correct" | "send" | "incorrect" | "transition" | "complete" | "wisdom" | "click"): void {
+export function initSounds(): void {
+  try {
+    const ctx = getAudioContext();
+    if (ctx) resumeContext(ctx).catch(() => {});
+  } catch {
+    // fail silently
+  }
+}
+
+export function playSoundFile(url: string, volume = 0.3): void {
+  try {
+    const audio = new Audio(url);
+    audio.volume = volume;
+    audio.play().catch(() => {});
+  } catch {
+    // fail silently
+  }
+}
+
+export function playSound(name: "correct" | "practice-correct" | "send" | "incorrect" | "transition" | "complete" | "wisdom" | "click"): void {
   try {
     const ctx = getAudioContext();
     if (!ctx || !masterGain) return;
@@ -48,6 +67,7 @@ export function playSound(name: "correct" | "send" | "incorrect" | "transition" 
             });
             break;
           }
+          case "practice-correct":
           case "correct": {
             // Two quick high sine hits — cheerful "ding-ding!"
             for (let i = 0; i < 2; i++) {

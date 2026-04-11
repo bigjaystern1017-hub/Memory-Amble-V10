@@ -1,0 +1,37 @@
+Fix sound effect coverage so every user interaction has audio feedback, and prepare the system to support real audio files later. Here's exactly what to do:
+
+1. In client/src/lib/sounds.ts, add a new exported function called `initSounds()` that should be called once on first user interaction. It should just resume the AudioContext. Also add a new sound:
+
+  • "practice-correct" — same as "correct" (the ding-ding), reuse the same function. This is just an alias so we can trigger it for the practice recall.
+
+  Also add this infrastructure for future audio file support: export a function called `playSoundFile(url: string, volume?: number)` that creates an Audio element, sets its volume (default 0.3), and plays it. If it fails, fail silently. This way Jay can later swap any synthesized sound for a real audio file by calling playSoundFile instead of playSound.
+
+2. In client/src/pages/amble.tsx, add playSound("send") calls to cover ALL user text input moments. The handleUserInput function already has playSound("send") after addUserMessage — verify this is there. But the issue is that handleUserInput only fires for text input. We need to make sure every single text submission triggers it.
+
+3. The practice recall has no sound. In advanceBeat, find the practice-success handling. There is a block that starts with:
+   
+   if (beat === "practice-success" && currentState.practiceRecallAnswer)
+   
+   Inside that block, right before the first showTimbukWithTypewriter call, add: playSound("correct")
+   
+   This is Gladys's first "I got it right" moment in the whole app. The ding-ding here is critical.
+
+4. Make screen wipe sounds consistent. Currently playSound("transition") is only in doScreenWipe. Verify it is there. The issue is that doScreenWipe is called at specific points but not all phase transitions use it. That's fine — the whoosh should ONLY play on screen wipes, not on other transitions. But make sure it plays on EVERY call to doScreenWipe. Check that the playSound("transition") call is at the very top of the doScreenWipe function, before setChatFading(true). If it's not, move it there.
+
+5. Add playSound("click") to these additional spots that are currently missing:
+
+   - In handleContinue, the playSound("click") should be BEFORE the processingRef.current check, not after. If it's after the check, a rapid double-tap won't click. Move it to the very first line of the function.
+   
+   - In the expansion-offer buttons rendering (the JSX), there are two buttons: "Let's push it!" and "That's a win!". These call handleExpansionAccept and handleExpansionDecline which should already have playSound("click"). Verify they do.
+
+   - The "Show me" button on the scroll prompt in amble-results.tsx — add playSound("click") at the start of handleShowScroll. Import { playSound } from "@/lib/sounds" at the top of amble-results.tsx.
+   
+   - The "See You Tomorrow" button in amble-results.tsx — add playSound("click") at the start of handleSeeYouTomorrow.
+   
+   - The "Share to Facebook", "Send via WhatsApp", and "Copy link" buttons in amble-results.tsx — add playSound("click") to each onClick handler.
+
+6. For the react-recall correct sound: verify that in advanceBeat, inside the react-recall block, the correct/incorrect sound plays BEFORE showTimbukWithTypewriter, not after. The ding-ding should hit right as Timbuk's bubble starts appearing, not after the typewriter finishes. If the timing is after the typewriter, move it before.
+
+7. For react-check-in correct/incorrect sounds: verify these are firing. The check should be: if the message from getTimbukMessage contains "got it" or "remembered" play "correct", otherwise play "incorrect". Make sure this check is happening before the showTimbukWithTypewriter call for the check-in beat.
+
+8. Do not change anything else. Do not modify beat-engine.ts. Do not change any Timbuk copy, routing logic, or CSS. Do not remove any existing working sound triggers.

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { playSound } from "@/lib/sounds";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -83,7 +84,7 @@ export default function Landing() {
               </p>
               <div className="pt-2">
                 <button
-                  onClick={() => navigate("/amble")}
+                  onClick={() => { playSound("click"); navigate("/amble"); }}
                   className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-white text-lg font-semibold shadow-sm hover:opacity-90 transition-opacity"
                   style={{ backgroundColor: PURPLE }}
                 >
@@ -113,7 +114,7 @@ export default function Landing() {
             </div>
           </div>
           <div className="text-center py-8">
-            <Button size="lg" onClick={() => navigate("/amble")} style={{backgroundColor: '#7C3AED', color: 'white'}} className="gap-2 text-lg px-8">
+            <Button size="lg" onClick={() => { playSound("click"); navigate("/amble"); }} style={{backgroundColor: '#7C3AED', color: 'white'}} className="gap-2 text-lg px-8">
               Start Free Today →
             </Button>
             <p className="text-sm text-muted-foreground mt-2">No card. No commitment.</p>
@@ -149,7 +150,7 @@ export default function Landing() {
             </div>
           </div>
           <div className="text-center py-8">
-            <Button size="lg" onClick={() => navigate("/amble")} style={{backgroundColor: '#7C3AED', color: 'white'}} className="gap-2 text-lg px-8">
+            <Button size="lg" onClick={() => { playSound("click"); navigate("/amble"); }} style={{backgroundColor: '#7C3AED', color: 'white'}} className="gap-2 text-lg px-8">
               Try the Technique Free
             </Button>
             <p className="text-sm text-muted-foreground mt-2">Day 1 is on us.</p>
@@ -180,7 +181,7 @@ export default function Landing() {
             </div>
           </div>
           <div className="text-center py-8">
-            <Button size="lg" onClick={() => navigate("/amble")} style={{backgroundColor: '#7C3AED', color: 'white'}} className="gap-2 text-lg px-8">
+            <Button size="lg" onClick={() => { playSound("click"); navigate("/amble"); }} style={{backgroundColor: '#7C3AED', color: 'white'}} className="gap-2 text-lg px-8">
               Meet Timbuk — Day 1 is Free
             </Button>
             <p className="text-sm text-muted-foreground mt-2">No card needed. Just come see.</p>
@@ -205,7 +206,7 @@ export default function Landing() {
             </div>
           </div>
           <div className="text-center py-8">
-            <Button size="lg" onClick={() => navigate("/amble")} style={{backgroundColor: '#7C3AED', color: 'white'}} className="gap-2 text-lg px-8">
+            <Button size="lg" onClick={() => { playSound("click"); navigate("/amble"); }} style={{backgroundColor: '#7C3AED', color: 'white'}} className="gap-2 text-lg px-8">
               Try Day 1 Free — No Card Needed
             </Button>
             <p className="text-sm text-muted-foreground mt-2">Complete Day 1 and unlock your free week.</p>
@@ -261,7 +262,7 @@ export default function Landing() {
                   ))}
                 </ul>
                 <button
-                  onClick={() => navigate("/amble")}
+                  onClick={() => { playSound("click"); navigate("/amble"); }}
                   className="w-full py-3 rounded-xl text-white font-semibold hover:opacity-90 transition-opacity"
                   style={{ backgroundColor: PURPLE }}
                 >
@@ -328,7 +329,7 @@ export default function Landing() {
             <p className="text-lg text-muted-foreground italic">Complete Day 1 and unlock your free week.</p>
             <div className="pt-2">
               <button
-                onClick={() => navigate("/amble")}
+                onClick={() => { playSound("click"); navigate("/amble"); }}
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-white text-lg font-semibold shadow-sm hover:opacity-90 transition-opacity"
                 style={{ backgroundColor: PURPLE }}
               >

@@ -1,34 +1,65 @@
-let audioCtx: AudioContext | null = null;
-let masterGain: GainNode | null = null;
+type SoundName = "click" | "send" | "transition" | "magic-transition" | "correct" | "practice-correct" | "complete" | "penguin" | "incorrect" | "wisdom";
 
-function getAudioContext(): AudioContext | null {
-  try {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      masterGain = audioCtx.createGain();
-      masterGain.gain.value = 0.3;
-      masterGain.connect(audioCtx.destination);
-    }
-    return audioCtx;
-  } catch {
-    return null;
-  }
+interface SoundConfig {
+  url: string;
+  volume: number;
+  extra?: { url: string; volume: number };
 }
 
-function resumeContext(ctx: AudioContext): Promise<void> {
-  if (ctx.state === "suspended") {
-    return ctx.resume();
-  }
-  return Promise.resolve();
-}
+const SOUND_MAP: Partial<Record<SoundName, SoundConfig>> = {
+  click:              { url: "/sounds/Click.mp3",        volume: 0.4 },
+  send:               { url: "/sounds/Click.mp3",        volume: 0.3 },
+  transition:         { url: "/sounds/Wind-clear.mp3",   volume: 0.35 },
+  "magic-transition": { url: "/sounds/Magic-wind.mp3",   volume: 0.45 },
+  correct:            { url: "/sounds/correct-bell.mp3", volume: 0.4,  extra: { url: "/sounds/kids-cheer.mp3", volume: 0.3 } },
+  "practice-correct": { url: "/sounds/correct-bell.mp3", volume: 0.4,  extra: { url: "/sounds/kids-cheer.mp3", volume: 0.3 } },
+  complete:           { url: "/sounds/correct-bell.mp3", volume: 0.5 },
+  penguin:            { url: "/sounds/pengiun-cry.mp3",  volume: 0.35 },
+};
 
-export function initSounds(): void {
+const preloaded: Map<string, HTMLAudioElement> = new Map();
+
+function preload(url: string): void {
+  if (preloaded.has(url)) return;
   try {
-    const ctx = getAudioContext();
-    if (ctx) resumeContext(ctx).catch(() => {});
+    const audio = new Audio(url);
+    audio.preload = "auto";
+    preloaded.set(url, audio);
   } catch {
     // fail silently
   }
+}
+
+// Pre-load all audio files immediately on module load
+const allUrls = new Set(
+  Object.values(SOUND_MAP).flatMap((cfg) =>
+    cfg ? (cfg.extra ? [cfg.url, cfg.extra.url] : [cfg.url]) : []
+  )
+);
+allUrls.forEach(preload);
+
+function playUrl(url: string, volume: number): void {
+  try {
+    const base = preloaded.get(url);
+    const audio = base ? (base.cloneNode() as HTMLAudioElement) : new Audio(url);
+    audio.volume = Math.max(0, Math.min(1, volume));
+    audio.play().catch(() => {});
+  } catch {
+    // fail silently
+  }
+}
+
+export function playSound(name: SoundName): void {
+  const cfg = SOUND_MAP[name];
+  if (!cfg) return;
+  playUrl(cfg.url, cfg.volume);
+  if (cfg.extra) {
+    playUrl(cfg.extra.url, cfg.extra.volume);
+  }
+}
+
+export function initSounds(): void {
+  // No-op — files are pre-loaded on module import
 }
 
 export function playSoundFile(url: string, volume = 0.3): void {
@@ -36,159 +67,6 @@ export function playSoundFile(url: string, volume = 0.3): void {
     const audio = new Audio(url);
     audio.volume = volume;
     audio.play().catch(() => {});
-  } catch {
-    // fail silently
-  }
-}
-
-export function playSound(name: "correct" | "practice-correct" | "send" | "incorrect" | "transition" | "complete" | "wisdom" | "click"): void {
-  try {
-    const ctx = getAudioContext();
-    if (!ctx || !masterGain) return;
-    resumeContext(ctx).then(() => {
-      try {
-        const now = ctx.currentTime;
-        switch (name) {
-          case "click": {
-            // Two crisp sine blips — clean button click
-            const freqs = [1800, 2200];
-            freqs.forEach((freq, i) => {
-              const osc = ctx.createOscillator();
-              const gain = ctx.createGain();
-              osc.type = "sine";
-              osc.frequency.value = freq;
-              const t = now + i * 0.025;
-              gain.gain.setValueAtTime(0.2, t);
-              gain.gain.exponentialRampToValueAtTime(0.001, t + 0.015);
-              osc.connect(gain);
-              gain.connect(masterGain!);
-              osc.start(t);
-              osc.stop(t + 0.015);
-            });
-            break;
-          }
-          case "practice-correct":
-          case "correct": {
-            // Two quick high sine hits — cheerful "ding-ding!"
-            for (let i = 0; i < 2; i++) {
-              const osc = ctx.createOscillator();
-              const gain = ctx.createGain();
-              osc.type = "sine";
-              osc.frequency.value = 880;
-              gain.gain.setValueAtTime(0, now + i * 0.15);
-              gain.gain.linearRampToValueAtTime(0.35, now + i * 0.15 + 0.005);
-              gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + 0.08);
-              osc.connect(gain);
-              gain.connect(masterGain!);
-              osc.start(now + i * 0.15);
-              osc.stop(now + i * 0.15 + 0.08);
-            }
-            break;
-          }
-          case "send": {
-            // Very subtle short blip
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = "sine";
-            osc.frequency.value = 220;
-            gain.gain.setValueAtTime(0.15, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-            osc.connect(gain);
-            gain.connect(masterGain!);
-            osc.start(now);
-            osc.stop(now + 0.05);
-            break;
-          }
-          case "incorrect": {
-            // Very soft low tone — gentle "hmm"
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = "sine";
-            osc.frequency.value = 130.81; // C3
-            gain.gain.setValueAtTime(0.12, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-            osc.connect(gain);
-            gain.connect(masterGain!);
-            osc.start(now);
-            osc.stop(now + 0.2);
-            break;
-          }
-          case "transition": {
-            // White noise through bandpass — gentle whoosh
-            const bufferSize = ctx.sampleRate * 0.5;
-            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let j = 0; j < bufferSize; j++) {
-              data[j] = Math.random() * 2 - 1;
-            }
-            const source = ctx.createBufferSource();
-            source.buffer = buffer;
-            const filter = ctx.createBiquadFilter();
-            filter.type = "bandpass";
-            filter.frequency.value = 800;
-            filter.Q.value = 0.8;
-            const gain = ctx.createGain();
-            gain.gain.setValueAtTime(0, now);
-            gain.gain.linearRampToValueAtTime(0.2, now + 0.2);
-            gain.gain.linearRampToValueAtTime(0, now + 0.5);
-            source.connect(filter);
-            filter.connect(gain);
-            gain.connect(masterGain!);
-            source.start(now);
-            source.stop(now + 0.5);
-            break;
-          }
-          case "complete": {
-            // Three-note ascending arpeggio C4 → E4 → G4
-            const freqs = [261.63, 329.63, 392.0];
-            freqs.forEach((freq, i) => {
-              const osc = ctx.createOscillator();
-              const gain = ctx.createGain();
-              osc.type = "sine";
-              osc.frequency.value = freq;
-              const t = now + i * 0.2;
-              gain.gain.setValueAtTime(0, t);
-              gain.gain.linearRampToValueAtTime(0.3, t + 0.02);
-              gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
-              osc.connect(gain);
-              gain.connect(masterGain!);
-              osc.start(t);
-              osc.stop(t + 0.35);
-            });
-            break;
-          }
-          case "wisdom": {
-            // Single sustained D4 with slight vibrato
-            const osc = ctx.createOscillator();
-            const lfo = ctx.createOscillator();
-            const lfoGain = ctx.createGain();
-            const gain = ctx.createGain();
-            osc.type = "sine";
-            osc.frequency.value = 293.66; // D4
-            lfo.type = "sine";
-            lfo.frequency.value = 5;
-            lfoGain.gain.value = 3;
-            lfo.connect(lfoGain);
-            lfoGain.connect(osc.frequency);
-            gain.gain.setValueAtTime(0, now);
-            gain.gain.linearRampToValueAtTime(0.15, now + 0.1);
-            gain.gain.setValueAtTime(0.15, now + 0.6);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
-            osc.connect(gain);
-            gain.connect(masterGain!);
-            lfo.start(now);
-            osc.start(now);
-            osc.stop(now + 0.8);
-            lfo.stop(now + 0.8);
-            break;
-          }
-        }
-      } catch {
-        // fail silently
-      }
-    }).catch(() => {
-      // fail silently
-    });
   } catch {
     // fail silently
   }

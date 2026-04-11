@@ -1,0 +1,76 @@
+Replace the synthesized sounds with real mp3 audio files and add new sound moments. The audio files are already in client/public/sounds/ — these files: Click.mp3, Wind-clear.mp3, Magic-wind.mp3, correct-bell.mp3, kids-cheer.mp3, pengiun-cry.mp3
+
+Here's exactly what to do:
+
+1. REWRITE client/src/lib/sounds.ts completely. Replace the entire file with a new implementation that:
+
+   - Uses HTML Audio elements to play mp3 files instead of Web Audio API synthesis
+   - Pre-loads all audio files on first call to avoid playback delay
+   - Exports a playSound(name: string) function that plays the appropriate file
+   - Sound mappings:
+     • "click" → /sounds/Click.mp3 — volume 0.4
+     • "send" → /sounds/Click.mp3 — volume 0.3 (same file, slightly quieter)
+     • "transition" → /sounds/Wind-clear.mp3 — volume 0.35
+     • "magic-transition" → /sounds/Magic-wind.mp3 — volume 0.45
+     • "correct" → plays BOTH /sounds/correct-bell.mp3 (volume 0.4) AND /sounds/kids-cheer.mp3 (volume 0.3) simultaneously. Create two separate Audio elements and play them both at the same time.
+     • "incorrect" → keep the old synthesized version (single soft low tone, C3, 200ms, gain 0.12) using a small Web Audio API fallback, OR just skip it entirely — no sound on incorrect. Let the absence of the bell+cheer do the work. Go with no sound on incorrect.
+     • "complete" → /sounds/correct-bell.mp3 — volume 0.5 (same bell but louder for the finale)
+     • "wisdom" → keep the old synthesized version (D4 with vibrato) OR remove it. Remove it — wisdom drops don't need a sound, the visual styling is enough.
+     • "penguin" → /sounds/pengiun-cry.mp3 — volume 0.35
+   
+   - For each sound, clone the Audio element on each play so overlapping plays work (e.g., penguin cry playing 3 times rapidly). Use audio.cloneNode() to create a fresh instance each play.
+   - Pre-load all files by creating Audio elements with preload="auto" when the module first loads
+   - If any audio file fails to load or play, fail silently — never break the app
+
+2. In client/src/pages/amble.tsx, make these changes:
+
+   a. REPLACE the existing playSound("transition") call inside doScreenWipe with this logic:
+      - Check if the current beat is "onboard-secret" (this is the "Let the Memory-Ambling Begin!" moment with confetti). If so, play playSound("magic-transition") instead of playSound("transition").
+      - For all other screen wipes, keep playSound("transition").
+      
+      To do this: doScreenWipe doesn't currently know what beat triggered it. The simplest fix: add an optional parameter to doScreenWipe: async function doScreenWipe(useMagic?: boolean). When useMagic is true, play "magic-transition". Otherwise play "transition". 
+      
+      Then in handleContinue, in the block where beat === "onboard-secret", pass true: await doScreenWipe(true). All other doScreenWipe calls pass nothing (default false).
+
+   b. ADD the penguin cry. Find the handleTypewriterDone callback. There is already a block:
+      
+      if (currentBeatRef.current === "onboard-vivid") {
+        setShowPenguin(true);
+        setTimeout(() => setShowPenguin(false), 3000);
+      }
+      
+      Change this to:
+      
+      if (currentBeatRef.current === "onboard-vivid") {
+        setShowPenguin(true);
+        playSound("penguin");
+        setTimeout(() => playSound("penguin"), 800);
+        setTimeout(() => playSound("penguin"), 1600);
+        setTimeout(() => setShowPenguin(false), 3000);
+      }
+      
+      This plays the penguin cry 3 times spaced across the waddle animation.
+
+   c. REMOVE playSound("wisdom") call wherever it exists (before showWisdomMessage). Wisdom drops no longer have a sound.
+
+   d. REMOVE playSound("incorrect") call wherever it exists. No sound on wrong answers.
+
+   e. VERIFY these existing triggers are still in place and working:
+      - playSound("send") in handleUserInput after addUserMessage
+      - playSound("click") in handleContinue, handleExpansionAccept, handleExpansionDecline, handleSpark, handleRecallHint
+      - playSound("correct") in advanceBeat for react-recall (correct answers) and for practice-success
+      - playSound("complete") in advanceBeat for the "final" beat
+      - playSound("click") in education-slides.tsx for all navigation buttons
+
+   f. Make sure playSound("click") fires on EVERY button Gladys can tap. Check these are covered:
+      - All Continue/Ready buttons (handleContinue)
+      - Expansion offer buttons (handleExpansionAccept, handleExpansionDecline)  
+      - Spark/Hint buttons (handleSpark, handleRecallHint)
+      - Education slide buttons (already done)
+      - "Show me" scroll button in amble-results.tsx
+      - "See You Tomorrow" button in amble-results.tsx
+      - Share buttons in amble-results.tsx
+      
+      For amble-results.tsx: import { playSound } from "@/lib/sounds" and add playSound("click") to the start of handleShowScroll, handleSeeYouTomorrow, and each share button onClick.
+
+3. Do not change anything else. Do not modify beat-engine.ts. Do not change any Timbuk copy, routing logic, or styling. Do not touch the penguin waddle CSS animation — only add the sound to it.

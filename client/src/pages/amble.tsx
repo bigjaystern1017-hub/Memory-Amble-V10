@@ -282,6 +282,9 @@ export default function Amble() {
     setFastForward(false);
     if (currentBeatRef.current === "onboard-vivid") {
       setShowPenguin(true);
+      playSound("penguin");
+      setTimeout(() => playSound("penguin"), 800);
+      setTimeout(() => playSound("penguin"), 1600);
       setTimeout(() => setShowPenguin(false), 3000);
     }
     if (typewriterResolveRef.current) {
@@ -324,8 +327,8 @@ export default function Amble() {
     setState(s);
   }, []);
 
-  const doScreenWipe = useCallback(async () => {
-    playSound("transition");
+  const doScreenWipe = useCallback(async (useMagic?: boolean) => {
+    playSound(useMagic ? "magic-transition" : "transition");
     setChatFading(true);
     await new Promise<void>((r) => setTimeout(r, 600));
     setMessages([]);
@@ -648,16 +651,13 @@ export default function Amble() {
       }
 
       if (beat === "wisdom-drop") {
-        playSound("wisdom");
         await showWisdomMessage(displayText);
       } else {
         if (beat === "react-recall") {
           if (resolvedText === SMART_CONFIRM) playSound("correct");
-          else playSound("incorrect");
         } else if (beat === "react-check-in") {
           const lc = displayText.toLowerCase();
           if (lc.includes("got it") || lc.includes("remembered")) playSound("correct");
-          else playSound("incorrect");
         }
         await showTimbukWithTypewriter(displayText);
       }
@@ -1119,6 +1119,7 @@ export default function Amble() {
     const next = getNextBeat(beat, s);
 
     if (beat === "onboard-secret" && next) {
+      playSound("magic-transition");
       setShowBurst(true);
       setChatFading(true);
       await new Promise<void>((resolve) => setTimeout(resolve, 600));

@@ -73,13 +73,13 @@ export default function Landing() {
             {/* Centered text block */}
             <div className="text-center max-w-2xl mx-auto space-y-5">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white" style={{ backgroundColor: PURPLE }}>
-                Used by memory champions for 2,500 years
+                Your brain remembers more than you think.
               </div>
               <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight text-gray-900" style={{ fontFamily: "Lora, serif" }}>
                 A sharper memory.<br />Starting today.
               </h1>
               <p className="text-lg md:text-xl text-gray-500 leading-relaxed">
-                Ten minutes a day. A technique used by scholars and memory champions for millennia. Guided by Timbuk — your warm, wise personal memory coach.
+                Ten minutes a day. The ancient memory technique used by scholars for millennia — now guided, personal, and surprisingly fun.
               </p>
               <div className="pt-2">
                 <button
@@ -87,10 +87,11 @@ export default function Landing() {
                   className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-white text-lg font-semibold shadow-sm hover:opacity-90 transition-opacity"
                   style={{ backgroundColor: PURPLE }}
                 >
-                  {ctaLabel} <ArrowRight className="w-5 h-5" />
+                  Try Day 1 Free <ArrowRight className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-sm text-gray-400">Day 1 is completely free. No card needed.</p>
+              <p className="text-sm text-muted-foreground">No card needed. Just come see.</p>
+              <p className="text-sm text-muted-foreground italic">Complete Day 1 and unlock your free week.</p>
             </div>
           </div>
         </section>
@@ -110,6 +111,12 @@ export default function Landing() {
               <p className="text-3xl font-bold text-gray-900">7 days</p>
               <p className="text-sm text-gray-500 mt-1">To your first palace</p>
             </div>
+          </div>
+          <div className="text-center py-8">
+            <Button size="lg" onClick={() => navigate("/amble")} style={{backgroundColor: '#7C3AED', color: 'white'}} className="gap-2 text-lg px-8">
+              Start Free Today →
+            </Button>
+            <p className="text-sm text-muted-foreground mt-2">No card. No commitment.</p>
           </div>
         </section>
 
@@ -141,6 +148,12 @@ export default function Landing() {
               ))}
             </div>
           </div>
+          <div className="text-center py-8">
+            <Button size="lg" onClick={() => navigate("/amble")} style={{backgroundColor: '#7C3AED', color: 'white'}} className="gap-2 text-lg px-8">
+              Try the Technique Free
+            </Button>
+            <p className="text-sm text-muted-foreground mt-2">Day 1 is on us.</p>
+          </div>
         </section>
 
         {/* SECTION 6 — MEET TIMBUK */}
@@ -166,12 +179,18 @@ export default function Landing() {
               <p className="text-gray-400 italic text-sm">He also has opinions about penguins.</p>
             </div>
           </div>
+          <div className="text-center py-8">
+            <Button size="lg" onClick={() => navigate("/amble")} style={{backgroundColor: '#7C3AED', color: 'white'}} className="gap-2 text-lg px-8">
+              Meet Timbuk — Day 1 is Free
+            </Button>
+            <p className="text-sm text-muted-foreground mt-2">No card needed. Just come see.</p>
+          </div>
         </section>
 
         {/* SECTION 7 — TESTIMONIALS */}
         <section className="py-14 md:py-20 px-4 md:px-8 bg-white">
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-10" style={{ fontFamily: "Lora, serif" }}>What people are saying</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-10" style={{ fontFamily: "Lora, serif" }}>They were skeptical too.</h2>
             <div className="grid md:grid-cols-3 gap-6">
               {[
                 { quote: "I remembered every name at my grandson's birthday party for the first time in three years. My daughter noticed.", name: "Margaret", age: 71 },
@@ -185,6 +204,12 @@ export default function Landing() {
               ))}
             </div>
           </div>
+          <div className="text-center py-8">
+            <Button size="lg" onClick={() => navigate("/amble")} style={{backgroundColor: '#7C3AED', color: 'white'}} className="gap-2 text-lg px-8">
+              Try Day 1 Free — No Card Needed
+            </Button>
+            <p className="text-sm text-muted-foreground mt-2">Complete Day 1 and unlock your free week.</p>
+          </div>
         </section>
 
         {/* SECTION 8 — OUR STORY */}
@@ -196,11 +221,12 @@ export default function Landing() {
             <div className="space-y-5">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900" style={{ fontFamily: "Lora, serif" }}>Our story</h2>
               <div className="text-gray-600 leading-relaxed space-y-4">
-                <p>MemoryAmble started with one person.</p>
+                <p>I built this for one person first.</p>
                 <p>My father is 84. Sharp, funny, present — but quietly losing confidence in his own memory. Not because anything was terribly wrong. Just the slow, ordinary erosion that comes with time. He'd forget a name. Lose a word mid-sentence. Wave it off with a laugh. But I could see it bothering him.</p>
                 <p>I wanted to give him something. Not a puzzle app. Not a quiz. Something warm, patient, and genuinely useful — that made him feel capable, not tested.</p>
                 <p>That's Timbuk. That's MemoryAmble.</p>
                 <p>If you have someone in your life like my father — or if you are that person — this was built for you.</p>
+                <p className="text-lg text-muted-foreground leading-relaxed mt-4">If any of this sounds familiar — I think you'll like what we built.</p>
                 <p className="font-medium text-gray-800">— Jay</p>
               </div>
             </div>
@@ -210,7 +236,7 @@ export default function Landing() {
         {/* SECTION 9 — PRICING */}
         <section className="py-14 md:py-20 px-4 md:px-8 bg-white">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-10" style={{ fontFamily: "Lora, serif" }}>Simple pricing</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-10" style={{ fontFamily: "Lora, serif" }}>Priced for everyone. Because it should be.</h2>
             <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
               {/* Card 1 — Primary */}
               <div className="rounded-2xl border-2 p-8 space-y-6 flex flex-col" style={{ borderColor: PURPLE }}>
@@ -223,9 +249,9 @@ export default function Landing() {
                   {[
                     "30-day guided memory bootcamp",
                     "Daily sessions with Timbuk",
-                    "Your Amble Scroll after every session",
                     "Streak tracking",
                     "Round up to donate to memory research",
+                    "Your Amble Scroll after every session",
                   ].map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm text-gray-700">
                       <span className="mt-0.5 font-bold" style={{ color: PURPLE }}>✓</span> {f}
@@ -296,7 +322,8 @@ export default function Landing() {
         <section className="py-16 md:py-24 px-4 md:px-8 bg-white text-center">
           <div className="max-w-2xl mx-auto space-y-5">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900" style={{ fontFamily: "Lora, serif" }}>Your memory is waiting.</h2>
-            <p className="text-lg text-gray-500">When you're ready — Day 1 is completely free. No card needed.</p>
+            <p className="text-lg text-muted-foreground">When you're ready — Day 1 is on us.</p>
+            <p className="text-lg text-muted-foreground italic">Complete Day 1 and unlock your free week.</p>
             <div className="pt-2">
               <button
                 onClick={() => navigate("/amble")}
@@ -306,7 +333,7 @@ export default function Landing() {
                 {ctaLabel} <ArrowRight className="w-5 h-5" />
               </button>
             </div>
-            <p className="text-sm text-gray-400">Founding member pricing available now — this rate won't last forever.</p>
+            <p className="text-sm text-gray-400">We're still in our founding phase. This pricing won't be available forever — but there's no rush right now.</p>
           </div>
         </section>
 
@@ -315,10 +342,10 @@ export default function Landing() {
       {/* FOOTER */}
       <footer className="border-t border-gray-100 py-6 px-4">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-gray-400">
-          <span>© 2025 MemoryAmble</span>
+          <span>© 2026 MemoryAmble</span>
           <span className="text-center">Built with care for those who deserve a sharper mind.</span>
-          <a href="mailto:brightermindlabs@outlook.com" className="hover:text-gray-600 transition-colors">
-            brightermindlabs@outlook.com
+          <a href="mailto:hello@memoryamble.com" className="hover:text-gray-600 transition-colors">
+            hello@memoryamble.com
           </a>
         </div>
       </footer>

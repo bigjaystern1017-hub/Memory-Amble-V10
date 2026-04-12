@@ -312,6 +312,7 @@ export default function Amble() {
           body: JSON.stringify({
             stops: currentState.stops,
             category: currentState.category,
+            dayCount: currentState.dayCount,
           }),
         });
         const data = await response.json();
@@ -1345,7 +1346,7 @@ export default function Amble() {
           try {
             const response = await authFetch("/api/assign-objects", {
               method: "POST",
-              body: JSON.stringify({ stops: [newStop1, newStop2], category: s.category }),
+              body: JSON.stringify({ stops: [newStop1, newStop2], category: s.category, dayCount: s.dayCount }),
             });
             const data = await response.json();
             if (data.assignments?.length) {

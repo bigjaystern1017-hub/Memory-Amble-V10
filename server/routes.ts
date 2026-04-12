@@ -114,6 +114,7 @@ function pickRandom(list: string[], count: number): string[] {
 const assignItemsSchema = z.object({
   stops: z.array(z.string()).min(1).max(10),
   category: z.enum(["objects", "names", "practical"]).default("objects"),
+  dayCount: z.number().optional(),
 });
 
 const sessionOpenerSchema = z.object({
@@ -194,7 +195,7 @@ export async function registerRoutes(
       return res.status(400).json({ error: "Invalid request" });
     }
 
-    const { stops, category } = parsed.data;
+    const { stops, category, dayCount } = parsed.data;
     const basePool = category === "names" ? RANDOM_NAMES : category === "practical" ? PRACTICAL_ITEMS : RANDOM_OBJECTS;
     let pool = [...basePool];
 
@@ -236,6 +237,11 @@ export async function registerRoutes(
       stopName: stop,
       object: items[i],
     }));
+
+    // On Day 1, make the last object a $100 bill for subtle price anchoring
+    if (dayCount === 0 && category === "objects" && assignments.length > 0) {
+      assignments[assignments.length - 1] = { ...assignments[assignments.length - 1], object: "$100 bill" };
+    }
 
     res.json({ assignments });
   });

@@ -198,6 +198,7 @@ const ITEM_EMOJIS: Record<string, string> = {
   "pinball machine": "🎮",
   "parachute": "🪂",
   "hot air balloon": "🎈",
+  "$100 bill": "💵",
   "milk": "🥛",
   "bread": "🍞",
   "eggs": "🥚",

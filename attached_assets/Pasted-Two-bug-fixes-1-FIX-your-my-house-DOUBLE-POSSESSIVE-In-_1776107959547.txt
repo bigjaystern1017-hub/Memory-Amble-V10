@@ -1,0 +1,46 @@
+Two bug fixes:
+
+1. FIX "your my house" DOUBLE POSSESSIVE
+
+In client/src/components/beat-engine.ts, find the "check-in-intro" case in getTimbukMessage. It currently reads something like:
+
+const placePhrase = yourify('your ' + lastPlace.toLowerCase());
+return `${name}! Welcome back. Before we start today, let's take a quick stroll through ${placePhrase} and see what stuck from last time.`;
+
+The problem: yourify() converts "my" to "your", but the code ALSO prepends "your " before calling yourify. So "my house" becomes "your my house" → yourify converts nothing because "my" is already gone, OR "your house" stays as "your your house" if the user typed "your house."
+
+Fix: Remove the manual 'your ' prefix and let yourify handle it. Change the placePhrase line to:
+
+const placePhrase = yourify(lastPlace.toLowerCase());
+
+Then in the return string, prepend "your " only if the placePhrase doesn't already start with "your":
+
+const prefix = placePhrase.startsWith('your ') ? '' : 'your ';
+return `${name}! Welcome back. Before we start today, let's take a quick stroll through ${prefix}${placePhrase} and see what stuck from last time.`;
+
+Actually, even simpler — just use stopPhrase which already handles this correctly:
+
+const placePhrase = yourify(lastPlace.toLowerCase());
+return `${name}! Welcome back. Before we start today, let's take a quick stroll through your ${lastPlace.toLowerCase().replace(/^my /, '').replace(/^your /, '').replace(/^the /, '')} and see what stuck from last time.`;
+
+This strips any leading possessive/article from the stored place name and prepends "your" cleanly. So "my house" becomes "your house", "Your Palace" becomes "your palace", and "house" becomes "your house".
+
+2. FIX SCROLL USING "JANE" INSTEAD OF ACTUAL USER NAME
+
+In server/routes.ts, find the /api/generate-scroll endpoint. Look at the system prompt for scroll generation. The issue is that the example text in the system prompt uses "Jane" as the example name, and gpt-4o-mini is latching onto "Jane" and using it for all users instead of the actual userName passed in the user message.
+
+Find the example text in the system prompt that contains "[userName]" or "Jane" references. The example likely looks something like:
+
+"As [userName] moved through My Kitchen, a canoe lay at the front door — [userName]'s husband was fishing..."
+
+Make sure all instances of the example name use a clearly fictional placeholder that the AI won't confuse with the actual user. Replace any instances of "Jane" in the example with "[userName]" if they exist.
+
+More importantly, add this line to the END of the system prompt, right before the closing backtick:
+
+"CRITICAL: The user's name is provided in the user message. Use ONLY that name. Never use 'Jane' or any other name. Always use the exact name from the request."
+
+Also in the user message that gets sent to the API, make the name more prominent. Find the userMessage variable and make sure it starts with the name clearly:
+
+const userMessage = `The user's name is ${userName} — use "${userName}" throughout, never "Jane" or any other name. Write an Amble Scroll for ${userName} who walked through ${palaceName} on Day ${dayNumber} and remembered ${correctCount} out of ${totalItems} items. Here are the stops: ${JSON.stringify(sanitizedStops)}`;
+
+Do not change anything else. Do not modify any other endpoints, beat engine logic, or sound effects.

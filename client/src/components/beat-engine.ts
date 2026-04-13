@@ -376,8 +376,8 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
   switch (beatId) {
     case "check-in-intro": {
       const lastPlace = firstCap(state.checkInPlace);
-      const placePhrase = yourify('your ' + lastPlace.toLowerCase());
-      return `${name}! Welcome back. Before we start today, let's take a quick stroll through ${placePhrase} and see what stuck from last time.`;
+      const cleanPlace = lastPlace.toLowerCase().replace(/^my /, '').replace(/^your /, '').replace(/^the /, '');
+      return `${name}! Welcome back. Before we start today, let's take a quick stroll through your ${cleanPlace} and see what stuck from last time.`;
     }
 
     case "check-in-recall": {

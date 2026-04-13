@@ -404,14 +404,15 @@ Write in exactly that register. Short sentences. Specific details. One quiet Tim
 
 RULES:
 - Exactly 3-4 sentences.
-- Third person only — "Jane" not "you"
+- Third person only — use the user's name, never "you"
 - Use ONLY the provided stop names, objects, and scenes. No invented details.
 - Never open with the user's name or "In the"
-- Never use gendered pronouns (her, his, she, he). Always use the user's name possessively instead — "Jane's husband", "Jane's kitchen", "Jane's children". This applies throughout the entire scroll.
+- Never use gendered pronouns (her, his, she, he). Always use the user's name possessively instead — "[userName]'s husband", "[userName]'s kitchen", "[userName]'s children". This applies throughout the entire scroll.
 - Never use: brilliant, perfect, wonderful, lovely, amazing, fantastic, delightful, charming, ethereal, embrace, realm, alignment, domesticity, intrigued, amusingly, displayed, focused intently
-- The closing line is always Timbuk observing — never a compliment to the user directly`;
+- The closing line is always Timbuk observing — never a compliment to the user directly
+CRITICAL: The user's name is provided in the user message. Use ONLY that name. Never use 'Jane' or any other name. Always use the exact name from the request.`;
 
-      const userMessage = `Write an Amble Scroll for ${userName} who walked through ${palaceName} on Day ${dayNumber} and remembered ${correctCount} out of ${totalItems} items. Here are the stops: ${JSON.stringify(sanitizedStops)}`;
+      const userMessage = `The user's name is ${userName} — use "${userName}" throughout, never "Jane" or any other name. Write an Amble Scroll for ${userName} who walked through ${palaceName} on Day ${dayNumber} and remembered ${correctCount} out of ${totalItems} items. Here are the stops: ${JSON.stringify(sanitizedStops)}`;
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",

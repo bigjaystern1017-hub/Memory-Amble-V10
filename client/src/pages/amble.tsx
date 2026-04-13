@@ -1592,14 +1592,14 @@ export default function Amble() {
       <div className="flex flex-col h-dvh bg-background pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]" data-testid="app-container">
         <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50 shrink-0">
           <div className="max-w-3xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
+            <button onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
               <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center">
                 <Brain className="w-6 h-6 text-primary-foreground" />
               </div>
               <h1 className="text-lg font-semibold tracking-tight" data-testid="text-app-title">
                 MemoryAmble
               </h1>
-            </div>
+            </button>
             {isGuest ? (
               <Button variant="outline" size="sm" onClick={() => navigate("/login")} data-testid="button-header-signin">
                 Sign In
@@ -1629,14 +1629,14 @@ export default function Amble() {
       <div className="flex flex-col h-dvh bg-background pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]" data-testid="app-container">
         <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50 shrink-0">
           <div className="max-w-3xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
+            <button onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
               <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center">
                 <Brain className="w-6 h-6 text-primary-foreground" />
               </div>
               <h1 className="text-lg font-semibold tracking-tight" data-testid="text-app-title">
                 MemoryAmble
               </h1>
-            </div>
+            </button>
             {isGuest ? (
               <Button variant="outline" size="sm" onClick={() => navigate("/login")} data-testid="button-header-signin">
                 Sign In
@@ -1766,7 +1766,7 @@ export default function Amble() {
     <div className="flex flex-col h-dvh bg-background pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]" data-testid="app-container">
       <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50 shrink-0">
         <div className="max-w-3xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+          <button onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
             <div className="w-10 h-10 rounded-md flex items-center justify-center" style={{backgroundColor: '#7C3AED'}}>
               <Brain className="w-6 h-6 text-white" />
             </div>
@@ -1782,7 +1782,7 @@ export default function Amble() {
                 <p className="text-sm text-muted-foreground" data-testid="text-username">{displayName}</p>
               )}
             </div>
-          </div>
+          </button>
           <div className="flex items-center gap-3">
             {!isGuest && (
               <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground" data-testid="text-level-info">

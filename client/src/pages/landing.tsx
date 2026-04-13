@@ -11,7 +11,7 @@ import heroWomenLaughing from "@assets/hero-women-laughing_1775849325225.jpg";
 import heroFishingCouple from "@assets/hero-fishing-couple_1775849358110.jpg";
 import heroCouplesky from "@assets/hero-couple-sky_1775849325223.jpg";
 import familyDrawing from "@assets/family-drawing_1775912885165.png";
-import timbukAvatar from "@assets/timbuk-avatar_1773957235129.png";
+import timbukAvatar from "@assets/timbuk-hero-clean-bg_1776110930296.png";
 
 const PURPLE = "#7C3AED";
 
@@ -168,7 +168,7 @@ export default function Landing() {
                 <img
                   src={timbukAvatar}
                   alt="Timbuk"
-                  style={{ width: '260px', height: '260px', objectFit: 'contain', mixBlendMode: 'multiply' }}
+                  style={{ width: '260px', height: '260px', objectFit: 'contain' }}
                 />
               </div>
             </div>

@@ -168,7 +168,7 @@ export default function Landing() {
                 <img
                   src={timbukAvatar}
                   alt="Timbuk"
-                  style={{ width: '260px', height: '260px', objectFit: 'contain' }}
+                  style={{ width: '260px', height: '260px', objectFit: 'contain', mixBlendMode: 'multiply' }}
                 />
               </div>
             </div>

@@ -553,10 +553,10 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
 
     case "ask-stop": {
       if (idx === 0) {
-        return `You are at the entrance of your ${yourify(place).toLowerCase().replace(/^your\s+/i, '')}. What is your first stop?`;
+        return `Picture yourself walking into your ${yourify(place).toLowerCase().replace(/^your\s+/i, '')}. What is the first thing you would walk past? A door, a table, a hallway — whatever you would notice first.`;
       }
       if (idx === total - 1) {
-        return `As you continue through your ${yourify(place).toLowerCase().replace(/^your\s+/i, '')}, where do you end up next?`;
+        return `Keep walking. Where do you end up? That is your last stop.`;
       }
       return `What do you notice next?`;
     }

@@ -642,10 +642,10 @@ export function AmbleResults({
                     className="w-full gap-2"
                     onClick={() => {
                       playSound("click");
-                      const shareText = `${scrollText}\n\nBuild your own Memory Palace → MemoryAmble.com`;
+                      const shareText = `${displayName} just completed their Day ${currentDay || 1} memory walk with MemoryAmble — here's what Timbuk wrote them:\n\n"${scrollText}"\n\nThis is what 10 minutes a day looks like. MemoryAmble teaches the 2,000-year-old Memory Palace technique through a guided daily practice — built for seniors who want to stay sharp and have fun doing it.\n\n→ Try your first day free: memoryamble.com`;
                       if (navigator.share) {
                         navigator.share({
-                          title: `My Amble Scroll — ${displayName}`,
+                          title: `${displayName}'s Memory Palace`,
                           text: shareText,
                         }).catch(() => {});
                         return;

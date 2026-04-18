@@ -1,0 +1,219 @@
+Build a complete email system using Resend. The API key is already in Replit Secrets as RESEND_API_KEY. Here's exactly what to do:
+
+1. Install Resend in the project. Run: npm install resend
+
+2. Create a new file: server/email.ts
+
+This file should:
+- Import Resend and initialize it with process.env.RESEND_API_KEY
+- Export two functions: sendWelcomeEmail and sendReminderEmail
+- Both functions should fail silently (try/catch, log errors but never crash the app)
+
+The sendWelcomeEmail function:
+- Parameters: to (email string), userName (string)
+- Sends from: "MemoryAmble <hello@memoryamble.com>"
+- Subject: "Welcome to MemoryAmble, ${userName}"
+- HTML body (use inline styles, no external CSS):
+
+<div style="max-width: 560px; margin: 0 auto; font-family: Georgia, serif; color: #1a1a1a; line-height: 1.7; padding: 24px;">
+  <div style="text-align: center; margin-bottom: 24px;">
+    <h1 style="font-size: 24px; color: #7C3AED; margin: 0;">MemoryAmble</h1>
+  </div>
+  
+  <p>Hi ${userName},</p>
+  
+  <p>Thank you for joining MemoryAmble.</p>
+  
+  <p>We built this for Jay's 84-year-old father — a sharp, funny man who started losing confidence in his memory. Not because anything was wrong. Just because forgetting a name at dinner can ruin your whole evening.</p>
+  
+  <p>We wanted to build something that felt like a warm hand on your shoulder, not a test. That's Timbuk — your memory coach. He's waiting for you.</p>
+  
+  <p><strong>A few things to know:</strong></p>
+  <p>• Sessions take about 10 minutes. That's it.<br/>
+  • Cancel anytime — no questions, no hassle.<br/>
+  • If anything feels off or confusing, just reply to this email. A real person reads it.</p>
+  
+  <p style="text-align: center; margin: 32px 0;">
+    <a href="https://memoryamble.com/amble" style="background-color: #7C3AED; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-size: 16px;">Start Your First Walk</a>
+  </p>
+  
+  <p>We're glad you're here.<br/>
+  — The MemoryAmble Team</p>
+  
+  <p style="font-size: 13px; color: #888; margin-top: 32px; font-style: italic;">P.S. Timbuk has opinions about penguins. He'll explain.</p>
+</div>
+
+The sendReminderEmail function:
+- Parameters: to (email string), userName (string), dayCount (number), streak (number)
+- Sends from: "Timbuk at MemoryAmble <timbuk@memoryamble.com>"
+- Picks subject and body based on dayCount using these templates (rotate through them):
+
+Template 1 (dayCount % 5 === 1):
+  Subject: "Your palace is waiting, ${userName}"
+  Body message: "Yesterday you built something real. Let's see if it stuck. Ten minutes — I'll be here."
+
+Template 2 (dayCount % 5 === 2):
+  Subject: "${userName}, your ${streak}-day streak is on the line"
+  Body message: "I know life gets busy. But your palace does not build itself. Ten minutes. That is all I ask."
+
+Template 3 (dayCount % 5 === 3):
+  Subject: "Quick question, ${userName}"
+  Body message: "Do you remember what was at your front door yesterday? Only one way to find out."
+
+Template 4 (dayCount % 5 === 4):
+  Subject: "${userName}, Timbuk is ready when you are"
+  Body message: "Your palace has ${streak} days of memories in it now. Each day it gets a little stronger. So do you."
+
+Template 5 (dayCount % 5 === 0):
+  Subject: "Ten minutes, ${userName}. That is all."
+  Body message: "You have walked your palace ${streak} times now. It is yours. But it misses you when you skip a day. So do I."
+
+Special template for Day 7 (dayCount === 6):
+  Subject: "${userName}, today you graduate"
+  Body message: "Seven days. You built a Memory Palace from nothing. Today is your graduation walk. I have something special waiting."
+
+Special template for missed day (streak === 0 or hasn't played in 2+ days):
+  Subject: "${userName}, your palace is exactly where you left it"
+  Body message: "No pressure. No guilt. Just come back when you are ready. The palace does not forget — even when you do."
+
+HTML wrapper for ALL reminder emails (use for every template):
+
+<div style="max-width: 560px; margin: 0 auto; font-family: Georgia, serif; color: #1a1a1a; line-height: 1.7; padding: 24px;">
+  <div style="text-align: center; margin-bottom: 24px;">
+    <h1 style="font-size: 24px; color: #7C3AED; margin: 0;">MemoryAmble</h1>
+  </div>
+  
+  <p>${userName},</p>
+  
+  <p>${bodyMessage}</p>
+  
+  <p style="text-align: center; margin: 32px 0;">
+    <a href="https://memoryamble.com/amble" style="background-color: #7C3AED; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-size: 16px;">Start Today's Walk</a>
+  </p>
+  
+  <p style="font-size: 14px; color: #666;">— Timbuk 🧙</p>
+  
+  <p style="font-size: 11px; color: #aaa; margin-top: 32px;">You're receiving this because you signed up for MemoryAmble. <a href="https://memoryamble.com" style="color: #aaa;">Unsubscribe</a></p>
+</div>
+
+3. TRIGGER THE WELCOME EMAIL ON SIGNUP
+
+In server/routes.ts (or wherever user signup/registration is handled), find the point where a new user is created after signing up. This might be in a webhook handler or after the first progress save. 
+
+The simplest approach: in the POST /api/progress endpoint, when a NEW user record is created (the insert path, not the update path), call sendWelcomeEmail. Find the block that does:
+
+const [created] = await db.insert(userProgress).values(...)
+
+After that insert, add:
+
+import { sendWelcomeEmail } from './email';
+
+// Get user email from the auth token
+try {
+  const userEmail = req.user?.email;
+  if (userEmail && userName) {
+    sendWelcomeEmail(userEmail, 'there');
+  }
+} catch (e) {
+  console.error('Welcome email failed:', e);
+}
+
+Note: we might not have the userName at this point — if not, just use 'there' as the name ("Hi there,"). The important thing is the email sends. Don't let it block the API response — fire and forget.
+
+Actually, a better place to get both email and name: look at the POST /api/sessions endpoint. When the FIRST session is saved (you can check if this is the user's first by checking if any prior sessions exist), send the welcome email. The session save has access to the full session data including userName via the request body.
+
+Add this logic to POST /api/sessions, right after the successful insert:
+
+// Send welcome email on first session
+try {
+  const existingSessions = await db.select().from(sessionHistory).where(eq(sessionHistory.userId, userId));
+  if (existingSessions.length === 1) {
+    // This was their first session
+    const { sendWelcomeEmail } = await import('./email');
+    const userEmail = req.user?.email;
+    if (userEmail) {
+      sendWelcomeEmail(userEmail, req.body.placeName ? 'friend' : 'there');
+    }
+  }
+} catch (e) {
+  console.error('Welcome email failed:', e);
+}
+
+4. CREATE THE DAILY REMINDER ENDPOINT
+
+Add a new endpoint to server/routes.ts:
+
+app.get("/api/send-reminders", async (req, res) => {
+  // Simple auth: check for a secret key so this can't be called by random people
+  const authKey = req.headers['x-reminder-key'];
+  if (authKey !== process.env.REMINDER_SECRET) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const { sendReminderEmail } = await import('./email');
+    
+    // Get all users with their progress
+    const allProgress = await db.select().from(userProgress);
+    
+    let sent = 0;
+    let skipped = 0;
+    
+    for (const progress of allProgress) {
+      // Skip users who already played today
+      const today = new Date().toISOString().slice(0, 10);
+      const lastLogin = progress.lastLogin ? new Date(progress.lastLogin).toISOString().slice(0, 10) : null;
+      
+      if (lastLogin === today) {
+        skipped++;
+        continue;
+      }
+      
+      // Skip users with no sessions yet (they haven't started)
+      if (progress.dayCount === 0) {
+        skipped++;
+        continue;
+      }
+      
+      // Get user email — we need to look this up from the auth system
+      // Since we're using Supabase auth, we need the user's email
+      // For now, skip if we can't determine email
+      try {
+        // Try to get email from Supabase admin
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabaseAdmin = createClient(
+          process.env.SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!
+        );
+        const { data: userData } = await supabaseAdmin.auth.admin.getUser(progress.userId);
+        const email = userData?.user?.email;
+        
+        if (email) {
+          await sendReminderEmail(email, 'friend', progress.dayCount, progress.streak);
+          sent++;
+        } else {
+          skipped++;
+        }
+      } catch (e) {
+        console.error(`Failed to send reminder to user ${progress.userId}:`, e);
+        skipped++;
+      }
+    }
+    
+    res.json({ sent, skipped, total: allProgress.length });
+  } catch (error) {
+    console.error("Reminder send failed:", error);
+    res.status(500).json({ error: "Failed to send reminders" });
+  }
+});
+
+5. Add REMINDER_SECRET to Replit Secrets — just make up any random string like "timbuk-reminders-2026" and add it as a secret. This prevents random people from triggering reminder emails.
+
+6. To actually send daily reminders, you would set up a cron job or external scheduler to call:
+
+GET https://memoryamble.com/api/send-reminders
+Header: x-reminder-key: [your REMINDER_SECRET value]
+
+For now, you can trigger this manually by visiting that URL with the right header (use a tool like curl or Postman). Later you can set up a free cron service like cron-job.org to call it every morning at 9am.
+
+Do not change anything else. Do not modify the beat engine, sound effects, or frontend components.

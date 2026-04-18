@@ -683,6 +683,20 @@ CRITICAL: The user's name is provided in the user message. Use ONLY that name. N
         })
         .returning();
 
+      // Send welcome email on first session (fire and forget)
+      try {
+        const existingSessions = await db.select().from(sessionHistory).where(eq(sessionHistory.userId, userId));
+        if (existingSessions.length === 1) {
+          const { sendWelcomeEmail } = await import("./email");
+          const userEmail = (req as any).user?.email;
+          if (userEmail) {
+            sendWelcomeEmail(userEmail, "friend");
+          }
+        }
+      } catch (e) {
+        console.error("Welcome email failed:", e);
+      }
+
       res.json({
         ...created,
         assignments,
@@ -810,6 +824,56 @@ CRITICAL: The user's name is provided in the user message. Use ONLY that name. N
     }
 
     res.json({ received: true });
+  });
+
+  app.get("/api/send-reminders", async (req: any, res) => {
+    const authKey = req.headers["x-reminder-key"];
+    if (authKey !== process.env.REMINDER_SECRET) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    try {
+      const { sendReminderEmail } = await import("./email");
+      const allProgress = await db.select().from(userProgress);
+
+      let sent = 0;
+      let skipped = 0;
+
+      for (const progress of allProgress) {
+        const today = new Date().toISOString().slice(0, 10);
+        const lastLogin = progress.lastLogin ? new Date(progress.lastLogin).toISOString().slice(0, 10) : null;
+
+        if (lastLogin === today || progress.dayCount === 0) {
+          skipped++;
+          continue;
+        }
+
+        try {
+          const { createClient } = await import("@supabase/supabase-js");
+          const supabaseAdmin = createClient(
+            process.env.SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!
+          );
+          const { data: userData } = await supabaseAdmin.auth.admin.getUserById(progress.userId);
+          const email = userData?.user?.email;
+
+          if (email) {
+            await sendReminderEmail(email, "friend", progress.dayCount, progress.streak ?? 0);
+            sent++;
+          } else {
+            skipped++;
+          }
+        } catch (e) {
+          console.error(`Failed to send reminder to user ${progress.userId}:`, e);
+          skipped++;
+        }
+      }
+
+      res.json({ sent, skipped, total: allProgress.length });
+    } catch (error) {
+      console.error("Reminder send failed:", error);
+      res.status(500).json({ error: "Failed to send reminders" });
+    }
   });
 
   return httpServer;

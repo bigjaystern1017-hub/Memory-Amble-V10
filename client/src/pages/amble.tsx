@@ -1488,6 +1488,30 @@ export default function Amble() {
         return;
       }
 
+      // Detect questions — user is confused, not answering
+      const isQuestion = (input: string): boolean => {
+        const lower = input.toLowerCase().trim();
+        if (lower.endsWith('?')) return true;
+        if (/^(what|how|why|where|when|who|can|do|does|should|is|are|was|will|could|would|did)\s/i.test(lower)) return true;
+        if (/^(i don'?t understand|i'?m confused|what do you mean|help me|explain)/i.test(lower)) return true;
+        return false;
+      };
+
+      if (isQuestion(text) && (currentBeat === "ask-stop" || currentBeat === "place-object" || currentBeat === "onboard-skill" || currentBeat === "ask-place")) {
+        let helpText = "";
+        if (currentBeat === "ask-stop" || currentBeat === "onboard-skill" || currentBeat === "ask-place") {
+          helpText = `No worries, ${stateRef.current.userName}! I am looking for a real spot in your home — like your front door, your kitchen table, the hallway mirror. Somewhere you would actually walk past. What comes to mind?`;
+        } else if (currentBeat === "place-object") {
+          const assignment = stateRef.current.assignments[stateRef.current.stepIndex];
+          helpText = `Picture the ${assignment?.object || 'item'} sitting right there at that spot. What is it doing? Is it huge? Is it on fire? Is your dog trying to eat it? Tell me the first silly thing you see.`;
+        }
+        if (helpText) {
+          addTimbukInstant(helpText);
+          processingRef.current = false;
+          return;
+        }
+      }
+
       await processUserInputRef.current?.(text);
       processingRef.current = false;
     },

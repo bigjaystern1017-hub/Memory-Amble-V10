@@ -1,0 +1,38 @@
+Add question detection to the chat input so that when a user types a question instead of an answer, Timbuk responds helpfully instead of treating the question as their answer.
+
+1. In client/src/pages/amble.tsx, find the handleUserInput function. Near the top, after the struggle phrase detection block, add a new block that detects questions:
+
+// Detect questions — user is confused, not answering
+const isQuestion = (input: string): boolean => {
+  const lower = input.toLowerCase().trim();
+  if (lower.endsWith('?')) return true;
+  if (/^(what|how|why|where|when|who|can|do|does|should|is|are|was|will|could|would|did)\s/i.test(lower)) return true;
+  if (/^(i don'?t understand|i'?m confused|what do you mean|help me|explain)/i.test(lower)) return true;
+  return false;
+};
+
+After the struggle phrase block and before the processUserInputRef.current call, add:
+
+if (isQuestion(text) && (currentBeat === "ask-stop" || currentBeat === "place-object" || currentBeat === "onboard-skill" || currentBeat === "ask-place")) {
+  // User is asking a question, not providing an answer
+  let helpText = "";
+  
+  if (currentBeat === "ask-stop" || currentBeat === "onboard-skill" || currentBeat === "ask-place") {
+    helpText = `No worries, ${stateRef.current.userName}! I am looking for a real spot in your home — like your front door, your kitchen table, the hallway mirror. Somewhere you would actually walk past. What comes to mind?`;
+  } else if (currentBeat === "place-object") {
+    const assignment = stateRef.current.assignments[stateRef.current.stepIndex];
+    helpText = `Picture the ${assignment?.object || 'item'} sitting right there at that spot. What is it doing? Is it huge? Is it on fire? Is your dog trying to eat it? Tell me the first silly thing you see.`;
+  }
+  
+  if (helpText) {
+    addTimbukInstant(helpText);
+    processingRef.current = false;
+    return;
+  }
+}
+
+This intercepts questions during the stops where confusion is most likely, gives a clear helpful answer, and lets the user try again without consuming their input as an answer.
+
+2. Do NOT add question detection during the recall phase — during recall, a question like "what was it?" is already handled by the struggle phrase detector. We don't want to intercept legitimate recall attempts that happen to be phrased as questions.
+
+Do not change anything else. Do not modify beat-engine.ts or any other files.

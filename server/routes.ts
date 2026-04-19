@@ -425,7 +425,8 @@ CRITICAL: The user's name is provided in the user message. Use ONLY that name. N
         max_tokens: 200,
       });
 
-      const scroll = response.choices[0]?.message?.content?.trim() || fallback;
+      let scroll = response.choices[0]?.message?.content?.trim() || fallback;
+      scroll = scroll.replace(/\[userName\]/g, userName);
       res.json({ scroll });
     } catch (error) {
       console.error("Error generating scroll:", error);
@@ -454,7 +455,7 @@ CRITICAL: The user's name is provided in the user message. Use ONLY that name. N
         systemPrompt = genericPrompt;
         userMessage = `${userName} chose their palace location: "${userAssociation}". Respond now.`;
       } else if (isStopConfirmation) {
-        systemPrompt = `You are Timbuk, a warm memory coach. The user just named a stop in their memory palace. Respond in 4 words or fewer. Just acknowledge it and move on. No analysis, no emotion, no commentary on what it means. Convert our/my to your. Never use: reveals, suggests, symbolizes, reflects, anchors, signifies, meaningful, love, warmth, cherished, cozy, practical, playful, spirit, belonging. Examples: front door → Right at the start. kitchen counter → Good anchor point. where the dog sleeps → Nice, right there.`;
+        systemPrompt = `You are Timbuk walking with the user through their palace. They just named their final stop. Acknowledge it as a natural ending point in 4 words or fewer. Use a walking/arriving phrase. Fix typos silently. Convert our/my to your. Never use: reveals, suggests, brilliant, wonderful, lovely, great, nice, good. Examples: front door → Ending at your door. bedroom → And finally, your bedroom. garage → Finishing at the garage. back yard → All the way out back.`;
         userMessage = `${userName} named their stop: "${userAssociation}". Respond now.`;
       } else if (context === "stop-transition") {
         systemPrompt = `You are Timbuk walking with the user through their palace. They named a stop. Acknowledge it in 4 words or fewer as a walking transition. Fix typos silently. Convert our/my to your. Never add your/the blindly — use what sounds natural. Never use: reveals, suggests, brilliant, wonderful, lovely. Examples: front door → Past your front door. kitchen → Through the kitchen. where kids put boots → Past the boot spot. the stairs → Up the stairs. my reading chair → Past your reading chair.`;

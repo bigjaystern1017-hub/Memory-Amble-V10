@@ -665,6 +665,9 @@ export default function Amble() {
           if (lc.includes("got it") || lc.includes("remembered")) playSound("correct");
         }
         await showTimbukWithTypewriter(displayText);
+        if (beat === "react-place" && currentState.dayCount === 0) {
+          addTimbukInstant("(If that is not quite right, just type the correct name and I will fix it.)");
+        }
       }
 
       if (beat === "graduation-offer") {
@@ -1367,6 +1370,11 @@ export default function Amble() {
           } else {
             s = { ...s, placeName: cleanPlaceName(text), stops: [] };
           }
+          break;
+
+        case "react-place":
+          s = { ...s, placeName: cleanPlaceName(text) };
+          nextBeatOverride = "react-place";
           break;
 
         case "ask-stop":

@@ -90,10 +90,20 @@ export default function Login() {
       return;
     }
     toast({
-      title: "Check your email",
-      description: "We sent you a confirmation link. Click it to finish signing up.\nDon't see it? Check your junk or spam folder.",
+      title: "You're in!",
+      description: "Your account is ready. Signing you in now...",
     });
-    setLoading(false);
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    if (signInError === null) {
+      navigate("/amble");
+    } else {
+      toast({
+        title: "Account created",
+        description: "Please sign in with your email and password.",
+      });
+      setMode("email-login");
+      setLoading(false);
+    }
   };
 
   const handlePasswordReset = async (e: React.FormEvent) => {
@@ -276,17 +286,33 @@ export default function Login() {
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                {mode === "email-login" && (
-                  <button
-                    type="button"
-                    onClick={() => { setShowReset(true); setResetEmail(email); }}
-                    className="text-xs text-muted-foreground hover:text-primary transition-colors mt-1"
-                    data-testid="button-forgot-password"
-                  >
-                    Forgot password?
-                  </button>
-                )}
               </div>
+
+              {mode === "email-login" && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!email) {
+                      toast({
+                        title: "Enter your email first",
+                        description: "Type your email address above, then tap Forgot password.",
+                      });
+                      return;
+                    }
+                    await supabase.auth.resetPasswordForEmail(email, {
+                      redirectTo: window.location.origin + "/amble",
+                    });
+                    toast({
+                      title: "Check your email",
+                      description: "If that address is in our system, we sent a reset link.",
+                    });
+                  }}
+                  className="text-sm text-primary underline cursor-pointer"
+                  data-testid="link-forgot-password"
+                >
+                  Forgot password?
+                </button>
+              )}
 
               <Button
                 type="submit"

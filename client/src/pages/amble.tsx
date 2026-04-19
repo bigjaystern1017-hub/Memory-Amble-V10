@@ -45,7 +45,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 import { playSound } from "@/lib/sounds";
-import { Brain, ArrowRight, Lightbulb, LogOut, Flame, LogIn } from "lucide-react";
+import { Brain, ArrowRight, Lightbulb, LogOut, Flame, LogIn, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Message {
@@ -1629,10 +1629,16 @@ export default function Amble() {
                 Sign In
               </Button>
             ) : (
-              <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-2 text-muted-foreground" data-testid="button-signout">
-                <LogOut className="w-4 h-4" />
-                Sign Out
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" size="sm" onClick={() => navigate("/account")} className="gap-2 text-muted-foreground" data-testid="button-account">
+                  <User className="w-4 h-4" />
+                  Account
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-2 text-muted-foreground" data-testid="button-signout">
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </Button>
+              </div>
             )}
           </div>
           <div className="border-t border-border/30">
@@ -1666,10 +1672,16 @@ export default function Amble() {
                 Sign In
               </Button>
             ) : (
-              <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-2 text-muted-foreground" data-testid="button-signout">
-                <LogOut className="w-4 h-4" />
-                Sign Out
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" size="sm" onClick={() => navigate("/account")} className="gap-2 text-muted-foreground" data-testid="button-account">
+                  <User className="w-4 h-4" />
+                  Account
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-2 text-muted-foreground" data-testid="button-signout">
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </Button>
+              </div>
             )}
           </div>
         </header>
@@ -1827,10 +1839,16 @@ export default function Amble() {
                 Sign In
               </Button>
             ) : (
-              <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-1 text-muted-foreground" data-testid="button-signout">
-                <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Sign Out</span>
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" size="sm" onClick={() => navigate("/account")} className="gap-1 text-muted-foreground" data-testid="button-account">
+                  <User className="w-4 h-4" />
+                  <span className="hidden sm:inline">Account</span>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-1 text-muted-foreground" data-testid="button-signout">
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden sm:inline">Sign Out</span>
+                </Button>
+              </div>
             )}
           </div>
         </div>

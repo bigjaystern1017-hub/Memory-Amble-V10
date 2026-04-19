@@ -7,6 +7,7 @@ import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Login from "@/pages/login";
 import Amble from "@/pages/amble";
+import Account from "@/pages/account";
 
 function Router() {
   return (
@@ -14,6 +15,7 @@ function Router() {
       <Route path="/" component={Landing} />
       <Route path="/login" component={Login} />
       <Route path="/amble" component={Amble} />
+      <Route path="/account" component={Account} />
       <Route component={NotFound} />
     </Switch>
   );

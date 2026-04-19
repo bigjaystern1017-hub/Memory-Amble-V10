@@ -425,9 +425,12 @@ CRITICAL: The user's name is provided in the user message. Use ONLY that name. N
         max_tokens: 200,
       });
 
-      let scroll = response.choices[0]?.message?.content?.trim() || fallback;
-      scroll = scroll.replace(/\[userName\]/g, userName);
-      res.json({ scroll });
+      let cleanedScroll = response.choices[0]?.message?.content?.trim() || fallback;
+      cleanedScroll = cleanedScroll.replace(/\[userName\]/g, userName);
+      cleanedScroll = cleanedScroll.replace(/\[Gladys\]/g, userName);
+      cleanedScroll = cleanedScroll.replace(/\[name\]/g, userName);
+      cleanedScroll = cleanedScroll.replace(/\[[A-Z][a-z]+\]/g, userName);
+      res.json({ scroll: cleanedScroll });
     } catch (error) {
       console.error("Error generating scroll:", error);
       res.json({ scroll: fallback });

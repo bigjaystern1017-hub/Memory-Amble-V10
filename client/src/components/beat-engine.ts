@@ -375,8 +375,8 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
 
   switch (beatId) {
     case "check-in-intro": {
-      const lastPlace = firstCap(state.checkInPlace);
-      const cleanPlace = lastPlace.toLowerCase().replace(/^my /, '').replace(/^your /, '').replace(/^the /, '').replace(/^your /, '');
+      const rawPlace = state.checkInPlace || state.placeName || "palace";
+      const cleanPlace = rawPlace.toLowerCase().replace(/^your\s+/i, '').replace(/^my\s+/i, '').replace(/^the\s+/i, '').trim();
       return `${name}! Welcome back. Before we start today, let's take a quick stroll through your ${cleanPlace} and see what stuck from last time.`;
     }
 

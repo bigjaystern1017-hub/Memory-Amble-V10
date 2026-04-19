@@ -375,9 +375,9 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
 
   switch (beatId) {
     case "check-in-intro": {
-      const rawPlace = state.checkInPlace || state.placeName || "palace";
-      const cleanPlace = rawPlace.toLowerCase().replace(/^your\s+/i, '').replace(/^my\s+/i, '').replace(/^the\s+/i, '').trim();
-      return `${name}! Welcome back. Before we start today, let's take a quick stroll through your ${cleanPlace} and see what stuck from last time.`;
+      let palaceRef = (state.checkInPlace || state.placeName || "palace").toLowerCase();
+      palaceRef = palaceRef.replace(/^your\s+/i, '').replace(/^my\s+/i, '').replace(/^the\s+/i, '').trim();
+      return `${name}! Welcome back. Before we start today, let us take a quick stroll through your ${palaceRef} and see what stuck from last time.`;
     }
 
     case "check-in-recall": {

@@ -77,7 +77,7 @@ export default function Landing() {
                 Your brain remembers more than you think.
               </div>
               <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight text-gray-900" style={{ fontFamily: "Lora, serif" }}>
-                A sharper memory.<br />Starting today.
+                A Brighter Mind. Sharper Memory.<br />10 Minutes a Day.
               </h1>
               <p className="text-lg md:text-xl text-gray-500 leading-relaxed">
                 Ten minutes a day. The ancient memory technique used by scholars for millennia — now guided, personal, and surprisingly fun.

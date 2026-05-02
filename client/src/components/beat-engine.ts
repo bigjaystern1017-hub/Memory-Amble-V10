@@ -412,13 +412,9 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     case "check-in-done": {
       const ciTotal = state.checkInAssignments.length;
       const correct = state.checkInCorrectCount;
-      if (correct === ciTotal) {
-        return `${correct} out of ${ciTotal} -- every single one, ${name}! Your palace is rock solid. Ready for today's lesson?`;
-      }
-      if (correct >= ciTotal / 2) {
-        return `${correct} out of ${ciTotal}! That's great, ${name}. Those pictures are sticking. Ready for today's lesson?`;
-      }
-      return `${correct} out of ${ciTotal}. The palace is still there, ${name} -- it just needs a bit more practice. Let's build some new memories today.`;
+      if (correct === ciTotal) return `${correct} of ${ciTotal} — every one, ${name}. Ready for today?`;
+      if (correct >= ciTotal / 2) return `${correct} of ${ciTotal}. Those pictures are sticking. Ready?`;
+      return `${correct} of ${ciTotal}. The palace is there — just needs practice. Let us build today.`;
     }
 
     case "cleaning-intro":
@@ -449,7 +445,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     }
 
     case "pre-clean": {
-      return `Before we build today, let us take a moment to clear your palace from yesterday. A clean palace is ready for new memories. Picture a gentle breeze moving through your space, lifting everything you placed there like leaves on the wind. Take a breath. Watch it all float away.`;
+      return `Before we build today, let us clear yesterday's palace. Picture a gentle breeze lifting everything you placed. Watch it float away.`;
     }
 
     case "cleaning-walkthrough":
@@ -462,29 +458,29 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     case "onboard-welcome": {
       const goal = typeof window !== 'undefined' ? localStorage.getItem('memoryamble-goal') : null;
       const goalLine = goal === 'names'
-        ? `Names and faces are one of my favourite things to work on. You are going to surprise yourself.`
+        ? `Names and faces — one of my favourites.`
         : goal === 'sharp'
-        ? `Staying sharp for the people you love — that is exactly the right reason to be here.`
+        ? `Staying sharp for the people you love — exactly the right reason to be here.`
         : goal === 'active'
-        ? `Keeping your mind active and strong. That is why I am here too.`
-        : `Curiosity is how every great memory palace begins. Let us see what happens.`;
-      return `Ah, ${name}! I am so happy to meet you. I am Timbuk and I would be honored to be your guide on this journey. ${goalLine} Today we are going to build something really special — your very own Memory Palace. Shall we get started? Oh — and I have a small surprise waiting for you at the end.`;
+        ? `Keeping your mind active. That is why I am here too.`
+        : `Curiosity is how every great palace begins.`;
+      return `Ah, ${name}! I am Timbuk — your guide. ${goalLine}\n\nToday we build your Memory Palace. I have a small surprise waiting for you at the end.`;
     }
 
     case "onboard-skill":
-      return `Fantastic — before we begin, memory is not fixed. It is a skill. And like any skill it can be trained. Which is exactly why I am so excited to work with you today.\n\nIs there a place you know so well you could walk through it with your eyes closed? Your home, a garden, somewhere you have been a thousand times?`;
+      return `Memory is a skill — and like any skill, it trains.\n\nIs there a place you know so well you could walk through it with your eyes closed? Your home, a garden, somewhere you have been a thousand times?`;
 
     case "onboard-palace":
-      return `Good. ${place} — that is your Memory Palace. It already exists. We are just going to furnish it. Scholars, orators and memory champions have been using this technique for over 2,000 years. Here is the secret, ${name}. Your brain is not great at remembering dry facts, names, lists, etc. But it is good at remembering places you have walked a thousand times.`;
+      return `${place}. That is your Memory Palace — it already exists. We just furnish it.\n\nYour brain is not great at remembering lists. But it is excellent at remembering places you have walked a thousand times.`;
 
     case "onboard-vivid":
-      return `Memory Palace uses that. We take an object — say, a penguin — and place it in your home. But here is where it gets fun. We do not just plop it anywhere. We make it YOURS. Is it big — blocking the doorway? Wearing a bow tie? Is it that same penguin that waddled after you at the zoo when you were eight years old?`;
+      return `We take an object — say, a penguin — and place it somewhere in ${place}. But we make it YOURS. Big. Strange. Wearing a bow tie. The penguin that waddled after you at the zoo when you were eight.`;
 
     case "onboard-secret":
-      return `The more vivid, the more personal — the harder your brain works to file it. The harder it works, the more it sticks. There is no failing here. No test. No pressure. The most important thing is practice. The more we walk together the sharper it gets. You can take this skill into your real life — grocery lists, names, appointments, whatever you like. Now hit that magic button...`;
+      return `The stranger the image, the harder it sticks. No test. No pressure. Just practice.\n\nHit that magic button...`;
 
     case "onboard-ready":
-      return `If you can picture your home, you have already done half the work. I have a hint button if you ever get a little stuck. Ready? Let us find your palace.`;
+      return `If you can picture your home, you have done half the work. Hint button is there if you get stuck.\n\nLet us find your palace.`;
 
     case "welcome": {
       if (state.sessionOpenerGreeting) {
@@ -500,48 +496,42 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
         return "";
       }
       if (dayNum === 2) {
-        if (isPerfect) return `Welcome back, ${name}! Yesterday you remembered every single one — a perfect score on your very first palace. That tells me everything I need to know about you. Every day we work together your memory gets stronger and your palace more vivid. Today we expand. Ready? I have a small surprise waiting for you at the end.`;
-        if (isGood) return `Welcome back, ${name}! Yesterday you remembered ${ys} out of ${yt} — and that is a genuinely strong start. Memory palace is a skill and skills take practice. Every day we work together it gets sharper. Today we build on what you started. Ready to expand? I have a small surprise waiting for you at the end.`;
-        return `Welcome back, ${name} — and well done for coming back. That is the most important thing. Yesterday was your very first memory palace ever built. The fact that you are here today means the technique is already working on you. Today we go again, and I promise it gets easier. Let us build something together.`;
+        if (isPerfect) return `Welcome back, ${name}. Every one yesterday — a perfect first palace. Today we expand.`;
+        if (isGood) return `Welcome back, ${name}. ${ys} of ${yt} yesterday — strong start. Today we build.`;
+        return `Welcome back, ${name}. Coming back is the hard part — you did it. Today goes easier.`;
       }
       if (dayNum === 3) {
-        const palaceNote = state.stops.length > 3
-          ? `Your palace grew yesterday — all ${state.stops.length} stops are waiting. `
-          : '';
-        if (isPerfect) return `${palaceNote}${name}! Welcome back — and a warm huzzah for everything you have accomplished! Three days in and I am genuinely impressed. You remembered every single one yesterday. You built your palace, expanded it, and cleaned it like a pro. I hope you are noticing little improvements out there in your daily life — because I am certainly seeing them in here. Today we try something new that is going to stretch your memory in a brilliant new direction. Trust me on this one.`;
-        if (isGood) return `${palaceNote}${name}! Welcome back — and a warm huzzah for everything you have accomplished! Three days in and you are doing beautifully. Yesterday you got ${ys} out of ${yt} — and every single attempt is strengthening your palace. I hope you are noticing little improvements out there in your daily life. Today we try something new that is going to stretch your memory in a brilliant direction. Trust me on this one.`;
-        return `${palaceNote}${name}! Welcome back — and a warm huzzah just for showing up three days in a row. That takes real commitment. Memory palace is a skill — it grows with repetition, not perfection. I promise you, something is clicking in there even when it does not feel like it. Today we try something new. Stay with me. I have a small surprise waiting for you at the end.`;
+        if (isPerfect) return `Three days in, ${name}, and a perfect round yesterday. Today we try something new.`;
+        if (isGood) return `Three days in, ${name}. ${ys} of ${yt} yesterday. Today we stretch.`;
+        return `Three days in a row, ${name}. That is the whole game. Something new today.`;
       }
       if (dayNum === 4) {
-        if (isPerfect) return `Welcome back, ${name}! Look at you — four days and a perfect score yesterday. Do you know how rare that is? Your memory palace is becoming second nature. Today we stretch to eight stops. A bigger palace. Your mind has been training for exactly this — I promise you are ready. I have a small surprise waiting for you at the end.`;
-        if (isGood) return `Welcome back, ${name}! Four days and still going strong — that alone puts you ahead of most. Yesterday you got ${ys} out of ${yt} and every day it gets a little easier. Today we stretch to eight stops. A bigger palace. Your mind is ready for this. I have a small surprise waiting for you at the end.`;
-        return `Welcome back, ${name}! Four days. Do you know how rare that is? Most people never make it this far. The palace is building in your mind whether you feel it or not. Today we stretch — eight stops. Stay with me. You are closer than you think. I have a small surprise waiting for you at the end.`;
+        if (isPerfect) return `Four days, flawless yesterday. Today we stretch to eight stops, ${name}.`;
+        if (isGood) return `Four days strong, ${name}. ${ys} of ${yt} yesterday. Eight stops today.`;
+        return `Four days, ${name}. Most never make it this far. Eight stops today.`;
       }
       if (dayNum === 5) {
-        if (isPerfect) return `Five days in — and yesterday you were flawless, ${name}. Today we go bigger. Eight stops, eight items. Your palace is ready for this. I have a small surprise waiting for you at the end.`;
-        if (isGood) return `Five days in and you are doing beautifully, ${name}. Today we push further — eight items. Your palace can handle it. I have a small surprise waiting for you at the end.`;
-        return `Five days, ${name}. Showing up every day IS the training. Today we try eight items. I think the bigger palace is going to surprise you. I have a small surprise waiting for you at the end.`;
+        if (isPerfect) return `Five days — flawless yesterday, ${name}. Eight items today.`;
+        if (isGood) return `Five days in, ${name}. Pushing to eight items today.`;
+        return `Five days, ${name}. Showing up is the training. Eight items today.`;
       }
       if (dayNum === 6) {
-        if (isPerfect) return `Six days, ${name}. Yesterday was remarkable. Today we walk the full palace — eight items, forward and backward. You are ready. I have a small surprise waiting for you at the end.`;
-        if (isGood) return `Six days in and your palace is growing stronger, ${name}. Today we do the full walk — forward and backward. I have a small surprise waiting for you at the end.`;
-        return `Six days — that is something to be proud of, ${name}. Today we try the full walk, forward and backward. A fresh challenge. I have a small surprise waiting for you at the end.`;
+        if (isPerfect) return `Six days, ${name}. Yesterday was remarkable. Forward and backward today.`;
+        if (isGood) return `Six days, ${name}. Full walk today — forward and backward.`;
+        return `Six days, ${name}. Today: full walk, forward and backward.`;
       }
       if (dayNum === 7) {
-        if (isPerfect) return `${name}. Day seven. Take a breath and feel proud — because what you have done this week is genuinely extraordinary. Yesterday you were flawless. Today you graduate. Your biggest session yet. Full walk, reverse recall. And when we are done — I have something special waiting for you. Let us make this one count.`;
-        if (isGood) return `${name}. Day seven. I want you to take a breath and feel proud for a moment. You came in knowing nothing about memory palaces. Look at you now. Today is your graduation — your biggest session yet. Full walk, reverse recall. And when we are done, I have something special waiting. Let us finish strong.`;
-        return `${name}. Day seven. Do you realize what you have done? You showed up every single day for a week. That is the whole game. The palace is in you now whether it feels like it or not. Today we do your graduation session — and when we are done, I have something waiting that I think will mean a lot. Let us go. I have a small surprise waiting for you at the end.`;
+        if (isPerfect) return `${name}. Day seven. Flawless yesterday. Today you graduate. Something waiting at the end.`;
+        if (isGood) return `${name}. Day seven. Graduation day. Biggest session yet — something waiting at the end.`;
+        return `${name}. Day seven. You showed up every day. That is the whole game. Today you graduate.`;
       }
-      // Days 8+: generic returning user message
-      const catLabel = isNames ? "people's names" : `${total} ${itemLabel(cat)}`;
-      return `Alright, ${name}, welcome to Day ${dayNum}! Today's focus is ${lesson?.focus || "memory"}. We're working with ${catLabel}. Let's build!`;
+      const catLabel = isNames ? "names" : `${total} items`;
+      return `Day ${dayNum}, ${name}. Today: ${catLabel}. Let us build.`;
     }
 
     case "ask-place":
-      if (state.isReturningUser) {
-        return `Think of a place you know well, ${name}. It can be the same one as last time or somewhere new. Where shall we walk today?`;
-      }
-      return `So here's how this works, ${name}. I want you to think of a place that feels like home to you. Somewhere you could walk through with your eyes closed -- maybe your house, your garden, a favourite shop you've visited a hundred times. Tell me about a place you love.`;
+      if (state.isReturningUser) return `Same place as last time, ${name}? Or somewhere new?`;
+      return `Think of a place you know so well you could walk it with your eyes closed. Your home, a garden, a favourite shop. Tell me about it.`;
 
     case "confirm-same-place": {
       const prev = firstCap(state.lastPalaceName);
@@ -568,7 +558,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       return "";
 
     case "practice-intro":
-      return `Before we place your items — let me show you exactly how this works. I will give you one practice item. Just tell me the first thing that comes to mind when you picture it at your first stop.`;
+      return `Before we place your items — a quick practice. One item, one stop. Tell me what you see.`;
 
     case "practice-item": {
       const firstStop = yourify(firstCap(state.stops[0] || "your first stop"));
@@ -585,10 +575,10 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       return `${yourify(firstCap(state.stops[0] || "Front door"))}. What do you see there?`;
 
     case "practice-success":
-      return `Yes! That is the palace at work, ${name}. You just remembered something using a technique that is 2,000 years old. And you did it in under a minute. That is all this is. Ready to do it for real?`;
+      return `Yes! That is the palace at work, ${name}. A 2,000-year-old technique — and you did it in under a minute. Ready for real?`;
 
     case "practice-done":
-      return `Perfect. That is the whole technique. Now we do it for real — and I promise it gets more fun. Ready?`;
+      return `That is the whole technique. Let us go.`;
 
     case "item-preview": {
       const itemLines = state.assignments
@@ -696,17 +686,15 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     }
 
     case "palace-wipe": {
-      return `${name}, before we finish, we need to clear the palace. Over time, if we don't, the images pile up and clutter the space, making it harder to remember new things. So we'll give it a good cleaning today to keep it fresh and ready for whatever comes next.
-
-Now, close your eyes and picture yourself at the entrance of your ${yourify(place).toLowerCase().replace(/^your\s+/i, '')}. Imagine a gentle breeze blowing through the whole place. As it passes each stop, the images float away like leaves. Take a slow breath. The palace is clean -- ready for new memories whenever you need it.`;
+      return `${name}, let us clear the palace before we finish.\n\nPicture the entrance of your ${yourify(place).toLowerCase().replace(/^your\s+/i, '')}. A gentle breeze passes through. The images float away like leaves.\n\nBreathe. Clean. Ready for next time.`;
     }
 
     case "graduation-offer": {
       if (state.dayCount === 6) {
-        return `${name}. Stop for a moment. Look what you did this week.\n\nYou built your first Memory Palace. Cleaned it. Walked it forward and backward. Used it for real life. Learned names.\n\nSeven days ago you had never heard of a Memory Palace. Today you have one. That is not nothing, ${name}. That is actually extraordinary.\n\nWear it proudly. Rest that noggin this weekend. When you come back, we start Week 2. Good memorizing, ${name}. Over and out.`;
+        return `${name}. Look what you did this week.\n\nBuilt your first palace. Cleaned it. Walked it forward and backward.\n\nSeven days ago you had never heard of a Memory Palace. Today you have one.\n\nRest this weekend. Week 2 waits.`;
       }
       const nextLevel = Math.min(state.itemCount + 2, 9);
-      return `${name}, you got every single one right! That tells me you're ready for more. Next time, we'll step up to ${nextLevel} ${itemLabel(cat)}. Your memory palace is growing!`;
+      return `Every single one, ${name}. Next time — ${nextLevel} ${itemLabel(cat)}. Your palace is growing.`;
     }
 
     case "final": {

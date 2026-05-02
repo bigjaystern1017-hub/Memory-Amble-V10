@@ -1,0 +1,137 @@
+In client/src/components/beat-engine.ts, replace the following cases inside the getTimbukMessage function. Replace ONLY these specific cases — do not touch any other code, helpers, types, or functions. Copy each replacement exactly.
+
+Replace the onboard-welcome case with:
+
+case "onboard-welcome": {
+  const goal = typeof window !== 'undefined' ? localStorage.getItem('memoryamble-goal') : null;
+  const goalLine = goal === 'names'
+    ? `Names and faces — one of my favourites.`
+    : goal === 'sharp'
+    ? `Staying sharp for the people you love — exactly the right reason to be here.`
+    : goal === 'active'
+    ? `Keeping your mind active. That is why I am here too.`
+    : `Curiosity is how every great palace begins.`;
+  return `Ah, ${name}! I am Timbuk — your guide. ${goalLine}\n\nToday we build your Memory Palace. I have a small surprise waiting for you at the end.`;
+}
+
+Replace the onboard-skill case with:
+
+case "onboard-skill":
+  return `Memory is a skill — and like any skill, it trains.\n\nIs there a place you know so well you could walk through it with your eyes closed? Your home, a garden, somewhere you have been a thousand times?`;
+
+Replace the onboard-palace case with:
+
+case "onboard-palace":
+  return `${place}. That is your Memory Palace — it already exists. We just furnish it.\n\nYour brain is not great at remembering lists. But it is excellent at remembering places you have walked a thousand times.`;
+
+Replace the onboard-vivid case with:
+
+case "onboard-vivid":
+  return `We take an object — say, a penguin — and place it somewhere in ${place}. But we make it YOURS. Big. Strange. Wearing a bow tie. The penguin that waddled after you at the zoo when you were eight.`;
+
+Replace the onboard-secret case with:
+
+case "onboard-secret":
+  return `The stranger the image, the harder it sticks. No test. No pressure. Just practice.\n\nHit that magic button...`;
+
+Replace the onboard-ready case with:
+
+case "onboard-ready":
+  return `If you can picture your home, you have done half the work. Hint button is there if you get stuck.\n\nLet us find your palace.`;
+
+Replace the pre-clean case with:
+
+case "pre-clean": {
+  return `Before we build today, let us clear yesterday's palace. Picture a gentle breeze lifting everything you placed. Watch it float away.`;
+}
+
+Replace the ENTIRE welcome case (from case "welcome": to the closing brace before case "ask-place":) with:
+
+case "welcome": {
+  if (state.sessionOpenerGreeting) return state.sessionOpenerGreeting;
+  const ys = state.yesterdayScore;
+  const yt = state.yesterdayTotal;
+  const isPerfect = yt > 0 && ys === yt;
+  const isGood = yt > 0 && ys >= yt / 2 && !isPerfect;
+  if (dayNum === 1) return "";
+  if (dayNum === 2) {
+    if (isPerfect) return `Welcome back, ${name}. Every one yesterday — a perfect first palace. Today we expand.`;
+    if (isGood) return `Welcome back, ${name}. ${ys} of ${yt} yesterday — strong start. Today we build.`;
+    return `Welcome back, ${name}. Coming back is the hard part — you did it. Today goes easier.`;
+  }
+  if (dayNum === 3) {
+    if (isPerfect) return `Three days in, ${name}, and a perfect round yesterday. Today we try something new.`;
+    if (isGood) return `Three days in, ${name}. ${ys} of ${yt} yesterday. Today we stretch.`;
+    return `Three days in a row, ${name}. That is the whole game. Something new today.`;
+  }
+  if (dayNum === 4) {
+    if (isPerfect) return `Four days, flawless yesterday. Today we stretch to eight stops, ${name}.`;
+    if (isGood) return `Four days strong, ${name}. ${ys} of ${yt} yesterday. Eight stops today.`;
+    return `Four days, ${name}. Most never make it this far. Eight stops today.`;
+  }
+  if (dayNum === 5) {
+    if (isPerfect) return `Five days — flawless yesterday, ${name}. Eight items today.`;
+    if (isGood) return `Five days in, ${name}. Pushing to eight items today.`;
+    return `Five days, ${name}. Showing up is the training. Eight items today.`;
+  }
+  if (dayNum === 6) {
+    if (isPerfect) return `Six days, ${name}. Yesterday was remarkable. Forward and backward today.`;
+    if (isGood) return `Six days, ${name}. Full walk today — forward and backward.`;
+    return `Six days, ${name}. Today: full walk, forward and backward.`;
+  }
+  if (dayNum === 7) {
+    if (isPerfect) return `${name}. Day seven. Flawless yesterday. Today you graduate. Something waiting at the end.`;
+    if (isGood) return `${name}. Day seven. Graduation day. Biggest session yet — something waiting at the end.`;
+    return `${name}. Day seven. You showed up every day. That is the whole game. Today you graduate.`;
+  }
+  const catLabel = isNames ? "names" : `${total} items`;
+  return `Day ${dayNum}, ${name}. Today: ${catLabel}. Let us build.`;
+}
+
+Replace the practice-intro case with:
+
+case "practice-intro":
+  return `Before we place your items — a quick practice. One item, one stop. Tell me what you see.`;
+
+Replace the practice-success case with:
+
+case "practice-success":
+  return `Yes! That is the palace at work, ${name}. A 2,000-year-old technique — and you did it in under a minute. Ready for real?`;
+
+Replace the practice-done case with:
+
+case "practice-done":
+  return `That is the whole technique. Let us go.`;
+
+Replace the palace-wipe case with:
+
+case "palace-wipe": {
+  return `${name}, let us clear the palace before we finish.\n\nPicture the entrance of your ${yourify(place).toLowerCase().replace(/^your\s+/i, '')}. A gentle breeze passes through. The images float away like leaves.\n\nBreathe. Clean. Ready for next time.`;
+}
+
+Replace the check-in-done case with:
+
+case "check-in-done": {
+  const ciTotal = state.checkInAssignments.length;
+  const correct = state.checkInCorrectCount;
+  if (correct === ciTotal) return `${correct} of ${ciTotal} — every one, ${name}. Ready for today?`;
+  if (correct >= ciTotal / 2) return `${correct} of ${ciTotal}. Those pictures are sticking. Ready?`;
+  return `${correct} of ${ciTotal}. The palace is there — just needs practice. Let us build today.`;
+}
+
+Replace the ask-place case with:
+
+case "ask-place":
+  if (state.isReturningUser) return `Same place as last time, ${name}? Or somewhere new?`;
+  return `Think of a place you know so well you could walk it with your eyes closed. Your home, a garden, a favourite shop. Tell me about it.`;
+
+Replace the graduation-offer case with:
+
+case "graduation-offer": {
+  if (state.dayCount === 6) {
+    return `${name}. Look what you did this week.\n\nBuilt your first palace. Cleaned it. Walked it forward and backward.\n\nSeven days ago you had never heard of a Memory Palace. Today you have one.\n\nRest this weekend. Week 2 waits.`;
+  }
+  const nextLevel = Math.min(state.itemCount + 2, 9);
+  return `Every single one, ${name}. Next time — ${nextLevel} ${itemLabel(cat)}. Your palace is growing.`;
+}
+Do not change anything else. Do not touch the fuzzyMatch function, yourify, ITEM_EMOJIS, getNextBeat, or any other function.

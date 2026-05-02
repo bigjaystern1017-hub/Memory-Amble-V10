@@ -1754,21 +1754,30 @@ export default function Amble() {
 
   if (phase === "results") {
     return (
-      <AmbleResults
-        correctCount={resultsSummary.correctCount}
-        totalItems={resultsSummary.totalItems}
-        streak={resultsSummary.streak}
-        onContinue={handleFinish}
-        isGuest={isGuest}
-        userName={state.userName}
-        dayCount={progressData.dayCount}
-        currentDay={resultsSummary.justCompletedDay}
-        placeName={state.placeName}
-        stops={state.stops}
-        pendingSession={pendingSession}
-        userScenes={state.userScenes}
-        assignments={state.assignments}
-      />
+      <>
+        <AmbleResults
+          correctCount={resultsSummary.correctCount}
+          totalItems={resultsSummary.totalItems}
+          streak={resultsSummary.streak}
+          onContinue={handleFinish}
+          isGuest={isGuest}
+          userName={state.userName}
+          dayCount={progressData.dayCount}
+          currentDay={resultsSummary.justCompletedDay}
+          placeName={state.placeName}
+          stops={state.stops}
+          pendingSession={pendingSession}
+          userScenes={state.userScenes}
+          assignments={state.assignments}
+        />
+        <button
+          onClick={() => window.open("mailto:hello@memoryamble.com?subject=MemoryAmble Feedback")}
+          className="fixed bottom-4 left-4 z-50 bg-primary text-white text-xs px-3 py-2 rounded-full shadow-lg hover:opacity-90 transition-opacity"
+          data-testid="button-feedback"
+        >
+          💬 Feedback
+        </button>
+      </>
     );
   }
 
@@ -2203,6 +2212,13 @@ export default function Amble() {
           </button>
         </div>
       )}
+      <button
+        onClick={() => window.open("mailto:hello@memoryamble.com?subject=MemoryAmble Feedback")}
+        className="fixed bottom-4 left-4 z-50 bg-primary text-white text-xs px-3 py-2 rounded-full shadow-lg hover:opacity-90 transition-opacity"
+        data-testid="button-feedback"
+      >
+        💬 Feedback
+      </button>
     </div>
   );
 }

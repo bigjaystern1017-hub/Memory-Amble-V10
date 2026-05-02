@@ -1787,7 +1787,7 @@ export default function Amble() {
                 className="w-4 h-4 accent-primary cursor-pointer"
                 data-testid="checkbox-round-up"
               />
-              <span className="text-sm text-muted-foreground">Round up to $9.00 — $0.53/mo goes to Alzheimer's Research</span>
+              <span className="text-sm text-muted-foreground">Round up to the nearest dollar — the extra goes to Alzheimer's Research</span>
             </label>
             <Button
               size="lg"
@@ -1799,8 +1799,8 @@ export default function Amble() {
               {checkoutLoading ? "Opening checkout..." : "Start 7-Day Free Trial"}
             </Button>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              <span className="font-medium text-foreground">$8.99/month</span> after your free trial — cancel anytime.{" "}
-              <span className="line-through">$16.99/month</span>
+              <span className="font-medium text-foreground">$8.47/month</span> after your free trial — cancel anytime.{" "}
+              <span className="line-through">$19.97/month</span>
             </p>
           </div>
 

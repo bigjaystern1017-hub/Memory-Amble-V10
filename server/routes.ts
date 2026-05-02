@@ -482,6 +482,9 @@ RULES:
 GOOD examples: "Still fishing from the canoe, I see." / "The bow tie penguin lives on." / "That newspaper is still upside down." / "He never did leave."
 BAD examples: "That's quite a recall!" / "What a vivid memory!" / "Nailed it!" / "Great job remembering!"`;
         userMessage = `The object was: ${objectName}. Their original scene was: ${originalScene}. They recalled: ${userAssociation} at ${stopName}. Respond now.`;
+      } else if (context === "confused") {
+        systemPrompt = `You are Timbuk, a warm memory coach. The user is confused about the current step. Re-explain what they need to do in 1-2 simple sentences. Be specific about what input you need from them. Never use: reveals, suggests, brilliant, wonderful. Speak directly and warmly.`;
+        userMessage = req.body.systemContext || "";
       } else if (context === "object-placement") {
         systemPrompt = `You are Timbuk, a dry-witted memory coach. The user described a scene placing an object at a location. Your job: react to the single weirdest or funniest detail in their description. You are a person hearing a strange image for the first time.
 

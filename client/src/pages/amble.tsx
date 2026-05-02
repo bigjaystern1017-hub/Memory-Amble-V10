@@ -188,6 +188,7 @@ export default function Amble() {
   const [sparkLoading, setSparkLoading] = useState(false);
   const [recallHint, setRecallHint] = useState<string | null>(null);
   const [recallHintLoading, setRecallHintLoading] = useState(false);
+  const [confusedLoading, setConfusedLoading] = useState(false);
   const [showSoundReminder, setShowSoundReminder] = useState(true);
   const [typewriterBusy, setTypewriterBusy] = useState(false);
   const [fastForward, setFastForward] = useState(false);
@@ -1310,6 +1311,26 @@ export default function Amble() {
     setRecallHintLoading(false);
   }, [recallHintLoading]);
 
+  const handleConfused = useCallback(async () => {
+    if (confusedLoading) return;
+    setConfusedLoading(true);
+    try {
+      const res = await authFetch("/api/smart-confirm", {
+        method: "POST",
+        body: JSON.stringify({
+          context: "confused",
+          userInput: currentBeat,
+          systemContext: messages.slice(-2).map(m => m.text).join(" "),
+        }),
+      });
+      const data = await res.json();
+      if (data.confirmation) addTimbukInstant(data.confirmation);
+    } catch {
+      addTimbukInstant("Let me try to help. What part is confusing you?");
+    }
+    setConfusedLoading(false);
+  }, [confusedLoading, currentBeat, messages, addTimbukInstant]);
+
   function cleanStopName(input: string): string {
     let t = input.trim();
     if (t.toLowerCase().startsWith('my ')) t = t.slice(3).trim();
@@ -2050,6 +2071,16 @@ export default function Amble() {
                 </div>
               )}
               <div className="flex items-center gap-2">
+                {inputEnabled && (
+                  <button
+                    onClick={handleConfused}
+                    disabled={confusedLoading}
+                    className="shrink-0 text-xs text-muted-foreground hover:text-primary px-2 py-1 rounded-md border border-border/50"
+                    data-testid="button-confused"
+                  >
+                    {confusedLoading ? "..." : "🤔 I'm confused"}
+                  </button>
+                )}
                 <div className="flex-1">
                   <ChatInput
                     onSend={handleUserInput}

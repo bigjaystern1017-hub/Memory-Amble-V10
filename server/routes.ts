@@ -799,7 +799,7 @@ BAD examples: "That's quite a scene!" / "What a vivid image!" / "That's certainl
 
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
-        line_items: [{ price: "price_1TBgLTHJdGxZBU1hSpwIVY80", quantity: 1 }],
+        line_items: [{ price: "price_1TSh9rHJdGxZBU1h4087iM5A", quantity: 1 }],
         mode: "subscription",
         customer_email: email || undefined,
         subscription_data: {

@@ -1933,7 +1933,7 @@ export default function Amble() {
               </div>
             </div>
           )}
-          {messages.map((msg) => (
+          {messages.map((msg, i) => (
             <ChatMessage
               key={msg.id}
               sender={msg.sender}
@@ -1943,6 +1943,7 @@ export default function Amble() {
               fastForward={msg.id === lastMessageId && fastForward}
               onSkipTyping={msg.id === lastMessageId && typewriterBusy ? () => setFastForward(true) : undefined}
               variant={msg.variant}
+              isLatest={i === messages.length - 1}
             />
           ))}
           {isTyping && <ChatMessage sender="timbuk" text="" isTyping />}

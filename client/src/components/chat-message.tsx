@@ -20,6 +20,7 @@ interface ChatMessageProps {
   fastForward?: boolean;
   onSkipTyping?: () => void;
   variant?: "wisdom";
+  isLatest?: boolean;
 }
 
 function TypewriterText({ text, onDone, fastForward }: { text: string; onDone?: () => void; fastForward?: boolean }) {
@@ -73,7 +74,7 @@ function TypewriterText({ text, onDone, fastForward }: { text: string; onDone?: 
   );
 }
 
-export function ChatMessage({ sender, text, isTyping, typewriter, onTypewriterDone, fastForward, onSkipTyping, variant }: ChatMessageProps) {
+export function ChatMessage({ sender, text, isTyping, typewriter, onTypewriterDone, fastForward, onSkipTyping, variant, isLatest = true }: ChatMessageProps) {
   const isTimbuk = sender === "timbuk";
   const isWisdom = variant === "wisdom";
 
@@ -82,7 +83,7 @@ export function ChatMessage({ sender, text, isTyping, typewriter, onTypewriterDo
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className={`flex gap-3 ${isTimbuk ? "justify-start" : "justify-end"}`}
+      className={`flex gap-3 ${isTimbuk ? "justify-start" : "justify-end"}${!isLatest ? " opacity-30 scale-[0.98] transition-all duration-500" : ""}`}
       data-testid={`message-${sender}`}
     >
       {isTimbuk && (

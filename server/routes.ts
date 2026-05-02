@@ -794,12 +794,16 @@ BAD examples: "That's quite a scene!" / "What a vivid image!" / "That's certainl
   app.post("/api/create-checkout-session", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const { email } = req.body;
+      const { email, roundUp } = req.body;
       const origin = `${req.protocol}://${req.get("host")}`;
+
+      const lineItems = roundUp
+        ? [{ price: "price_1TSh9rHJdGxZBU1h4087iM5A", quantity: 1 }, { price: "price_1TShGFHJdGxZBU1h3zXSfxLT", quantity: 1 }]
+        : [{ price: "price_1TSh9rHJdGxZBU1h4087iM5A", quantity: 1 }];
 
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
-        line_items: [{ price: "price_1TSh9rHJdGxZBU1h4087iM5A", quantity: 1 }],
+        line_items: lineItems,
         mode: "subscription",
         customer_email: email || undefined,
         subscription_data: {

@@ -176,6 +176,7 @@ export default function Amble() {
 
   const [phase, setPhase] = useState<"loading" | "education" | "name" | "reviewing" | "chat" | "results" | "paywall">("loading");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [roundUp, setRoundUp] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentBeat, setCurrentBeat] = useState<BeatId>("welcome");
   const [isTyping, setIsTyping] = useState(false);
@@ -1534,7 +1535,7 @@ export default function Amble() {
     try {
       const res = await authFetch("/api/create-checkout-session", {
         method: "POST",
-        body: JSON.stringify({ email: user?.email || "" }),
+        body: JSON.stringify({ email: user?.email || "", roundUp }),
       });
       const { url } = await res.json();
       if (url) window.location.href = url;
@@ -1778,6 +1779,16 @@ export default function Amble() {
           </div>
 
           <div className="space-y-3">
+            <label className="flex items-center gap-3 text-left cursor-pointer select-none" data-testid="label-round-up">
+              <input
+                type="checkbox"
+                checked={roundUp}
+                onChange={(e) => setRoundUp(e.target.checked)}
+                className="w-4 h-4 accent-primary cursor-pointer"
+                data-testid="checkbox-round-up"
+              />
+              <span className="text-sm text-muted-foreground">Round up to $9.00 — $0.53/mo goes to Alzheimer's Research</span>
+            </label>
             <Button
               size="lg"
               className="w-full text-base"

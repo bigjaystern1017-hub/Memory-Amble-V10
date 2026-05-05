@@ -1,0 +1,25 @@
+Create a new page component at client/src/pages/start.tsx. This is a simple funnel entry page. Do not change anything else except adding the route.
+The page should have a full-screen centered layout with a soft lavender background (#F3F0FC). No header, no footer, no scrolling needed — everything fits on one screen.
+The flow has two steps, managed by a useState variable step starting at 1.
+Step 1 shows:
+
+The MemoryAmble logo (import Brain from lucide-react) and text "MemoryAmble" in font-serif at the top, styled like the app header
+A heading: "What matters most to you right now?" in font-serif, text-2xl, text-center, color #26215C
+Three buttons stacked vertically with 12px gap, each styled as: w-full max-w-sm mx-auto, py-4 px-6, bg-white, rounded-xl, shadow-sm, border border-purple-200, text-lg, text-gray-700, hover:border-purple-400 hover:shadow-md transition-all, cursor-pointer
+Button 1 text: "Remembering names and faces"
+Button 2 text: "Staying sharp for my family"
+Button 3 text: "Keeping my mind active"
+When any button is clicked, save the corresponding value ("names", "sharp", or "active") to localStorage with key "memoryamble-goal", then set step to 2
+
+Step 2 shows:
+
+A simple fade-in animation (use opacity transition with useEffect)
+Timbuk avatar image (import from the same timbuk asset used in amble.tsx), displayed at 80x80px, centered, with rounded-full
+Heading: "Timbuk is ready for you." in font-serif, text-2xl, text-center, color #26215C
+Subtext: "Day 1 takes 10 minutes. No account needed." in text-gray-500, text-center
+A purple CTA button: "Start My First Walk →" styled with bg-primary text-white py-4 px-8 rounded-full text-lg font-semibold shadow-lg hover:opacity-90 transition-opacity
+When clicked, navigate to "/amble" using useLocation from wouter
+Below the button in small text: "Free. No credit card." in text-xs text-gray-400
+
+In client/src/App.tsx, add a route for "/start" that renders this new Start component. Import it with import Start from "@/pages/start".
+Do not change anything else.

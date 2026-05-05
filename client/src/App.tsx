@@ -8,11 +8,13 @@ import Landing from "@/pages/landing";
 import Login from "@/pages/login";
 import Amble from "@/pages/amble";
 import Account from "@/pages/account";
+import Start from "@/pages/start";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Landing} />
+      <Route path="/start" component={Start} />
       <Route path="/login" component={Login} />
       <Route path="/amble" component={Amble} />
       <Route path="/account" component={Account} />

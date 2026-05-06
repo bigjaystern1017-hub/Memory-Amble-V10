@@ -1,0 +1,68 @@
+Create a new page component at client/src/pages/quiz.tsx. This is a fun 60-second memory quiz that leads into the app. Do not change anything else except adding the route.
+The page has a soft lavender background (#F3F0FC), full-screen, centered layout, max-w-md mx-auto, with padding.
+Use a useState for step (starting at 0) and scores (an empty array of numbers).
+The flow:
+Step 0 — Intro screen:
+
+MemoryAmble logo (Brain icon from lucide-react + "MemoryAmble" text in font-serif, small, at the top)
+Heading: "How sharp is your memory?" in font-serif, text-3xl, bold, color #26215C, text-center
+Subtext: "5 quick questions. 60 seconds. No signup needed." in text-gray-500, text-center
+A purple CTA button: "Let's find out →" that sets step to 1
+
+Steps 1-5 — Questions:
+Each question shows a question number ("1 of 5" etc in text-sm text-gray-400), the question text in font-serif text-xl color #26215C, and 4 tappable answer buttons stacked vertically (same styling as the /start page buttons: bg-white, rounded-xl, shadow-sm, border border-purple-200, py-3 px-5, hover:border-purple-400 transition-all).
+Each answer has a point value (0, 1, 2, or 3). When tapped, push the score to the scores array and advance step by 1.
+The questions:
+Q1: "Picture your kitchen right now. How many things on the counter can you name?"
+
+"Maybe 1 or 2" (score 1)
+"3 to 5 — I can see it pretty clearly" (score 2)
+"6 or more — I know that counter like the back of my hand" (score 3)
+"I'd have to go look" (score 0)
+
+Q2: "What did you have for dinner two nights ago?"
+
+"I remember exactly" (score 3)
+"I remember the general idea" (score 2)
+"I'd have to think hard" (score 1)
+"No idea" (score 0)
+
+Q3: "If I asked you to memorize a grocery list of 8 items right now, how would you do it?"
+
+"I'd just try to repeat them in my head" (score 1)
+"I'd write them down — I don't trust my memory" (score 0)
+"I have my own tricks" (score 2)
+"I'd probably forget half of them" (score 1)
+
+Q4: "Can you name 3 people you had a conversation with this week?"
+
+"Easily — I remember all of them" (score 3)
+"I can get 2 for sure" (score 2)
+"Maybe 1" (score 1)
+"It's been a blur honestly" (score 0)
+
+Q5: "When you walk into a room and forget why — how often does that happen?"
+
+"Rarely" (score 3)
+"Once in a while" (score 2)
+"A few times a week" (score 1)
+"I'm in that room right now" (score 0)
+
+Step 6 — Results screen:
+Calculate total score from the scores array. Show a result based on the total:
+If total >= 12: Heading "Your memory is sharper than you think." Subtext "You've got strong foundations. Imagine what happens when you add a system."
+If total >= 7: Heading "You're doing better than you realize." Subtext "A few blind spots — but that's exactly what training is for. Most people see improvement in under a week."
+If total < 7: Heading "You're not alone — and it's not too late." Subtext "The fact that you took this quiz means you care. That's the first step. The Memory Palace technique was built for exactly this."
+Below the result, show:
+
+"Your score: X out of 15" in text-sm text-gray-400
+A divider line (border-t border-purple-200 my-6)
+Timbuk avatar (import from same asset as amble.tsx), 64x64, rounded-full, centered
+Text: "Timbuk is ready to show you a 2,000-year-old technique that takes 10 minutes to learn." in text-gray-600, text-center
+Purple CTA button: "Try Day 1 Free →" that saves "curiosity" to localStorage key "memoryamble-goal" and navigates to "/amble"
+Below button: "No account needed. No credit card." in text-xs text-gray-400
+A small link below that: "Share this quiz" that calls navigator.share with title "How sharp is your memory?" and url window.location.href, with clipboard fallback
+
+Add a subtle fade/slide transition between each step using a CSS transition on opacity and transform.
+In client/src/App.tsx, add a route for "/quiz" that renders this Quiz component. Import it with import Quiz from "@/pages/quiz".
+Do not change anything else.

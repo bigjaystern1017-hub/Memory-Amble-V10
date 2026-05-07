@@ -1354,6 +1354,12 @@ export default function Amble() {
         return /^(yes|yeah|yep|yup|sure|ok|okay|correct|that'?s?\s+right|absolutely|definitely|please|go ahead)$/i.test(input.trim());
       };
 
+      const cleanUserInput = (input: string): string => {
+        let t = input.trim().replace(/\s+/g, ' ').replace(/(\w)\1+\b/g, '$1');
+        if (t.length > 0) t = t[0].toUpperCase() + t.slice(1);
+        return t;
+      };
+
       switch (beat) {
         case "check-in-recall": {
           const newAnswers = [...s.checkInAnswers];
@@ -1373,7 +1379,7 @@ export default function Amble() {
         }
 
         case "onboard-skill":
-          s = { ...s, placeName: cleanPlaceName(text), stops: [] };
+          s = { ...s, placeName: cleanPlaceName(cleanUserInput(text)), stops: [] };
           break;
 
         case "ask-place":
@@ -1381,7 +1387,7 @@ export default function Amble() {
             s = { ...s, placeName: s.lastPalaceName, stops: [] };
             nextBeatOverride = "confirm-same-place";
           } else {
-            s = { ...s, placeName: cleanPlaceName(text), stops: [] };
+            s = { ...s, placeName: cleanPlaceName(cleanUserInput(text)), stops: [] };
           }
           break;
 
@@ -1399,7 +1405,7 @@ export default function Amble() {
           break;
 
         case "ask-stop":
-          s = { ...s, stops: [...s.stops, cleanStopName(text)] };
+          s = { ...s, stops: [...s.stops, cleanStopName(cleanUserInput(text))] };
           break;
 
         case "expansion-stop-1":

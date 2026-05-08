@@ -1,0 +1,36 @@
+Create a new component at client/src/components/visual-path.tsx. This is the core visual element for the redesigned session. Do not change any existing files yet — just create this new component.
+The component accepts these props:
+
+stops: { name: string; object?: string; modifier?: string; revealed?: boolean }[] — array of stops along the path
+currentStopIndex: number — which stop is active
+phase: "placement" | "recall" | "results" — current game phase
+pathColor: string — hex color for the path line (defaults to "#7C3AED")
+onStopClick?: (index: number) => void — callback when a stop box is tapped
+
+The component renders a vertical path that fills the available height. The layout:
+A vertical colored line (3px wide, color from pathColor prop) runs down the center-left of the component (about 20% from left edge). Along this line, evenly spaced, are the stop boxes.
+Each stop box is:
+
+A circle (24px) on the path line, filled with pathColor if visited (index <= currentStopIndex), filled with gray-200 if upcoming
+Connected to a rectangular card to the right of the circle by a short horizontal line
+The card is: className="bg-white rounded-xl border-2 p-4 min-w-[200px] shadow-sm transition-all duration-300"
+Border color: purple-400 if it's the current stop, gray-200 otherwise
+Current stop card has a subtle pulse animation and is slightly scaled up (scale-105)
+Inside the card during placement phase: shows the stop name in text-sm text-gray-500, and if an object has been placed, shows the object emoji + modifier emoji with the object name
+Inside the card during recall phase: if not yet reached, shows just the stop name dimmed. If current, shows the stop name highlighted. If revealed, shows the object emoji and a green checkmark or red X.
+During results: all cards show their objects with check/X marks
+
+Between each stop circle on the vertical line, render a dashed segment if upcoming, solid if visited.
+A dotted progress line traces the user's journey — it animates from stop to stop as currentStopIndex advances, using a CSS transition on height.
+The whole component should be scrollable vertically if there are more than 5 stops (for 8-10 item days).
+Export the component as default.
+Also create client/src/components/timbuk-bar.tsx — a persistent top bar for Timbuk during sessions:
+
+Fixed at the top of the session screen, height 72px, bg-white, border-b, shadow-sm, z-50
+Left side: Timbuk avatar image (48x48, rounded-full) imported from the same asset used in amble.tsx
+Center: a speech bubble div with className="bg-purple-50 rounded-2xl px-4 py-2 text-sm max-w-[60%]" that displays a message prop string
+Right side: a small progress indicator showing currentStep / totalSteps in text-xs text-gray-400
+The component accepts props: message: string, currentStep: number, totalSteps: number
+Export as default
+
+Do not change any existing files. Just create these two new components.

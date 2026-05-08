@@ -35,8 +35,8 @@ export default function Landing() {
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
         <div className="max-w-5xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center text-xl" style={{ backgroundColor: PURPLE }}>
-              🧠
+            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: PURPLE }}>
+              <img src={iconBrain} alt="Brain" className="w-8 h-8 inline-block" />
             </div>
             <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "Lora, serif" }}>MemoryAmble</span>
           </div>

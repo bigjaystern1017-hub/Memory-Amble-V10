@@ -138,47 +138,53 @@ export default function Landing() {
       </header>
 
       {/* HERO */}
-      <section className="relative mx-auto grid max-w-7xl items-center gap-10 px-5 pb-14 pt-8 lg:grid-cols-[0.88fr_1.12fr] lg:px-8 lg:pb-20 lg:pt-14">
-        <div className="relative z-10 max-w-xl">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[#5B35D5] shadow-sm ring-1 ring-purple-100">
-            <Sparkles size={15} /> Ancient wisdom. Modern memory.
+      <section className="mx-auto w-full max-w-[1280px] px-5 lg:px-12" style={{ minHeight: "calc(100vh - 96px)", display: "flex", alignItems: "center" }}>
+        <div className="w-full grid items-center gap-10 py-12 lg:py-16 lg:grid-cols-[45%_55%]">
+
+          {/* Text column */}
+          <div className="relative z-10" style={{ maxWidth: "560px" }}>
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[#5B35D5] shadow-sm ring-1 ring-purple-100">
+              <Sparkles size={15} /> Ancient wisdom. Modern memory.
+            </div>
+
+            <h1 className="font-serif font-bold leading-[0.95] tracking-[-0.04em] text-[#24114F] text-5xl sm:text-6xl lg:text-6xl xl:text-7xl">
+              Build a memory that lasts.
+            </h1>
+
+            <p className="mt-6 text-lg leading-8 text-[#5C5373]">
+              Learn the Memory Palace technique through simple daily walks, stories, and spatial memory training — guided by your coach Timbuk, designed for real life.
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <button
+                data-testid="button-cta-hero"
+                onClick={handleCta}
+                className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold bg-[#5B35D5] text-white shadow-lg shadow-purple-200 hover:-translate-y-0.5 hover:bg-[#4C2BC4] transition-all duration-200"
+              >
+                {ctaLabel} <ArrowRight size={18} />
+              </button>
+              <a href="#how" className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-[#5B35D5] hover:bg-purple-50 transition-colors">
+                See how it works
+              </a>
+            </div>
+
+            <div className="mt-9 grid gap-5 sm:grid-cols-3">
+              <TrustItem icon={Clock} title="10 min/day" text="Short guided sessions" />
+              <TrustItem icon={ShieldCheck} title="Science-backed" text="Based on Method of Loci" />
+              <TrustItem icon={Heart} title="Made for life" text="Practical everyday recall" />
+            </div>
           </div>
 
-          <h1 className="font-serif text-5xl font-bold leading-[0.95] tracking-[-0.04em] text-[#24114F] sm:text-6xl lg:text-7xl">
-            Build a memory that lasts.
-          </h1>
-
-          <p className="mt-6 max-w-lg text-lg leading-8 text-[#5C5373]">
-            Learn the Memory Palace technique through simple daily walks, stories, and spatial memory training — guided by your coach Timbuk, designed for real life.
-          </p>
-
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <button
-              data-testid="button-cta-hero"
-              onClick={handleCta}
-              className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold bg-[#5B35D5] text-white shadow-lg shadow-purple-200 hover:-translate-y-0.5 hover:bg-[#4C2BC4] transition-all duration-200"
-            >
-              {ctaLabel} <ArrowRight size={18} />
-            </button>
-            <a href="#how" className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-[#5B35D5] hover:bg-purple-50 transition-colors">
-              See how it works
-            </a>
+          {/* Image column */}
+          <div className="flex items-end justify-end">
+            <img
+              src={HERO_IMAGE}
+              alt="People exploring a Memory Palace landscape"
+              className="w-full object-contain"
+              style={{ objectPosition: "right bottom", maxHeight: "620px" }}
+            />
           </div>
 
-          <div className="mt-9 grid gap-5 sm:grid-cols-3">
-            <TrustItem icon={Clock} title="10 min/day" text="Short guided sessions" />
-            <TrustItem icon={ShieldCheck} title="Science-backed" text="Based on Method of Loci" />
-            <TrustItem icon={Heart} title="Made for life" text="Practical everyday recall" />
-          </div>
-        </div>
-
-        <div className="relative min-h-[440px] lg:min-h-[610px]">
-          <div className="absolute -right-28 bottom-[-70px] top-[-10px] w-[116%] rounded-[3rem] bg-gradient-to-br from-purple-50/70 to-transparent blur-3xl" />
-          <img
-            src={HERO_IMAGE}
-            alt="People exploring a Memory Palace landscape"
-            className="relative z-10 h-full max-h-[680px] w-full object-contain object-right-bottom lg:scale-110 lg:origin-bottom-right"
-          />
         </div>
       </section>
 

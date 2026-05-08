@@ -10,6 +10,8 @@ import Amble from "@/pages/amble";
 import Account from "@/pages/account";
 import Start from "@/pages/start";
 import Quiz from "@/pages/quiz";
+import Privacy from "@/pages/privacy";
+import Terms from "@/pages/terms";
 
 function Router() {
   return (
@@ -20,6 +22,8 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/amble" component={Amble} />
       <Route path="/account" component={Account} />
+      <Route path="/privacy" component={Privacy} />
+      <Route path="/terms" component={Terms} />
       <Route component={NotFound} />
     </Switch>
   );

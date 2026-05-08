@@ -351,6 +351,11 @@ export default function Landing() {
             hello@memoryamble.com
           </a>
         </div>
+        <div className="max-w-5xl mx-auto flex items-center justify-center gap-3 mt-3 text-sm text-gray-400">
+          <a href="/privacy" className="underline hover:text-gray-600 transition-colors">Privacy Policy</a>
+          <span>·</span>
+          <a href="/terms" className="underline hover:text-gray-600 transition-colors">Terms of Service</a>
+        </div>
       </footer>
 
     </div>

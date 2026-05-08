@@ -1,0 +1,30 @@
+Create two new page components and add routes for them. Do not change anything else except App.tsx for the routes.
+
+Create client/src/pages/privacy.tsx. A simple page with the same header as the login page (Brain icon + "MemoryAmble" title + a Back button that navigates to "/"). Below the header, render the following privacy policy text in a max-w-2xl mx-auto container with prose styling, font-sans, text-sm, text-gray-700, with proper spacing between sections. Use h2 tags for section headers styled in font-serif text-lg text-primary font-bold. The content:
+
+Title: "Privacy Policy" (h1, font-serif, text-2xl, text-center, mb-8)
+Last updated: "May 7, 2026"
+Section "What We Collect": "When you create an account, we collect your email address and display name. When you use the app, we store your session data including palace names, stop names, objects placed, and scores. This data is used solely to personalize your experience and track your progress."
+Section "What We Don't Collect": "MemoryAmble is not a medical app. We do not collect health records, diagnoses, or any protected health information. We are not subject to HIPAA. We do not sell, share, or provide your personal data to any third party."
+Section "How We Use Your Data": "Your data is used to: save your progress between sessions, personalize Coach Timbuk's responses, generate your Amble Scroll after each session, and send you optional daily reminder emails (which you can turn off anytime from your Account page)."
+Section "Cookies": "We use essential cookies for authentication and session management. We do not use advertising cookies or tracking pixels."
+Section "Data Storage": "Your data is stored securely via Supabase (PostgreSQL) with encryption in transit. Payment processing is handled by Stripe — we never see or store your credit card number."
+Section "Your Rights": "You can request deletion of your account and all associated data at any time by emailing hello@memoryamble.com. We will delete your data within 7 business days."
+Section "Contact": "Questions about your privacy? Email us at hello@memoryamble.com"
+
+Create client/src/pages/terms.tsx. Same layout and styling as the privacy page. The content:
+
+Title: "Terms of Service" (h1, font-serif, text-2xl, text-center, mb-8)
+Last updated: "May 7, 2026"
+Section "What MemoryAmble Is": "MemoryAmble is a cognitive fitness app that teaches the Memory Palace technique through guided daily sessions. It is an educational and recreational tool — not a medical device, not a substitute for medical advice, and not a treatment for any condition."
+Section "No Medical Claims": "While the Memory Palace technique has been studied extensively in peer-reviewed research, MemoryAmble makes no claims about preventing, treating, or curing any disease including dementia or Alzheimer's. We encourage users to consult their healthcare provider for any medical concerns."
+Section "Subscriptions and Billing": "After your free Day 1 session, continued access requires a subscription at $8.47/month with an optional round-up donation. All subscriptions include a 7-day free trial. You can cancel anytime from your Account page or by emailing hello@memoryamble.com. Cancellation takes effect at the end of your current billing period."
+Section "The Alzheimer's Research Donation": "Users who opt in to the round-up donate $0.53/month to Alzheimer's research through our partnership with recognized research organizations. This donation is included in your subscription charge and is not separately tax-deductible."
+Section "Your Content": "The palace names, stop names, and scene descriptions you create are yours. We use them only to deliver your experience and generate your Amble Scroll. We do not publish, share, or use your content for any other purpose."
+Section "Account Termination": "We reserve the right to terminate accounts that abuse the service. You can delete your account at any time by emailing hello@memoryamble.com."
+Section "Contact": "Questions? Email us at hello@memoryamble.com"
+
+In client/src/App.tsx, add routes for "/privacy" and "/terms". Import Privacy from "@/pages/privacy" and Terms from "@/pages/terms".
+In client/src/pages/landing.tsx, find the footer area at the bottom of the page. Add two small text links: "Privacy Policy" linking to "/privacy" and "Terms of Service" linking to "/terms". Style them as text-sm text-gray-400 underline, separated by a dot or pipe character. Place them below the existing footer content.
+
+Do not change anything else.

@@ -1,0 +1,79 @@
+Create a new page at client/src/pages/amble-v2.tsx. This is the redesigned visual session experience. Do not change any existing files except App.tsx at the end.
+Import these components: VisualPath from @/components/visual-path, TimbukBar from @/components/timbuk-bar, PlacementCard from @/components/placement-card, RecallChoices from @/components/recall-choices. Also import playSound from @/lib/sounds, useAuth from @/hooks/use-auth, useLocation from wouter, and the Timbuk avatar asset.
+The page manages this state:
+phase: "path-select" | "placement" | "recall" | "results"
+selectedPath: { name: string; color: string; stops: string[] } | null
+difficulty: number (3, 5, 8, or 10)
+objects: { name: string; emoji: string; modifier: string; stopName: string }[]
+currentIndex: number
+score: number
+totalSteps: number
+timbukMessage: string
+userAnswers: { object: string; correct: boolean }[]
+showPlacementCard: boolean
+recallChoices: string[]
+recallChoiceEmojis: string[]
+SCREEN 1 — Path Selection (phase === "path-select"):
+Full screen, lavender background (#F3F0FC). Timbuk avatar centered at top (80x80), speech bubble below: "Choose your path."
+Three path cards stacked vertically, each tappable:
+
+"My House" — brown path (#8B6F47) — stops: ["Front door", "Kitchen counter", "Hallway", "Living room", "Bedroom"]
+"The Garden" — green path (#4CAF50) — stops: ["Garden gate", "Flower bed", "Bench", "Fountain", "Shed"]
+"The Palace" — purple path (#7C3AED) — stops: ["Grand entrance", "Throne room", "Library", "Courtyard", "Tower"]
+
+Each card: className="w-full max-w-sm mx-auto p-5 rounded-2xl border-2 bg-white shadow-sm hover:shadow-md transition-all cursor-pointer" with a colored left border (4px) matching the path color. Shows path name in font-serif text-lg bold, and first 3 stop names in text-sm text-gray-400.
+Below the paths, a difficulty selector: "How many items?" with 4 tappable pills in a row: 3, 5, 8, 10. Default selected is 3. Selected pill has bg-primary text-white, others have bg-white border border-purple-200. Only 3 and 5 are enabled initially. 8 and 10 show a small lock icon and are grayed out with opacity-50 cursor-not-allowed.
+A "Start" button at the bottom, purple, full width max-w-sm: "Begin Your Amble →". When tapped: sets selectedPath, slices the stops array to match difficulty count, calls the existing /api/assign-objects endpoint to get objects (pass category "objects", the difficulty count, and dayCount 0), stores the returned objects with their emojis from the ITEM_EMOJIS map in beat-engine.ts, sets phase to "placement", sets timbukMessage to "Place each object. Make it memorable.", plays the magic-transition sound.
+SCREEN 2 — Placement (phase === "placement"):
+TimbukBar at top with timbukMessage and progress (currentIndex + 1) / totalSteps.
+Below TimbukBar, a split layout:
+
+Left side (40% width on desktop, hidden on mobile): VisualPath component showing all stops, with placed objects visible, currentStopIndex = currentIndex, phase = "placement", pathColor from selectedPath.
+Right side (60% on desktop, full width on mobile): PlacementCard for the current object.
+
+On mobile (screen width < 768px), show only the PlacementCard centered, with a small progress text "2 of 5 placed" above it and the stop name visible.
+When PlacementCard calls onPlace(modifier):
+
+Store the modifier on the current object
+Play the "click" sound
+Set timbukMessage to a one-liner from a rotating array: ["Hiding it away...", "That one will stick.", "Locked in.", "Tucked away nicely.", "Not forgetting that one.", "Oh, that image will last."]
+After 800ms, advance currentIndex
+If all objects placed: play "magic-transition" sound, set timbukMessage to "Time to walk. Can you find them all?", wait 1500ms, then set phase to "recall", reset currentIndex to 0, clear the placed objects from visual display
+
+SCREEN 3 — Recall (phase === "recall"):
+TimbukBar at top: timbukMessage and progress.
+The VisualPath shows all stops but objects are hidden (revealed = false). Current stop is highlighted.
+Center of screen: the current stop name in font-serif text-xl, and below it RecallChoices with 4 options.
+Generate choices: correct answer + 3 decoys from other objects in the session. If fewer than 3 others available, pull from fallback list: ["pineapple", "umbrella", "telescope", "flamingo", "accordion", "surfboard", "lantern", "crown"]. Shuffle with Fisher-Yates. Pass corresponding emojis.
+When RecallChoices calls onSelect(answer):
+
+Check if answer matches the correct object (case-insensitive)
+If correct: play "correct" sound, increment score, set timbukMessage from rotating array: ["Still there.", "You found it.", "Palace is working.", "Right where you left it.", "Sharp."], mark stop as revealed with green
+If wrong: play no sound, set timbukMessage to "It was [correct object]. Keep walking.", mark stop as revealed with red
+Store the answer in userAnswers
+After 1000ms, advance currentIndex
+If all stops done: play "complete" sound, set phase to "results"
+
+On mobile, hide the VisualPath and show just the stop name + RecallChoices centered. Show a dotted progress line above the choices — small circles for each stop, filled purple for completed, outlined for upcoming, current one pulsing.
+SCREEN 4 — Results (phase === "results"):
+Full screen centered. Score reveal: big number "4 out of 5" in font-serif text-4xl bold text-primary. Below: a message based on score percentage:
+
+100%: "A perfect walk, [name]."
+
+
+= 60%: "Your palace is working."
+
+
+< 60%: "Every walk makes it stronger."
+
+Below the score, show the VisualPath with all objects revealed and check/X marks.
+Below the path: two buttons:
+
+"Walk Again" — resets to path-select
+"See Your Amble Scroll" — calls the existing /api/generate-scroll endpoint with the session data, displays the scroll text in a card with a share button (uses navigator.share with clipboard fallback)
+
+A "Back to Home" link at the bottom that navigates to "/".
+ROUTING:
+In client/src/App.tsx, add a route for "/amble-v2" that renders this new AmbleV2 component. Import it with import AmbleV2 from "@/pages/amble-v2". Keep the existing "/amble" route unchanged — both versions coexist.
+IMPORTANT: This page should work standalone without auth for testing. Don't require login. Use localStorage for any state that needs to persist. Import ITEM_EMOJIS and getItemEmoji from beat-engine.ts for emoji lookups.
+Do not change any existing files except App.tsx for the route.

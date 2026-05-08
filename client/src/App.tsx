@@ -12,6 +12,7 @@ import Start from "@/pages/start";
 import Quiz from "@/pages/quiz";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
+import AmbleV2 from "@/pages/amble-v2";
 
 function Router() {
   return (
@@ -21,6 +22,7 @@ function Router() {
       <Route path="/quiz" component={Quiz} />
       <Route path="/login" component={Login} />
       <Route path="/amble" component={Amble} />
+      <Route path="/amble-v2" component={AmbleV2} />
       <Route path="/account" component={Account} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/terms" component={Terms} />

@@ -1,0 +1,58 @@
+In client/src/pages/amble-v2.tsx, add a practice phase that runs before the first real placement. Make these changes to the existing amble-v2 file only.
+Add a new phase value "practice" to the phase state type, so it becomes: "path-select" | "practice" | "placement" | "recall" | "results"
+Also add these state variables:
+practiceStep: "intro" | "place" | "hide" | "recall" | "celebrate" (default "intro")
+practiceModifier: string (default "")
+Change the flow: When the user taps "Begin Your Amble →" on the path select screen, instead of going straight to "placement", set phase to "practice" and practiceStep to "intro".
+PRACTICE SCREEN (phase === "practice"):
+This uses the full screen with lavender background, centered content, max-w-sm mx-auto.
+practiceStep "intro":
+
+Timbuk avatar centered (80x80, rounded-full)
+Speech bubble below: "Before we start — a quick practice. One item. Watch how it works."
+A large purple button: "Show me →" that sets practiceStep to "place"
+Play the "transition" sound when this screen appears
+
+practiceStep "place":
+
+Text at top: "Front door" in text-sm text-gray-400
+Large pineapple emoji (text-6xl) centered with "Pineapple" below in text-xl font-bold
+Three modifier emojis below in a row (same card style as PlacementCard): "🕶️" (cool), "🔥" (on fire), "👑" (royal)
+Text below: "Tap one to make it yours" in text-xs text-gray-400
+When user taps a modifier: it attaches to the pineapple (appears next to it with a pop animation using scale 0 → 1.2 → 1 over 300ms). Store in practiceModifier. Play "click" sound. After 600ms, a Timbuk speech bubble appears: "Hiding the [modifier] pineapple at your front door..." where [modifier] is "cool" for sunglasses, "flaming" for fire, "royal" for crown. After another 800ms, set practiceStep to "hide".
+
+practiceStep "hide":
+
+Screen shows a single stop box (same style as VisualPath stop card) labeled "Front door" with a subtle glow animation
+The pineapple + modifier emoji fly from center into the box (CSS animation: translate from center to the box position over 500ms with an ease-out curve, then the box briefly pulses)
+Play "click" sound when it lands
+After 1000ms, the box closes (the emoji fades out inside the box, replaced by a "?" icon)
+Timbuk bubble appears: "Now — can you find it?"
+A purple button appears: "Let me try" that sets practiceStep to "recall"
+
+practiceStep "recall":
+
+"Front door" shown at top in font-serif text-xl
+The closed box with "?" is shown
+Below it, a 2x2 grid of 4 choices using the same RecallChoices component style:
+
+"🍍 Pineapple" (correct)
+"🎸 Guitar" (decoy)
+"🦩 Flamingo" (decoy)
+"🌂 Umbrella" (decoy)
+
+
+Shuffle the order randomly
+When user taps Pineapple: the card flashes green, the box opens to reveal the pineapple + modifier emoji, play "correct" sound (bell + cheer), after 800ms set practiceStep to "celebrate"
+When user taps wrong: card flashes red, correct card highlights green, after 1000ms still advance to "celebrate" (we never let them fail the practice — the point is the win)
+
+practiceStep "celebrate":
+
+Big centered content with a subtle confetti-like animation (just 5-6 small purple circles that float up and fade out using CSS keyframes — no library needed)
+Timbuk avatar with a speech bubble: "That is the whole technique. A 2,000-year-old skill — and you just did it."
+The pineapple + modifier visible in the revealed box above
+A large purple button: "Now let's do it for real →" that sets phase to "placement", resets currentIndex to 0, and plays "magic-transition" sound
+Below the button in text-xs text-gray-400: "[difficulty] items are waiting in your [pathName]"
+
+IMPORTANT: The practice round should feel fast and celebratory. Total time from intro to celebrate should be about 20-30 seconds of user time. No long text. No paragraphs. Every screen is one action. The celebrate screen is the emotional peak — this is where the user thinks "oh, I can do this."
+Do not change any other files

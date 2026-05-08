@@ -4,11 +4,12 @@ import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, LogOut } from "lucide-react";
-import heroCoupleCoffe from "@assets/hero-couple-coffee_1775849358112.jpg";
-import heroGrandma from "@assets/hero-grandma-grandchild_1775849337609.jpg";
-import heroManYellow from "@assets/hero-man-yellow_1775849369466.jpg";
-import heroWomenLaughing from "@assets/hero-women-laughing_1775849325225.jpg";
-import heroFishingCouple from "@assets/hero-fishing-couple_1775849358110.jpg";
+import heroRunners from "@assets/hero-runners_1778244069720.png";
+import heroGrandmaChild from "@assets/hero-grandma-child_1778244069721.png";
+import heroFriendsSunglasses from "@assets/hero-friends-sunglasses_1778244090716.png";
+import iconHouse from "@assets/icon-house_1778244069718.png";
+import iconPineapple from "@assets/icon-pineapple_1778244069701.png";
+import iconBrain from "@assets/icon-brain_1778244082944.png";
 import heroCouplesky from "@assets/hero-couple-sky_1775849325223.jpg";
 import familyDrawing from "@assets/family-drawing_1775912885165.png";
 import timbukAvatar from "@assets/timbuk-hero-clean-bg_1776110930296.png";
@@ -61,13 +62,13 @@ export default function Landing() {
             {/* Photo trio */}
             <div className="flex gap-3 md:gap-4 mb-10 md:mb-14 justify-center items-end">
               <div className="w-1/3 rounded-2xl overflow-hidden" style={{ aspectRatio: "3/4" }}>
-                <img src={heroCoupleCoffe} alt="Couple with coffee" className="w-full h-full object-cover" />
+                <img src={heroRunners} alt="Active couple running by the coast" className="w-full h-full object-cover" />
               </div>
               <div className="w-1/3 rounded-2xl overflow-hidden" style={{ aspectRatio: "3/5" }}>
-                <img src={heroWomenLaughing} alt="Women laughing" className="w-full h-full object-cover" />
+                <img src={heroFriendsSunglasses} alt="Friends having fun together" className="w-full h-full object-cover" />
               </div>
               <div className="w-1/3 rounded-2xl overflow-hidden" style={{ aspectRatio: "3/4" }}>
-                <img src={heroGrandma} alt="Grandmother and grandchild" className="w-full h-full object-cover" />
+                <img src={heroGrandmaChild} alt="Grandmother and grandchild" className="w-full h-full object-cover" />
               </div>
             </div>
 
@@ -126,7 +127,7 @@ export default function Landing() {
           <div className="max-w-2xl mx-auto">
             <hr className="border-gray-200 mb-8" />
             <p className="text-lg md:text-xl text-gray-700 leading-relaxed" style={{ fontFamily: "Lora, serif" }}>
-              Memory training courses run $1,200 to $3,000. Private memory coaches charge more. We priced MemoryAmble at $8.47 a month deliberately — not because it's worth less, but because we believe this should be available to everyone — not just those who can afford a private coach. A portion of every subscription funds Alzheimer's and Sanfilippo research. The more people we reach, the more we can fund the fight.
+              Memory training courses run $1,200 to $3,000. Private memory coaches charge more. We priced MemoryAmble at $8.47 a month deliberately — not because it's worth less, but because we believe this should be available to everyone — not just those who can afford a private coach. A portion of every subscription funds Sanfilippo syndrome and Alzheimer's research. The more people we reach, the more we can fund the fight.
             </p>
             <hr className="border-gray-200 mt-8" />
           </div>
@@ -137,12 +138,12 @@ export default function Landing() {
           <div className="max-w-4xl mx-auto">
             <div className="grid md:grid-cols-3 gap-10">
               {[
-                { icon: "🏠", title: "Build Your Palace", body: "Pick a place you know well. Your home, a favourite walk. That's your memory palace. It already exists." },
-                { icon: "🍍", title: "Plant Vivid Images", body: "Timbuk gives you items to place. You make them vivid, strange, personal. The weirder the better." },
-                { icon: "🧠", title: "Walk & Recall", body: "Stroll through your palace in your mind. Whatever you planted will be waiting. Every time." },
+                { icon: iconHouse, title: "Build Your Palace", body: "Pick a place you know well. Your home, a favourite walk. That's your memory palace. It already exists." },
+                { icon: iconPineapple, title: "Plant Vivid Images", body: "Timbuk gives you items to place. You make them vivid, strange, personal. The weirder the better." },
+                { icon: iconBrain, title: "Walk & Recall", body: "Stroll through your palace in your mind. Whatever you planted will be waiting. Every time." },
               ].map(({ icon, title, body }) => (
                 <div key={title} className="text-center space-y-3">
-                  <div className="text-4xl mb-2">{icon}</div>
+                  <img src={icon} alt={title} className="w-12 h-12 mx-auto mb-2" />
                   <h3 className="text-xl font-bold text-gray-900" style={{ fontFamily: "Lora, serif" }}>{title}</h3>
                   <p className="text-gray-500 leading-relaxed">{body}</p>
                 </div>
@@ -226,11 +227,11 @@ export default function Landing() {
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900" style={{ fontFamily: "Lora, serif" }}>Our story</h2>
               <div className="text-gray-600 leading-relaxed space-y-4">
                 <p>I built this for one person first.</p>
-                <p>My father is 84. He was always sharp, funny and present — but I noticed in the past few years he quietly began to lose confidence in his own memory. Not because anything was terribly wrong. Just the slow, ordinary erosion that comes with time. He'd lose a word mid-sentence or get frustrated watching a movie or reading a book. He'd wave it off with a laugh. But I could see it bothering him.</p>
-                <p>My dad was always a lifelong learner and I wanted to give him something — a way to train and improve. Not a puzzle app or a quiz. I'd read about memory training years before, used it myself, and saw how fun and powerful it could be. What could genuinely be accomplished by working on your memory for only a few minutes a day.</p>
+                <p>My dad's sharp, funny, and present — a lifelong learner. But he noticed in the past few years he didn't feel quite as sharp as he always had.</p>
+                <p>He was looking for a way to train his memory the way he trained his body. Not a puzzle app. Not a quiz. Something real.</p>
+                <p>I'd learned memory training years before, used it myself, and saw how fun and powerful it could be — what could genuinely be accomplished by working on your memory for just a few minutes a day.</p>
                 <p>That was the genesis for MemoryAmble. Something warm, patient, and genuinely useful — that made him feel capable, not tested.</p>
-                <p>If you have someone in your life like my father — or if you are that person — this was built for you.</p>
-                <p className="text-lg text-muted-foreground leading-relaxed mt-4">If any of this sounds familiar — I think you'll like what we built.</p>
+                <p>If you have someone in your life like that — or if you are that person — this was built for you.</p>
               </div>
             </div>
           </div>
@@ -308,14 +309,14 @@ export default function Landing() {
           <div className="max-w-2xl mx-auto text-center space-y-6">
             <h2 className="text-3xl md:text-4xl font-bold text-white" style={{ fontFamily: "Lora, serif" }}>Our mission</h2>
             <p className="text-white/80 leading-relaxed text-lg">
-              We believe memory training should be accessible to everyone. A portion of every subscription goes to Alzheimer's research and Sanfilippo syndrome research — memory loss at both ends of life. The more people we help remember, the more we can fund the fight.
+              We believe memory training should be accessible to everyone. A portion of every subscription goes to Sanfilippo syndrome and Alzheimer's research — because memory matters at every age. The more people we help remember, the more we can fund the fight.
             </p>
             <div className="flex gap-4 justify-center pt-4">
               <div className="w-1/2 rounded-2xl overflow-hidden" style={{ aspectRatio: "4/3" }}>
-                <img src={heroFishingCouple} alt="Couple fishing" className="w-full h-full object-cover" style={{ objectPosition: "center top" }} />
+                <img src={heroRunners} alt="Active couple running by the coast" className="w-full h-full object-cover" style={{ objectPosition: "center top" }} />
               </div>
               <div className="w-1/2 rounded-2xl overflow-hidden" style={{ aspectRatio: "4/3" }}>
-                <img src={heroManYellow} alt="Man in yellow" className="w-full h-full object-cover" style={{ objectPosition: "center" }} />
+                <img src={heroFriendsSunglasses} alt="Friends having fun together" className="w-full h-full object-cover" style={{ objectPosition: "center" }} />
               </div>
             </div>
           </div>

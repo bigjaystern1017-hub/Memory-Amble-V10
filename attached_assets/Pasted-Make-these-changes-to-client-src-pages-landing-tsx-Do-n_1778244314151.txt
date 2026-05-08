@@ -1,0 +1,24 @@
+Make these changes to client/src/pages/landing.tsx. Do not change anything else.
+STEP 1 — SWAP HERO PHOTOS:
+First, upload these new images to the attached_assets or client assets folder if not already there. Then update the imports and image references:
+
+Replace the import for heroCoupleCoffe (hero-couple-coffee) with an import for the Two_Runners image. Update the alt text to "Active couple running by the coast". This replaces the couple-in-bed/coffee image on line 64.
+Replace the import for heroWomenLaughing (hero-women-laughing) with an import for the Group_of_Friends image (the women with fun sunglasses). Update the alt text to "Friends having fun together". This replaces the women laughing image on line 67.
+Replace the import for heroGrandma (hero-grandma-grandchild) with an import for the Grandma_and_Child image (the Black woman hugging the little girl). Update the alt text to "Grandmother and grandchild". This replaces the old grandma image on line 70.
+Replace the import for heroFishingCouple with the Two_Runners image (reuse it). Update alt text.
+Replace the import for heroManYellow with the Group_of_Friends image (reuse it). Update alt text.
+
+STEP 2 — SWAP EMOJIS WITH CUSTOM ICONS:
+Import the three new icon images: Brain_Emoji.png, House_Emoji.png, and Pineapple_Emoji.png from the assets folder. In the "How it works" section around line 140, replace the emoji strings in the icon property with image references. Change the rendering of the icon from text emoji to an <img> tag with className="w-12 h-12 mx-auto". Map them as: "🏠" becomes the House_Emoji image, "🍍" becomes the Pineapple_Emoji image, "🧠" becomes the Brain_Emoji image. Also replace the 🧠 emoji in the favicon/header area around line 38 with the Brain_Emoji image at a smaller size (w-8 h-8).
+STEP 3 — UPDATE OUR STORY COPY:
+Replace the Our Story paragraphs (lines 228-233) with this exact text:
+<p>I built this for one person first.</p>
+<p>My dad's sharp, funny, and present — a lifelong learner. But he noticed in the past few years he didn't feel quite as sharp as he always had.</p>
+<p>He was looking for a way to train his memory the way he trained his body. Not a puzzle app. Not a quiz. Something real.</p>
+<p>I'd learned memory training years before, used it myself, and saw how fun and powerful it could be — what could genuinely be accomplished by working on your memory for just a few minutes a day.</p>
+<p>That was the genesis for MemoryAmble. Something warm, patient, and genuinely useful — that made him feel capable, not tested.</p>
+<p>If you have someone in your life like that — or if you are that person — this was built for you.</p>
+Remove the line "If any of this sounds familiar — I think you'll like what we built." and remove "My father is 84" and any reference to age 84.
+STEP 4 — SWAP CHARITY ORDER:
+On line 129, change "funds Alzheimer's and Sanfilippo research" to "funds Sanfilippo syndrome and Alzheimer's research". On line 311, change "A portion of every subscription goes to Alzheimer's research and Sanfilippo syndrome research — memory loss at both ends of life." to "A portion of every subscription goes to Sanfilippo syndrome and Alzheimer's research — because memory matters at every age."
+Do not change anything else.

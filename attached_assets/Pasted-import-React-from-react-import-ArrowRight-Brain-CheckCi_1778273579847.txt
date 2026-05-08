@@ -1,0 +1,205 @@
+import React from "react";
+import { ArrowRight, Brain, CheckCircle2, Clock, Heart, MapPin, PersonStanding, ShieldCheck, Sparkles, Star, Target, TrendingUp } from "lucide-react";
+
+// Upload your generated clean hero image into Replit and update this path.
+// Example: client/src/assets/memory-palace-hero.png
+const HERO_IMAGE = "/assets/memory-palace-hero.png";
+
+const purple = "#5B35D5";
+
+function Button({ children, variant = "primary", className = "" }) {
+  const base = "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-purple-200";
+  const styles =
+    variant === "primary"
+      ? "bg-[#5B35D5] text-white shadow-lg shadow-purple-200 hover:-translate-y-0.5 hover:bg-[#4C2BC4]"
+      : "bg-white text-[#2A185E] border border-purple-100 hover:bg-purple-50";
+
+  return <a className={`${base} ${styles} ${className}`} href="/quiz">{children}</a>;
+}
+
+function TrustItem({ icon: Icon, title, text }) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-purple-50 text-[#5B35D5]">
+        <Icon size={18} />
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-[#24114F]">{title}</p>
+        <p className="text-xs leading-snug text-[#6B6280]">{text}</p>
+      </div>
+    </div>
+  );
+}
+
+function StepCard({ number, title, text, icon: Icon }) {
+  return (
+    <div className="group rounded-[2rem] border border-purple-100 bg-white p-7 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-purple-100">
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#5B35D5] text-sm font-bold text-white">{number}</div>
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-50 text-[#5B35D5]">
+          <Icon size={26} />
+        </div>
+      </div>
+      <h3 className="mb-3 font-serif text-2xl font-bold text-[#24114F]">{title}</h3>
+      <p className="text-sm leading-6 text-[#635979]">{text}</p>
+    </div>
+  );
+}
+
+function Benefit({ icon: Icon, title, text }) {
+  return (
+    <div className="rounded-3xl bg-white/70 p-6 ring-1 ring-purple-100">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#F0EAFE] text-[#5B35D5]">
+        <Icon size={24} />
+      </div>
+      <h3 className="mb-2 text-lg font-bold text-[#24114F]">{title}</h3>
+      <p className="text-sm leading-6 text-[#635979]">{text}</p>
+    </div>
+  );
+}
+
+function Testimonial({ quote, name, role }) {
+  return (
+    <div className="rounded-[1.75rem] border border-purple-100 bg-white p-6 shadow-sm">
+      <div className="mb-4 flex gap-1 text-[#F2B84B]">
+        {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={16} fill="currentColor" />)}
+      </div>
+      <p className="mb-6 text-sm leading-6 text-[#3E315F]">“{quote}”</p>
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-purple-200 to-orange-100 text-sm font-bold text-[#24114F]">{name.charAt(0)}</div>
+        <div>
+          <p className="text-sm font-bold text-[#24114F]">{name}</p>
+          <p className="text-xs text-[#7B7190]">{role}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function MemoryAmbleLandingPage() {
+  return (
+    <main className="min-h-screen overflow-hidden bg-[#FBF6EE] text-[#24114F]">
+      <header className="mx-auto flex max-w-7xl items-center justify-between px-5 py-6 lg:px-8">
+        <a href="/" className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#5B35D5] text-white shadow-lg shadow-purple-200">
+            <Brain size={23} />
+          </div>
+          <span className="font-serif text-2xl font-bold tracking-tight">MemoryAmble</span>
+        </a>
+
+        <nav className="hidden items-center gap-8 text-sm font-semibold text-[#3E315F] md:flex">
+          <a href="#how" className="hover:text-[#5B35D5]">How It Works</a>
+          <a href="#science" className="hover:text-[#5B35D5]">Science</a>
+          <a href="#stories" className="hover:text-[#5B35D5]">Stories</a>
+          <a href="#faq" className="hover:text-[#5B35D5]">FAQ</a>
+        </nav>
+
+        <Button className="hidden md:inline-flex">Take the Quiz</Button>
+      </header>
+
+      <section className="relative mx-auto grid max-w-7xl items-center gap-10 px-5 pb-14 pt-8 lg:grid-cols-[0.88fr_1.12fr] lg:px-8 lg:pb-20 lg:pt-14">
+        <div className="relative z-10 max-w-xl">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[#5B35D5] shadow-sm ring-1 ring-purple-100">
+            <Sparkles size={15} /> Ancient wisdom. Modern memory.
+          </div>
+
+          <h1 className="font-serif text-5xl font-bold leading-[0.95] tracking-[-0.04em] text-[#24114F] sm:text-6xl lg:text-7xl">
+            Build a memory that lasts.
+          </h1>
+
+          <p className="mt-6 max-w-lg text-lg leading-8 text-[#5C5373]">
+            Learn the Memory Palace technique through simple daily walks, stories, and spatial memory training designed for real life.
+          </p>
+
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Button>Take the 60-Second Brain Quiz <ArrowRight size={18} /></Button>
+            <a href="#how" className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-[#5B35D5] hover:bg-purple-50">
+              See how it works
+            </a>
+          </div>
+
+          <div className="mt-9 grid gap-5 sm:grid-cols-3">
+            <TrustItem icon={Clock} title="10 min/day" text="Short guided sessions" />
+            <TrustItem icon={ShieldCheck} title="Science-backed" text="Based on Method of Loci" />
+            <TrustItem icon={Heart} title="Made for life" text="Practical everyday recall" />
+          </div>
+        </div>
+
+        <div className="relative min-h-[440px] lg:min-h-[610px]">
+          <div className="absolute -right-28 bottom-[-70px] top-[-10px] w-[116%] rounded-[3rem] bg-gradient-to-br from-purple-50/70 to-transparent blur-3xl" />
+          <img
+            src={HERO_IMAGE}
+            alt="People exploring a purple Memory Palace landscape"
+            className="relative z-10 h-full max-h-[680px] w-full object-contain object-right-bottom lg:scale-110 lg:origin-bottom-right"
+          />
+        </div>
+      </section>
+
+      <section id="how" className="bg-white/58 px-5 py-20 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-[#5B35D5]">How it works</p>
+            <h2 className="font-serif text-4xl font-bold tracking-tight text-[#24114F] sm:text-5xl">Your mind is a place. We help you build it.</h2>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            <StepCard number="1" icon={MapPin} title="Place it" text="Attach names, facts, or ideas to memorable locations inside a familiar mental space." />
+            <StepCard number="2" icon={PersonStanding} title="Walk it" text="Move through your Memory Palace with calm, guided prompts that make recall feel natural." />
+            <StepCard number="3" icon={Brain} title="Recall it" text="Retrieve what you need by revisiting the places and anchors you created." />
+          </div>
+        </div>
+      </section>
+
+      <section id="science" className="px-5 py-20 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+          <div>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-[#5B35D5]">Backed by science</p>
+            <h2 className="font-serif text-4xl font-bold leading-tight tracking-tight text-[#24114F] sm:text-5xl">An ancient technique, rebuilt for modern life.</h2>
+            <p className="mt-5 max-w-xl text-base leading-8 text-[#635979]">
+              The Method of Loci, also known as the Memory Palace technique, uses spatial association to help people remember information more naturally.
+            </p>
+            <Button className="mt-8">Take the Brain Quiz <ArrowRight size={18} /></Button>
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Benefit icon={Target} title="Stronger recall" text="Practice remembering names, lists, facts, and everyday details." />
+            <Benefit icon={Sparkles} title="More engaging" text="Train memory through places and stories instead of sterile drills." />
+            <Benefit icon={CheckCircle2} title="Easy to start" text="No complicated setup. Start with a short quiz and a simple route." />
+            <Benefit icon={TrendingUp} title="Track progress" text="See your memory practice become a repeatable daily habit." />
+          </div>
+        </div>
+      </section>
+
+      <section id="stories" className="bg-[#F4EEFF] px-5 py-20 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-10 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+            <div>
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-[#5B35D5]">Real people. Real practice.</p>
+              <h2 className="font-serif text-4xl font-bold tracking-tight text-[#24114F]">Loved by lifelong learners.</h2>
+            </div>
+            <p className="max-w-md text-sm leading-6 text-[#635979]">MemoryAmble is designed for curious adults who want a calmer, more visual way to stay sharp.</p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            <Testimonial quote="This made memory practice feel like something I actually wanted to do every morning." name="Sarah M." role="Teacher" />
+            <Testimonial quote="The daily walks are short, clear, and surprisingly fun. It finally clicked for me." name="David R." role="Retired engineer" />
+            <Testimonial quote="It feels beautiful and practical at the same time. Not like another brain game." name="Priya K." role="Lifelong learner" />
+          </div>
+        </div>
+      </section>
+
+      <section className="px-5 py-16 lg:px-8">
+        <div className="mx-auto max-w-7xl overflow-hidden rounded-[2.25rem] bg-[#3F238E] p-8 text-white shadow-2xl shadow-purple-200 md:p-12">
+          <div className="grid gap-8 md:grid-cols-[1fr_auto] md:items-center">
+            <div>
+              <p className="mb-3 text-sm font-bold uppercase tracking-[0.16em] text-purple-200">Start here</p>
+              <h2 className="font-serif text-4xl font-bold tracking-tight md:text-5xl">Ready to build a memory that lasts?</h2>
+              <p className="mt-4 max-w-2xl text-base leading-7 text-purple-100">Take the 60-second quiz and get a simple starting point for your Memory Palace training.</p>
+            </div>
+            <Button variant="secondary" className="bg-white text-[#3F238E]">Take the 60-Second Brain Quiz <ArrowRight size={18} /></Button>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}

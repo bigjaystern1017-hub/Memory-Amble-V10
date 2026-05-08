@@ -1,0 +1,52 @@
+Create a new component at client/src/components/placement-card.tsx. This handles the object placement interaction. Do not change any existing files yet.
+The component accepts these props:
+
+object: string — the object name (e.g., "pineapple")
+objectEmoji: string — the emoji for the object (e.g., "🍍")
+stopName: string — where it's being placed (e.g., "Front door")
+onPlace: (modifier: string) => void — callback when placement is complete
+
+The component renders a card centered on screen with these elements:
+
+The stop name at the top in text-sm text-gray-400 font-serif: "Front door"
+The object displayed large and centered: the emoji at 64px size with the object name below in text-xl font-bold text-gray-800
+Below the object, a row of 3 modifier buttons. Each modifier is a tappable card (60x60px, rounded-xl, bg-white, border-2 border-purple-200, hover:border-purple-400, transition-all, flex items-center justify-center). The modifiers rotate per object — pick 3 from this pool based on a hash of the object name so they're consistent but varied:
+
+"🔥" (on fire)
+"😢" (sad)
+"😍" (in love)
+"🤪" (silly)
+"👑" (royal)
+"🎩" (fancy)
+"💪" (strong)
+"🎵" (singing)
+"😴" (sleeping)
+"🤯" (mind-blown)
+
+
+
+To pick 3: use a simple hash of the object string to get a starting index into the array, then take 3 consecutive (wrapping around). This ensures the same object always gets the same 3 modifiers.
+
+When the user taps a modifier, it visually attaches to the object (the modifier emoji appears next to the object emoji with a subtle scale-up animation). A short 500ms pause, then onPlace(selectedModifier) fires.
+The whole card has a fade-in animation when it appears (opacity 0 to 1 over 300ms).
+Below the modifiers, small text in text-xs text-gray-400: "Tap to make it memorable"
+
+Also create client/src/components/recall-choices.tsx:
+Props:
+
+choices: string[] — 4 answer options (one correct, three decoys)
+choiceEmojis: string[] — corresponding emojis for each choice
+onSelect: (answer: string) => void — callback when user taps
+correctAnswer: string — the right answer (for feedback animation)
+disabled: boolean — prevents double-tapping
+
+The component renders a 2x2 grid of tappable answer cards:
+
+className="grid grid-cols-2 gap-3 w-full max-w-sm mx-auto"
+Each card: className="py-5 px-3 rounded-xl text-center border-2 border-purple-200 bg-white hover:border-purple-400 transition-all cursor-pointer shadow-sm"
+Each card shows the emoji (text-3xl) above the object name (text-sm font-medium text-gray-700)
+When tapped: if correct, the card flashes green (border-green-500 bg-green-50) for 600ms, then calls onSelect. If wrong, the card flashes red (border-red-300 bg-red-50) for 400ms, then the correct card highlights green for 400ms, then calls onSelect.
+Set disabled to true immediately on first tap to prevent double-tapping.
+
+Export both components as default from their respective files.
+Do not change any existing files.

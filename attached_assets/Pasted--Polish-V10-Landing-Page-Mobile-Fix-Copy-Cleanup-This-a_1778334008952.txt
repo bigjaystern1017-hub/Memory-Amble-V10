@@ -1,0 +1,150 @@
+# Polish V10 Landing Page — Mobile Fix + Copy + Cleanup
+
+This app is a fork of our production app (V8). The landing page has been redesigned but needs finishing. Make the following changes to `client/src/pages/landing.tsx` ONLY. Do not change any other file.
+
+---
+
+## 1. MOBILE HERO FIX (highest priority)
+
+The hero section currently uses a two-column layout on desktop: headline on the left, the purple palace illustration on the right. On desktop this looks great. On mobile it's broken — the illustration gets pushed far below the fold and the user sees a wall of text before ever seeing the image.
+
+Fix the mobile layout so the illustration is visible above the fold on iPhone-sized screens (375px wide). Here's the approach:
+
+**On mobile (below `md:` breakpoint):**
+- Show the illustration FIRST, spanning full width, at a max height of roughly 240-260px, with `object-cover` and `object-position: top` so we see the top portion of the palace (the people walking, the arches, the sunset). Wrap it in a div with `overflow-hidden` and `rounded-b-2xl` so it feels intentional, not cropped.
+- Below the illustration: the pill badge, headline, body text, and CTA — with TIGHT spacing. Reduce all vertical gaps (`space-y`, `py`, `mb`, `gap`) by about 40% compared to the current mobile layout. The goal is: illustration + headline + CTA all visible without scrolling on a standard iPhone screen.
+- The three stat pills (10 min/day, Science-backed, Made for life) should sit in a compact horizontal row below the CTA on mobile.
+
+**On desktop (`md:` and up):**
+- Keep the current two-column layout exactly as it is. Headline/CTA on the left, full illustration on the right. Don't change anything about the desktop hero.
+
+Use Tailwind responsive classes (`hidden md:block`, `md:hidden`, `md:flex-row`, etc.) to serve different layouts. You can render the illustration image twice in the JSX (once for mobile, once for desktop) and hide/show with responsive classes — that's fine.
+
+---
+
+## 2. HEADER — ADD NAV LINKS
+
+The sticky header should have navigation links between the logo and the sign-in buttons. These should only show on `md:` screens and up (hidden on mobile).
+
+Add these links: "How It Works", "Science", "Stories", "Our Story"
+
+They should be anchor links that smooth-scroll to the corresponding sections:
+- How It Works → `#how-it-works`
+- Science → `#science`  
+- Stories → `#stories`
+- Our Story → `#our-story`
+
+Style: `text-sm font-medium text-gray-600 hover:text-purple-700 transition-colors`
+
+Use `onClick` handlers with `document.getElementById('section-id')?.scrollIntoView({ behavior: 'smooth' })` and `e.preventDefault()` so the scroll is smooth.
+
+Add the matching `id` attributes to each section's wrapper element if they're not already there.
+
+---
+
+## 3. COPY CHANGES
+
+Make these exact text changes in the landing page:
+
+**Hero headline:** Should be:
+```
+Build a memory
+that lasts.
+```
+(If it currently says something different, change it to this.)
+
+**Hero body text:** Should be:
+```
+Learn the Memory Palace technique through simple daily walks, stories, and spatial memory training — guided by your coach Timbuk, designed for real life.
+```
+
+**Hero pill badge:** Should say: `✨ ANCIENT WISDOM. MODERN MEMORY.`
+
+**Below the CTA button**, show two lines:
+- "No card needed. Just come see." (regular small text)
+- Remove any other subtitle lines — do NOT show "Complete Day 1 and unlock your free week" in the hero. Save that for the final CTA at the bottom.
+
+---
+
+## 4. OUR STORY SECTION — COPY UPDATE
+
+Replace the Our Story body copy with this exact text (keep the headline "Built for one person first." and the family drawing image and caption):
+
+```
+My dad's sharp, funny, and present — a lifelong learner. But he noticed in the past few years he didn't feel quite as sharp as he always had.
+
+He was looking for a way to train his memory the way he trained his body. Not a puzzle app. Not a quiz. Something real.
+
+I'd learned memory training years before, used it myself, and saw how fun and powerful it could be — what could genuinely be accomplished by working on your memory for just a few minutes a day.
+
+That was the genesis for MemoryAmble. Something warm, patient, and genuinely useful — that made him feel capable, not tested.
+
+If you have someone in your life like that — or if you are that person — this was built for you.
+```
+
+Important: Do NOT mention any specific age (remove "84" or any age number if it appears). Do NOT use the phrase "memory loss" or "decline" or "dementia." The tone is: lifelong learner who wants to stay sharp, not someone with a medical problem.
+
+---
+
+## 5. REMOVE PRO PRICING TIER
+
+In the pricing section, remove the "MemoryAmble Pro" card entirely. There should be ONE pricing card only — the $8.47/month card — centered on the page with `max-w-md mx-auto`.
+
+Keep the purple-bordered card with these features:
+- 30-day guided memory bootcamp
+- Daily sessions with Timbuk
+- Streak tracking
+- Round up to donate to memory research
+- Your Amble Scroll after every session
+
+Below the card, keep or add this text centered in small gray:
+"A portion of every subscription funds Sanfilippo syndrome and Alzheimer's research. The more people we reach, the more we can fund the fight."
+
+---
+
+## 6. REMOVE ANCHOR PRICING PARAGRAPH
+
+If there's a standalone section near the top of the page with the "$1,200 to $3,000" pricing comparison paragraph (between the social proof bar and the How It Works section), remove that entire section. The pricing comparison copy should only appear once, near the actual pricing card section — either as the section subtitle or as small text below the pricing card. Not as its own section higher up on the page.
+
+---
+
+## 7. TESTIMONIALS — ADD STARS
+
+Each testimonial card should have five gold/amber star characters at the top:
+```
+★★★★★
+```
+Style them with `text-amber-400 text-sm` and put them as the first element inside each card, before the quote.
+
+Also add this subheadline below "They were skeptical too.":
+"MemoryAmble is designed for curious adults who want a calmer, more visual way to stay sharp."
+Style: `text-gray-500 text-lg text-center mb-8`
+
+---
+
+## 8. FINAL CTA SECTION
+
+The final section before the footer should have:
+- Headline: "Your memory is waiting." (large, Lora serif, centered)
+- Subtitle: "When you're ready — Day 1 is on us. Complete it and unlock your free week."
+- CTA button (purple, dynamic label using ctaLabel)
+- Small gray text: "We're still in our founding phase. This pricing won't be available forever — but there's no rush right now."
+
+---
+
+## 9. SMOOTH SCROLL
+
+Add `scroll-behavior: smooth` to the page's outermost container div, or add it to `index.css` on the `html` element. This ensures all anchor link clicks scroll smoothly.
+
+---
+
+## CRITICAL REMINDERS
+
+- Only change `client/src/pages/landing.tsx` (and optionally `client/src/index.css` for the smooth scroll rule)
+- Do not touch amble.tsx, beat-engine.ts, routes.ts, or any server files
+- Keep all existing imports, auth logic, sound effects, and navigation behavior
+- Keep the dynamic CTA label logic (checks localStorage for current day)
+- The hero illustration asset path: keep whatever import path is currently being used in V10. If there's no illustration imported yet, use a placeholder: a div with `bg-gradient-to-br from-purple-200 to-purple-400 rounded-2xl` sized to roughly 500x400px, so the layout is correct and I can swap in the real image later.
+- Test that the page looks good at 375px wide (iPhone SE/Mini) and 1440px wide (desktop)
+
+**Do not change anything else.**

@@ -379,7 +379,8 @@ export default function Landing() {
             <p className="mt-4 text-base leading-7 text-[#635979]">Memory training courses run $1,200 to $3,000. We priced MemoryAmble at $8.47 a month deliberately — because this should be available to everyone.</p>
           </div>
 
-          <div className="max-w-md mx-auto">
+          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            {/* Primary card */}
             <div className="rounded-[2rem] border-2 p-8 space-y-6 flex flex-col bg-white" style={{ borderColor: PURPLE }}>
               <div>
                 <p className="text-sm font-semibold uppercase tracking-wide mb-1" style={{ color: PURPLE }}>MemoryAmble</p>
@@ -406,6 +407,31 @@ export default function Landing() {
                 style={{ backgroundColor: PURPLE }}
               >
                 Try Day 1 Free
+              </button>
+            </div>
+
+            {/* Secondary card */}
+            <div className="rounded-[2rem] border border-purple-100 p-8 space-y-6 flex flex-col bg-white">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-wide text-[#9B91B0] mb-1">MemoryAmble Pro</p>
+                <p className="text-5xl font-bold text-[#24114F]">$19.97</p>
+                <p className="text-[#9B91B0] mt-1 text-sm">per month</p>
+              </div>
+              <ul className="space-y-3 flex-1">
+                {[
+                  "Everything in MemoryAmble",
+                  "Extended session history",
+                  "Advanced palace analytics",
+                  "Family sharing — up to 3 members",
+                  "Priority support",
+                ].map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-[#3E315F]">
+                    <span className="mt-0.5 font-bold text-[#9B91B0]">✓</span> {f}
+                  </li>
+                ))}
+              </ul>
+              <button className="w-full py-3 rounded-full border border-purple-100 text-[#3E315F] font-semibold hover:bg-purple-50 transition-colors">
+                Learn More
               </button>
             </div>
           </div>

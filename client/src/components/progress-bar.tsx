@@ -1,19 +1,19 @@
-import { BookOpen, MapPin, Sparkles, Eye, Trophy, Wind } from "lucide-react";
+import { BookOpen, MapPin, Sprout, Footprints, Eye, Wind } from "lucide-react";
 
 const defaultSteps = [
   { label: "Learn", icon: BookOpen },
-  { label: "Your Palace", icon: MapPin },
-  { label: "Remember", icon: Sparkles },
+  { label: "Choose Place", icon: MapPin },
+  { label: "Plant Images", icon: Sprout },
+  { label: "Walk the Route", icon: Footprints },
   { label: "Recall", icon: Eye },
-  { label: "Results", icon: Trophy },
 ];
 
 const cleaningSteps = [
-  { label: "Cleaning", icon: Wind },
-  { label: "Your Palace", icon: MapPin },
-  { label: "Remember", icon: Sparkles },
+  { label: "Clearing", icon: Wind },
+  { label: "Choose Place", icon: MapPin },
+  { label: "Plant Images", icon: Sprout },
+  { label: "Walk the Route", icon: Footprints },
   { label: "Recall", icon: Eye },
-  { label: "Results", icon: Trophy },
 ];
 
 interface ProgressBarProps {
@@ -24,7 +24,7 @@ interface ProgressBarProps {
 export function ProgressBar({ currentStep, isCleaning }: ProgressBarProps) {
   const steps = isCleaning ? cleaningSteps : defaultSteps;
   return (
-    <div className="flex items-center justify-center gap-1 md:gap-2 py-3" data-testid="progress-bar">
+    <div className="flex items-center justify-center py-4 px-2" data-testid="progress-bar">
       {steps.map((step, i) => {
         const Icon = step.icon;
         const isActive = i === currentStep;
@@ -32,27 +32,33 @@ export function ProgressBar({ currentStep, isCleaning }: ProgressBarProps) {
 
         return (
           <div key={i} className="flex items-center">
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-1.5">
               <div
-                className={`w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-colors ${
+                className={`w-11 h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-200 shadow-sm ${
                   isActive
-                    ? "text-white"
+                    ? "shadow-purple-200"
                     : isComplete
-                    ? "text-purple-700"
-                    : "bg-muted text-muted-foreground"
+                    ? ""
+                    : "bg-gray-100"
                 }`}
-                style={isActive ? {backgroundColor: '#7C3AED'} : isComplete ? {backgroundColor: '#ede9fe'} : {}}
+                style={
+                  isActive
+                    ? { backgroundColor: "#6D2DE2", color: "#fff" }
+                    : isComplete
+                    ? { backgroundColor: "#EDE9FE", color: "#6D2DE2" }
+                    : { color: "#9CA3AF" }
+                }
                 data-testid={`progress-step-${i}`}
               >
-                <Icon className="w-4 h-4 md:w-5 md:h-5" />
+                <Icon className="w-5 h-5 md:w-5 md:h-5" />
               </div>
               <span
-                className={`text-sm md:text-base font-medium transition-colors ${
+                className={`text-xs font-medium whitespace-nowrap transition-colors ${
                   isActive
-                    ? "text-foreground"
+                    ? "text-[#6D2DE2] font-semibold"
                     : isComplete
-                    ? "text-purple-700"
-                    : "text-muted-foreground"
+                    ? "text-[#6D2DE2]"
+                    : "text-gray-400"
                 }`}
               >
                 {step.label}
@@ -60,8 +66,8 @@ export function ProgressBar({ currentStep, isCleaning }: ProgressBarProps) {
             </div>
             {i < steps.length - 1 && (
               <div
-                className={`w-4 md:w-8 h-0.5 mx-1 mb-5 transition-colors ${
-                  i < currentStep ? "bg-purple-200" : "bg-muted"
+                className={`w-6 md:w-10 h-px mx-1 mb-6 transition-colors ${
+                  i < currentStep ? "bg-purple-300" : "bg-gray-200"
                 }`}
               />
             )}

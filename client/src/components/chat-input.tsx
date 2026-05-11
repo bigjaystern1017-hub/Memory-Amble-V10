@@ -1,6 +1,4 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Mic, MicOff, Send } from "lucide-react";
 
 interface ChatInputProps {
@@ -45,13 +43,8 @@ export function ChatInput({ onSend, placeholder = "Type your answer...", disable
       setValue(transcript);
     };
 
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    recognition.onerror = () => {
-      setIsListening(false);
-    };
+    recognition.onend = () => { setIsListening(false); };
+    recognition.onerror = () => { setIsListening(false); };
 
     recognitionRef.current = recognition;
     recognition.start();
@@ -80,44 +73,43 @@ export function ChatInput({ onSend, placeholder = "Type your answer...", disable
   };
 
   return (
-    <div className="flex items-center gap-2" data-testid="chat-input-container">
+    <div className="flex items-center gap-2.5" data-testid="chat-input-container">
       {speechSupported && (
-        <Button
-          size="icon"
-          className="h-14 w-14"
-          variant={isListening ? "default" : "secondary"}
+        <button
           onClick={isListening ? stopListening : startListening}
+          disabled={disabled}
           data-testid="button-microphone"
           aria-label={isListening ? "Stop listening" : "Start voice input"}
+          className={`h-14 w-14 flex items-center justify-center rounded-xl border transition-all duration-150 shrink-0 ${
+            isListening
+              ? "bg-[#6D2DE2] border-[#6D2DE2] text-white shadow-md shadow-purple-200"
+              : "bg-white border-stone-200 text-stone-500 hover:border-purple-300 hover:text-purple-600"
+          } disabled:opacity-40`}
         >
-          {isListening ? (
-            <MicOff className="w-6 h-6" />
-          ) : (
-            <Mic className="w-6 h-6" />
-          )}
-        </Button>
+          {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+        </button>
       )}
 
-      <Input
+      <input
         ref={inputRef}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={isListening ? "Listening..." : placeholder}
-        className="text-xl h-14 flex-1"
+        disabled={disabled}
+        className="flex-1 h-14 px-5 rounded-xl border border-stone-200 bg-white text-xl text-foreground placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400 transition-all disabled:opacity-40"
         data-testid="input-chat"
       />
 
-      <Button
-        size="icon"
-        className="h-14 w-14"
+      <button
         onClick={handleSubmit}
-        disabled={!value.trim()}
+        disabled={!value.trim() || disabled}
         data-testid="button-send"
         aria-label="Send message"
+        className="h-14 w-14 flex items-center justify-center rounded-xl bg-[#6D2DE2] text-white shrink-0 shadow-md shadow-purple-200 hover:bg-[#5B2BC4] transition-all duration-150 disabled:opacity-40 disabled:shadow-none"
       >
-        <Send className="w-6 h-6" />
-      </Button>
+        <Send className="w-5 h-5" />
+      </button>
     </div>
   );
 }

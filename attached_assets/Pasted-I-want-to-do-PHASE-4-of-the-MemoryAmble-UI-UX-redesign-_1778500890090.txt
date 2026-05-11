@@ -1,0 +1,134 @@
+I want to do PHASE 4 of the MemoryAmble UI/UX redesign.
+
+Phase 1 was visual polish.
+Phase 2 added the “Today’s Route” / “Memory Walk” panel from existing state.
+Phase 3 added presentational Memory Object Cards.
+Phase 4 should improve the recall experience visually by creating a “Recall Walk Mode.”
+
+Important:
+Do NOT rebuild the app.
+Do NOT change the beat engine.
+Do NOT change API calls, Supabase auth, localStorage keys, lesson progression, object assignment logic, recall scoring, or session saving.
+Do NOT alter beat IDs.
+Do NOT break the existing typewriter/chat behavior.
+Do NOT create a new lesson flow.
+
+The goal is to visually support the existing recall beats by making the user feel like they are walking back through their Memory Palace.
+
+Core UX idea:
+During recall, the user should see their route stops without the object answers revealed. The UI should help them mentally walk to each stop and ask: “What object is waiting there?”
+
+Relevant files:
+- client/src/pages/amble.tsx
+- client/src/components/memory-route-panel.tsx
+- client/src/components/memory-object-card.tsx
+- client/src/components/chat-message.tsx
+- client/src/components/chat-input.tsx
+- client/src/components/beat-engine.ts
+- client/src/index.css
+
+NEW COMPONENT:
+Create:
+
+client/src/components/recall-walk-panel.tsx
+
+Suggested props:
+
+type RecallWalkPanelProps = {
+  placeName?: string;
+  stops?: string[];
+  currentRecallIndex?: number;
+  userAnswers?: string[];
+  totalItems?: number;
+};
+
+Visual design:
+- Calm white/cream card.
+- Rounded-2xl.
+- Soft border.
+- Subtle shadow.
+- Header:
+  “Walk It Back”
+- Subtext:
+  “Visit each stop in your mind. What do you see?”
+- If placeName exists, show:
+  “Place: [placeName]”
+- Show a vertical list of stops.
+- Each row:
+  - numbered circle
+  - stop name
+  - status:
+    - current: purple accent and text “You are here”
+    - completed: checkmark or “Answered”
+    - upcoming: muted
+- Do NOT show object names.
+- Do NOT show sceneText.
+- Do NOT reveal assignment objects during recall.
+
+Empty state:
+If no stops exist:
+“Your recall walk will appear here once your route is ready.”
+
+Integration in amble.tsx:
+- Import RecallWalkPanel.
+- Determine whether the app is currently in recall mode using currentBeat.
+- Use a conservative check based on currentBeat string/includes, for example:
+  - currentBeat includes "recall"
+  - or known recall beat IDs already present in the flow
+- Do not change beat IDs. Just inspect currentBeat.
+- During recall mode, show RecallWalkPanel in the main training area.
+- Pass existing state:
+  - state.placeName
+  - state.stops
+  - state.stepIndex or the correct recall index if already available
+  - state.userAnswers
+  - state.itemCount
+- If there is an existing helper function like recallAssignmentIndex, use it only if already imported and appropriate. Do not alter its logic.
+
+Layout:
+During normal object placement:
+- Continue showing MemoryObjectCard and MemoryRoutePanel as before.
+
+During recall:
+- Replace or visually de-emphasize MemoryObjectCard if it would reveal the answer.
+- Show RecallWalkPanel prominently.
+- MemoryRoutePanel may remain in sidebar, but it must not reveal object answers during recall. If MemoryRoutePanel currently shows object names, either:
+  1. hide MemoryRoutePanel during recall, OR
+  2. add a prop like hideObjects={true} so object names and scenes are not shown during recall.
+- Prefer the safest implementation:
+  - hide MemoryRoutePanel during recall
+  - show RecallWalkPanel instead
+
+Recall mode behavior:
+- The input tray remains the same.
+- The user still types their answer normally.
+- Existing recall scoring remains unchanged.
+- Timbuk still speaks normally through the existing chat/typewriter flow.
+- This is only a visual support layer.
+
+Important constraints:
+- Do not reveal the correct object during recall.
+- Do not show userScenes during recall.
+- Do not alter fuzzyMatch.
+- Do not alter recall scoring.
+- Do not alter getNextBeat.
+- Do not alter getProgressStep.
+- Do not create a quiz form.
+- Do not create multiple inputs for all stops at once.
+- Do not change the single-answer flow.
+- Do not add drag-and-drop.
+- Do not add fake palace illustrations.
+- Do not add new API calls.
+
+Optional small polish:
+- When in recall mode, make the page background slightly calmer with a subtle lavender/cream tint.
+- Add a small instruction pill:
+  “Don’t memorize. Walk.”
+- This should be visual only.
+
+After implementation, summarize:
+1. Files changed.
+2. Where RecallWalkPanel is rendered.
+3. How recall mode is detected.
+4. How the UI avoids revealing object answers.
+5. What logic was intentionally left untouched.

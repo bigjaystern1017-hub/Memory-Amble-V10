@@ -6,6 +6,7 @@ import { ChatMessage } from "@/components/chat-message";
 import { ChatInput } from "@/components/chat-input";
 import { EducationSlides } from "@/components/education-slides";
 import { MemoryRoutePanel } from "@/components/memory-route-panel";
+import { MemoryObjectCard, type MemoryObjectCardMode } from "@/components/memory-object-card";
 import { NameEntry } from "@/components/name-entry";
 import { ProgressBar } from "@/components/progress-bar";
 import { AmbleResults, type PendingSessionData } from "@/components/amble-results";
@@ -1987,6 +1988,35 @@ export default function Amble() {
               />
             ))}
             {isTyping && <ChatMessage sender="timbuk" text="" isTyping />}
+
+            {/* Memory Object Card — shown during placement and recall beats */}
+            {(() => {
+              const PLACEMENT_BEATS = new Set(["place-object", "mirror-object", "onboard-vivid", "react-practice"]);
+              const RECALL_BEATS = new Set(["recall", "react-recall", "check-in-recall", "react-check-in"]);
+              const currentAssignment = state.assignments?.[state.stepIndex];
+              const hasAssignment = !!currentAssignment?.object;
+              const sceneText = state.userScenes?.[state.stepIndex];
+              const inPlacement = PLACEMENT_BEATS.has(currentBeat);
+              const inRecall = RECALL_BEATS.has(currentBeat);
+              const shouldShow = hasAssignment && (inPlacement || inRecall || !!sceneText);
+              if (!shouldShow) return null;
+              let mode: MemoryObjectCardMode = "idle";
+              if (inRecall) mode = "recalling";
+              else if (sceneText) mode = "planted";
+              else if (inPlacement) mode = "placing";
+              return (
+                <div className="mt-2">
+                  <MemoryObjectCard
+                    objectName={currentAssignment?.object}
+                    stopName={currentAssignment?.stopName}
+                    sceneText={inRecall ? undefined : sceneText}
+                    stepIndex={state.stepIndex}
+                    totalItems={state.itemCount}
+                    mode={mode}
+                  />
+                </div>
+              );
+            })()}
           </div>
         </div>
 

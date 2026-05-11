@@ -1,0 +1,93 @@
+I want to fix the active lesson layout so content no longer gets cut off or pushed awkwardly while Timbuk is teaching.
+
+Important:
+Do NOT change the beat engine.
+Do NOT change API calls.
+Do NOT change auth.
+Do NOT change localStorage keys.
+Do NOT change recall scoring.
+Do NOT change lesson progression.
+Do NOT rewrite the flow.
+
+Problem:
+The app looks good, but during active lesson/chat mode the Timbuk cards, Memory Object Card, route panel, and composer are competing for vertical space. Timbuk messages can get pushed up behind the sticky header, and the Memory Object Card gets cut off behind the bottom composer. The current behavior still feels like a chat feed, but the app should behave more like a guided lesson stage.
+
+Relevant files:
+- client/src/pages/amble.tsx
+- client/src/components/chat-message.tsx
+- client/src/components/chat-input.tsx
+- client/src/components/memory-object-card.tsx
+- client/src/components/memory-route-panel.tsx
+- client/src/components/progress-bar.tsx
+- client/src/index.css
+
+Goal:
+Create a stable active lesson layout where:
+1. The latest Timbuk instruction is readable without the user chasing it.
+2. The object card is visible when useful, but not cut off.
+3. The route panel remains helpful but secondary.
+4. The composer does not cover content.
+5. The sticky header/progress area does not overlap messages.
+
+Implementation requirements:
+
+1. Active lesson stage
+In the chat/training phase, create a stable main lesson area between the header/stepper and bottom composer.
+- Use calculated min-height or flex layout.
+- The main content should not disappear behind the header or composer.
+- Add enough bottom padding to account for the composer height.
+
+2. Better scroll behavior
+Replace aggressive scroll-to-bottom behavior during active lesson mode with safer active-message scrolling.
+- When a new Timbuk message appears, scroll it into view below the sticky header.
+- Do not let the top of the new card hide behind the progress stepper.
+- Use scroll-margin-top or equivalent spacing.
+- Avoid forcing the user to scroll upward to read a message that just appeared.
+
+3. Latest-message hierarchy
+In active lesson mode:
+- The latest Timbuk message should be full opacity and visually dominant.
+- Older messages may remain visible but should be de-emphasized, compacted, or allowed to scroll above.
+- Do not remove transcript functionality entirely.
+- Do not break the typewriter/reveal completion callback.
+
+4. Composer safety
+The bottom composer should not cover the Memory Object Card or latest Timbuk message.
+- Add bottom padding to the scrollable lesson area equal to composer height.
+- If composer is fixed/sticky, ensure main content has safe spacing.
+
+5. Memory Object Card timing/placement
+The Memory Object Card should appear close to the current action, but not be cut off.
+- During object placement beats, show it beneath the latest Timbuk instruction.
+- During non-object beats, hide it or collapse it unless it is actively useful.
+- After the user has given a scene, show it as “Image planted” if that state already exists.
+- Do not mutate state from the object card.
+- Do not change lesson logic.
+
+6. Compact progress in lesson mode
+If vertical space is tight, make the progress stepper more compact during active lesson/chat mode.
+- Onboarding can keep the large stepper.
+- Active lesson mode can use reduced vertical padding and smaller labels/icons.
+- Do not change getProgressStep logic.
+
+7. Responsive behavior
+On smaller desktop/tablet heights:
+- Reduce card padding slightly.
+- Keep latest instruction readable.
+- Stack/hide secondary panels if needed.
+- Route panel should not force the main content to become cramped.
+
+Constraints:
+- Do not change core logic.
+- Do not change scoring.
+- Do not change beat IDs.
+- Do not remove data-testid attributes.
+- Do not remove route panel or object card.
+- Do not make the page feel like a mobile app on desktop.
+
+After implementation, summarize:
+1. How the active lesson layout was stabilized.
+2. How scroll behavior changed.
+3. How composer overlap was prevented.
+4. How Memory Object Card visibility/timing changed.
+5. What app logic was intentionally left untouched.

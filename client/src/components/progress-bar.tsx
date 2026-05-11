@@ -19,12 +19,13 @@ const cleaningSteps = [
 interface ProgressBarProps {
   currentStep: number;
   isCleaning?: boolean;
+  compact?: boolean;
 }
 
-export function ProgressBar({ currentStep, isCleaning }: ProgressBarProps) {
+export function ProgressBar({ currentStep, isCleaning, compact }: ProgressBarProps) {
   const steps = isCleaning ? cleaningSteps : defaultSteps;
   return (
-    <div className="flex items-center justify-center py-3" data-testid="progress-bar">
+    <div className={`flex items-center justify-center ${compact ? "py-1.5" : "py-3"}`} data-testid="progress-bar">
       {steps.map((step, i) => {
         const Icon = step.icon;
         const isActive = i === currentStep;
@@ -32,9 +33,9 @@ export function ProgressBar({ currentStep, isCleaning }: ProgressBarProps) {
 
         return (
           <div key={i} className="flex items-center">
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-0.5">
               <div
-                className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all duration-300 ${
+                className={`${compact ? "w-7 h-7" : "w-9 h-9 sm:w-11 sm:h-11"} rounded-full flex items-center justify-center transition-all duration-300 ${
                   isActive ? "shadow-md" : ""
                 }`}
                 style={
@@ -49,7 +50,7 @@ export function ProgressBar({ currentStep, isCleaning }: ProgressBarProps) {
                 aria-label={`${step.label}${isActive ? " — current step" : isComplete ? " — complete" : ""}`}
               >
                 <Icon
-                  className="w-4 h-4 sm:w-5 sm:h-5"
+                  className={compact ? "w-3.5 h-3.5" : "w-4 h-4 sm:w-5 sm:h-5"}
                   style={
                     isActive
                       ? { color: "#ffffff" }
@@ -59,22 +60,24 @@ export function ProgressBar({ currentStep, isCleaning }: ProgressBarProps) {
                   }
                 />
               </div>
-              <span
-                className="hidden sm:block text-xs font-medium transition-colors whitespace-nowrap"
-                style={
-                  isActive
-                    ? { color: "#6D2DE2" }
-                    : isComplete
-                    ? { color: "#6D2DE2" }
-                    : { color: "#B0ABBD" }
-                }
-              >
-                {step.label}
-              </span>
+              {!compact && (
+                <span
+                  className="hidden sm:block text-xs font-medium transition-colors whitespace-nowrap"
+                  style={
+                    isActive
+                      ? { color: "#6D2DE2" }
+                      : isComplete
+                      ? { color: "#6D2DE2" }
+                      : { color: "#B0ABBD" }
+                  }
+                >
+                  {step.label}
+                </span>
+              )}
             </div>
             {i < steps.length - 1 && (
               <div
-                className="h-px w-5 sm:w-8 md:w-12 mx-1 sm:mb-5 transition-colors"
+                className={`h-px mx-1 transition-colors ${compact ? "w-4 sm:w-6 md:w-8" : "w-5 sm:w-8 md:w-12 sm:mb-5"}`}
                 style={i < currentStep ? { backgroundColor: "#C4B5FD" } : { backgroundColor: "#E5E3ED" }}
               />
             )}

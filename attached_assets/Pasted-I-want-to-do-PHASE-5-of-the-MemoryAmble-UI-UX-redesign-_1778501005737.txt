@@ -1,0 +1,140 @@
+I want to do PHASE 5 of the MemoryAmble UI/UX redesign.
+
+Phase 1 was visual polish.
+Phase 2 added the “Today’s Route” / “Memory Walk” panel from existing state.
+Phase 3 added presentational Memory Object Cards.
+Phase 4 added Recall Walk Mode.
+Phase 5 should redesign the results screen into a stronger “Proof Moment.”
+
+Important:
+Do NOT rebuild the app.
+Do NOT change the beat engine.
+Do NOT change API calls, Supabase auth, localStorage keys, lesson progression, object assignment logic, recall scoring, or session saving.
+Do NOT alter beat IDs.
+Do NOT change how results are calculated.
+Do NOT break guest/signup behavior.
+Do NOT break pendingSession behavior.
+
+The goal is to restyle and strengthen the existing results experience so the user understands what just happened:
+They used a Memory Palace successfully.
+
+Relevant files:
+- client/src/components/amble-results.tsx
+- client/src/pages/amble.tsx
+- client/src/components/memory-route-panel.tsx
+- client/src/index.css
+
+Primary UX idea:
+The results screen should feel less like a generic quiz score and more like a quiet, satisfying proof moment:
+“You built a route. You planted images. You walked it back. Your memory worked.”
+
+Inspect the existing AmbleResults component first before editing.
+
+RESULTS SCREEN CONTENT DIRECTION:
+
+Main headline:
+“You just built your first Memory Palace.”
+
+If user completed a later day, use a more flexible headline:
+“You strengthened your Memory Palace.”
+
+Subheadline:
+“You remembered [correctCount] of [totalItems] items by walking through a place you already know.”
+
+Core proof statement:
+“That is the Memory Palace working.”
+
+Visual layout:
+- Warm cream page background.
+- Centered results card, max-width around 760–900px.
+- Rounded-2xl or rounded-3xl.
+- Soft border.
+- Subtle shadow.
+- Calm celebratory feel, not confetti-heavy or childish.
+- Use purple accent, pale lavender panels, and soft gold/cream highlights.
+
+Inside the results card:
+1. Small eyebrow pill:
+   “TODAY’S WALK COMPLETE”
+
+2. Large result number:
+   “[correctCount] / [totalItems]”
+   Label: “items remembered”
+
+3. Proof copy:
+   “You didn’t memorize a list. You walked a route.”
+
+4. If streak exists:
+   Show a small streak card:
+   “Current streak: [streak] day(s)”
+
+5. If justCompletedDay exists:
+   Show:
+   “Day [justCompletedDay] complete”
+
+6. Route recap:
+   If pendingSession or available props include stops/assignments, show a compact recap:
+   “Your route today”
+   1. Stop name — Object name
+   2. Stop name — Object name
+   etc.
+
+If the component does not currently receive stops/assignments, do NOT refactor major state logic. Instead:
+- Either use existing props if available.
+- Or add optional props from amble.tsx if easy and safe:
+  - stops
+  - assignments
+  - placeName
+But do not change saving logic or result calculation.
+
+CTA BUTTONS:
+Primary CTA:
+- If guest user/signup flow exists, preserve current guest CTA behavior.
+- If there is already a “Create account” / “Save progress” CTA, keep it but restyle it.
+- Main CTA copy can be:
+  “Save my progress”
+  or
+  “Continue”
+
+Secondary CTA:
+- “Practice again”
+- or “Return home”
+Only add this if existing handlers/routes support it safely.
+Do not invent navigation that breaks the app.
+
+COPY TONE:
+Calm, reassuring, confidence-building.
+Avoid generic gamification language like:
+- “You crushed it!”
+- “Brain level unlocked!”
+- “Epic win!”
+
+Use language like:
+- “Your mind already knew the path.”
+- “The images were waiting where you placed them.”
+- “Tomorrow, we’ll strengthen the route.”
+
+DESIGN:
+- Use lucide icons if useful:
+  Trophy, CheckCircle, Route, Sparkles, Flame
+- Keep icons subtle.
+- Do not use huge emoji.
+- Do not add heavy animation.
+- A small Framer Motion fade/scale is fine if already used.
+
+IMPORTANT CONSTRAINTS:
+- Do not change scoring.
+- Do not change how progress is saved.
+- Do not change authentication.
+- Do not change the guest paywall/signup flow.
+- Do not remove existing result actions.
+- Do not remove existing props unless replacing them safely.
+- Preserve existing data-testid attributes if present.
+- Do not add new backend routes.
+- Do not create fake result data.
+
+After implementation, summarize:
+1. Files changed.
+2. How the results screen was redesigned.
+3. Whether route recap was added and what existing data it uses.
+4. What logic was intentionally left untouched.

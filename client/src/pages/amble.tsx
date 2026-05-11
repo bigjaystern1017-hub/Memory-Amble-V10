@@ -7,6 +7,7 @@ import { ChatInput } from "@/components/chat-input";
 import { EducationSlides } from "@/components/education-slides";
 import { MemoryRoutePanel } from "@/components/memory-route-panel";
 import { MemoryObjectCard, type MemoryObjectCardMode } from "@/components/memory-object-card";
+import { RecallWalkPanel } from "@/components/recall-walk-panel";
 import { NameEntry } from "@/components/name-entry";
 import { ProgressBar } from "@/components/progress-bar";
 import { AmbleResults, type PendingSessionData } from "@/components/amble-results";
@@ -1953,7 +1954,12 @@ export default function Amble() {
         </div>
       )}
 
-      <div className="flex-1 overflow-hidden flex min-h-0">
+      <div
+        className="flex-1 overflow-hidden flex min-h-0 transition-colors duration-500"
+        style={["recall", "react-recall", "check-in-recall", "react-check-in"].includes(currentBeat)
+          ? { backgroundColor: "rgba(237,233,254,0.18)" }
+          : undefined}
+      >
         {/* Main chat column */}
         <div
           ref={scrollRef}
@@ -2020,16 +2026,26 @@ export default function Amble() {
           </div>
         </div>
 
-        {/* Today's Route sidebar — desktop only */}
+        {/* Sidebar — swaps between route panel and recall walk panel */}
         <div className="hidden lg:flex flex-col w-[340px] shrink-0 border-l border-border/40 overflow-y-auto px-5 py-6 bg-background/60">
-          <MemoryRoutePanel
-            placeName={state.placeName}
-            stops={state.stops}
-            assignments={state.assignments}
-            userScenes={state.userScenes}
-            currentStepIndex={state.stepIndex}
-            currentBeat={currentBeat}
-          />
+          {["recall", "react-recall", "check-in-recall", "react-check-in"].includes(currentBeat) ? (
+            <RecallWalkPanel
+              placeName={state.placeName}
+              stops={state.stops}
+              currentRecallIndex={state.stepIndex}
+              userAnswers={state.userAnswers}
+              totalItems={state.itemCount}
+            />
+          ) : (
+            <MemoryRoutePanel
+              placeName={state.placeName}
+              stops={state.stops}
+              assignments={state.assignments}
+              userScenes={state.userScenes}
+              currentStepIndex={state.stepIndex}
+              currentBeat={currentBeat}
+            />
+          )}
         </div>
       </div>
 

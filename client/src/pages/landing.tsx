@@ -144,7 +144,7 @@ export default function Landing() {
             <button
               data-testid="button-cta-header"
               onClick={handleCta}
-              className={primaryBtn}
+              className={primaryBtn + " hidden md:inline-flex"}
             >
               {ctaLabel}
             </button>
@@ -453,32 +453,13 @@ export default function Landing() {
             <button
               data-testid="button-cta-final"
               onClick={handleCta}
-              className="mt-8 inline-flex items-center justify-center gap-2 rounded-full px-8 py-3 text-sm font-semibold bg-white text-[#3F238E] hover:bg-purple-50 transition-colors shadow-lg"
+              className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#3F238E] hover:bg-purple-50 transition-colors"
             >
-              {ctaLabel} <ArrowRight size={18} />
+              Start Day 1 Free <ArrowRight size={18} />
             </button>
-            <p className="mt-4 text-xs text-purple-300">
-              We're still in our founding phase. This pricing won't be available forever — but there's no rush right now.
-            </p>
           </div>
         </div>
       </section>
-
-      {/* FOOTER */}
-      <footer className="border-t border-purple-100 py-6 px-5">
-        <div className="mx-auto max-w-[1280px] flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-[#9B91B0]">
-          <span>© 2026 MemoryAmble</span>
-          <span className="text-center">Built with care for those who deserve a sharper mind.</span>
-          <a href="mailto:hello@memoryamble.com" className="hover:text-[#5B35D5] transition-colors">
-            hello@memoryamble.com
-          </a>
-        </div>
-        <div className="mx-auto max-w-[1280px] flex items-center justify-center gap-3 mt-3 text-sm text-[#9B91B0]">
-          <a href="/privacy" className="underline hover:text-[#5B35D5] transition-colors">Privacy Policy</a>
-          <span>·</span>
-          <a href="/terms" className="underline hover:text-[#5B35D5] transition-colors">Terms of Service</a>
-        </div>
-      </footer>
 
     </main>
   );

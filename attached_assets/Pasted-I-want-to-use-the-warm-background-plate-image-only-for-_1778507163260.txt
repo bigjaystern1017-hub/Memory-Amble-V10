@@ -1,0 +1,49 @@
+I want to use the warm background plate image only for the onboarding/pre-lesson screens, not as the landing page and not as the full-time lesson background.
+
+Design intention:
+The background plate should act like a calm welcoming scene for onboarding — a warm tabletop / room-like environment that frames the experience. Once the user transitions into the active Timbuk lesson flow, the app should switch to a cleaner, more focused teacher screen without that full background plate.
+
+Please implement this as two visual modes:
+
+1. Onboarding mode
+Use the background plate on:
+- motivation / “Before we begin”
+- goal selection
+- “How it works”
+- “Day 1 · The Foundation”
+- optional name entry / pre-lesson welcome
+
+Requirements:
+- background plate should sit behind the content
+- it should be soft and atmospheric, not overpowering
+- content should remain the main focus
+- preserve the existing centered onboarding layout and stepper
+- the plate should feel like a welcoming scene, not a landing-page hero image
+
+2. Lesson mode
+Once the user clicks “I’m ready” / begins the active Timbuk teaching flow:
+- remove the background plate
+- transition to the cleaner Timbuk teacher screen
+- keep the same warm cream overall color language
+- maintain visual continuity, but make the lesson screen more focused and functional
+- Timbuk card, route panel, memory object card, recall panel, and input tray should remain the focus
+
+Transition:
+Please add a soft transition between onboarding mode and lesson mode:
+- gentle fade / dissolve
+- no abrupt cut
+- onboarding background plate softly fades away
+- lesson screen softly fades in
+- keep it subtle and premium
+
+Implementation guidance:
+- Create a reusable onboarding shell or layout wrapper for screens that should use the background plate
+- Keep the lesson shell separate and cleaner
+- Do not change lesson logic, beat engine, auth, localStorage, API calls, or routing
+- This is a visual/layout enhancement only
+
+After implementation, summarize:
+1. Which screens use the onboarding background plate
+2. How the transition to the Timbuk lesson screen works
+3. Which layout wrapper(s) were created or updated
+4. What app logic was intentionally left untouched

@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useLocation } from "wouter";
 import timbukAvatarPath from "@assets/timbuk-avatar_1773957235129.png";
 import penguinPath from "@assets/penguin-profile_1775938237755.png";
+import warmBgPath from "@assets/warm-bg-plate_1778507157809.png";
 import { ChatMessage } from "@/components/chat-message";
 import { ChatInput } from "@/components/chat-input";
 import { EducationSlides } from "@/components/education-slides";
@@ -110,6 +111,20 @@ async function authFetch(path: string, options: RequestInit = {}) {
     },
   });
 }
+
+const ONBOARDING_BEATS = new Set<BeatId>([
+  "welcome",
+  "onboard-welcome",
+  "onboard-skill",
+  "onboard-palace",
+  "onboard-vivid",
+  "onboard-secret",
+  "onboard-ready",
+  "check-in-intro",
+  "check-in-recall",
+  "react-check-in",
+  "check-in-done",
+]);
 
 export default function Amble() {
   const [, navigate] = useLocation();
@@ -223,6 +238,7 @@ export default function Amble() {
 
   const progressStep = getProgressStep(currentBeat);
   const isCleaning = ["cleaning-intro", "cleaning-recall", "react-cleaning"].includes(currentBeat);
+  const isOnboardingMode = phase === "education" || phase === "name" || (phase === "chat" && ONBOARDING_BEATS.has(currentBeat));
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -1651,8 +1667,14 @@ export default function Amble() {
 
   if (phase === "education") {
     return (
-      <div className="flex flex-col h-dvh bg-background pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]" data-testid="app-container">
-        <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50 shrink-0">
+      <div className="flex flex-col h-dvh relative overflow-hidden pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]" data-testid="app-container">
+        {/* Onboarding background plate */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          <div className="absolute inset-0 bg-background" />
+          <img src={warmBgPath} alt="" className="absolute inset-0 w-full h-full object-cover object-bottom" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/45 to-background/20" />
+        </div>
+        <header className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 shrink-0">
           <div className="max-w-3xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-3">
             <button onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
               <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center">
@@ -1694,8 +1716,14 @@ export default function Amble() {
 
   if (phase === "name") {
     return (
-      <div className="flex flex-col h-dvh bg-background pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]" data-testid="app-container">
-        <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50 shrink-0">
+      <div className="flex flex-col h-dvh relative overflow-hidden pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]" data-testid="app-container">
+        {/* Onboarding background plate */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          <div className="absolute inset-0 bg-background" />
+          <img src={warmBgPath} alt="" className="absolute inset-0 w-full h-full object-cover object-bottom" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/45 to-background/20" />
+        </div>
+        <header className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 shrink-0">
           <div className="max-w-3xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-3">
             <button onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
               <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center">
@@ -1856,8 +1884,19 @@ export default function Amble() {
   }
 
   return (
-    <div className="flex flex-col h-dvh bg-background pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]" data-testid="app-container">
-      <header className="border-b border-border/50 bg-card/90 backdrop-blur-sm sticky top-0 z-50 shrink-0 shadow-sm">
+    <div className="flex flex-col h-dvh relative overflow-hidden pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]" data-testid="app-container">
+      {/* Background layer — plate fades in during onboarding, fades out for active lesson */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        <div className="absolute inset-0 bg-background" />
+        <div
+          className="absolute inset-0 transition-opacity duration-700"
+          style={{ opacity: isOnboardingMode ? 1 : 0 }}
+        >
+          <img src={warmBgPath} alt="" className="absolute inset-0 w-full h-full object-cover object-bottom" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/45 to-background/20" />
+        </div>
+      </div>
+      <header className="relative z-10 border-b border-border/50 bg-card/90 backdrop-blur-sm sticky top-0 shrink-0 shadow-sm">
         <div className="max-w-[1000px] mx-auto px-4 md:px-8 py-3 flex items-center justify-between gap-4">
           <button onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-lg">
             <div className="w-10 h-10 rounded-md flex items-center justify-center" style={{backgroundColor: '#6D2DE2'}}>

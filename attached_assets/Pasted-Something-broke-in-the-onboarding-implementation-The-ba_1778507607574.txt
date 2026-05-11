@@ -1,0 +1,95 @@
+Something broke in the onboarding implementation.
+
+The background plate image is showing, but the actual onboarding content/screens are missing. It looks like the background image replaced or covered the onboarding screens instead of sitting behind them.
+
+Please fix this carefully.
+
+Goal:
+The background plate should ONLY be a background layer for onboarding/pre-lesson screens. It should not replace the onboarding content, not hide the onboarding cards, and not remove the existing EducationSlides flow.
+
+Important:
+Do NOT change the beat engine.
+Do NOT change auth.
+Do NOT change API calls.
+Do NOT change localStorage keys.
+Do NOT change routing.
+Do NOT remove or rewrite EducationSlides logic.
+Do NOT skip onboarding screens.
+Do NOT replace text/cards with the background image.
+
+Please inspect these files:
+- client/src/components/education-slides.tsx
+- client/src/pages/amble.tsx
+- any new onboarding shell/layout file you created
+- client/src/index.css
+
+Fix requirements:
+
+1. Restore the actual onboarding screens
+The onboarding should still show:
+- “What matters most to you right now?”
+- the selectable goal cards
+- Continue button
+- the “Day 1 · The Foundation” / how-it-works screen
+- the three cards:
+  1. Pick a place you know
+  2. Plant vivid images
+  3. Walk and recall
+- the “I’m ready” / “Let’s go” CTA
+- any other existing EducationSlides screens
+
+2. Background plate behavior
+The plate should be a CSS background or absolutely positioned visual layer only:
+- position: absolute or background-image
+- inset: 0
+- z-index: 0
+- pointer-events: none
+- opacity subtle if needed
+- content wrapper should be above it with z-index: 1 or higher
+
+3. Onboarding content wrapper
+The onboarding content should be rendered above the background:
+- relative z-10
+- centered max-width
+- cards/buttons visible
+- enough vertical padding
+- content should not sit behind the mug/plant area
+
+4. CTA placement
+The CTA should not be floating by itself over an empty background.
+It should appear under the correct onboarding content/card group.
+
+5. Do not let the background create layout height issues
+The onboarding shell should have:
+- min-h-[calc(100vh-HEADER_HEIGHT)]
+- background-size: cover
+- background-position: center bottom or left bottom
+But it should not force content out of view.
+
+6. Check for bad conditional rendering
+Please check whether the recent change accidentally did something like:
+- returning only the background shell
+- hiding EducationSlides children
+- setting opacity: 0 on onboarding content
+- putting content behind the background with z-index
+- advancing the screen state incorrectly
+- replacing the screen content with only a CTA
+
+7. Preserve screen flow
+The user should move through the same onboarding sequence as before.
+The background plate should appear behind those screens, then fade/remove when the active Timbuk lesson begins.
+
+Implementation preference:
+If a new component like OnboardingShell was created, it should accept children:
+
+<OnboardingShell>
+  existing onboarding screen content here
+</OnboardingShell>
+
+Do not make OnboardingShell contain or replace the actual onboarding content.
+
+After fixing, summarize:
+1. What caused the onboarding content to disappear.
+2. Which files were fixed.
+3. How the background plate is layered behind content.
+4. Confirmation that EducationSlides still renders its screens normally.

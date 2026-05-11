@@ -1707,7 +1707,7 @@ export default function Amble() {
             </div>
           </div>
         </header>
-        <div className="flex-1 overflow-y-auto">
+        <div className="relative z-10 flex-1 overflow-y-auto">
           <EducationSlides onComplete={handleEducationComplete} />
         </div>
       </div>
@@ -1751,7 +1751,7 @@ export default function Amble() {
             )}
           </div>
         </header>
-        <div className="flex-1 overflow-y-auto">
+        <div className="relative z-10 flex-1 overflow-y-auto">
           <NameEntry onSubmit={handleNameSubmit} />
         </div>
       </div>
@@ -1994,7 +1994,7 @@ export default function Amble() {
       )}
 
       <div
-        className="flex-1 overflow-hidden flex min-h-0 transition-colors duration-500"
+        className="relative z-10 flex-1 overflow-hidden flex min-h-0 transition-colors duration-500"
         style={["recall", "react-recall", "check-in-recall", "react-check-in"].includes(currentBeat)
           ? { backgroundColor: "rgba(237,233,254,0.18)" }
           : undefined}
@@ -2088,7 +2088,7 @@ export default function Amble() {
         </div>
       </div>
 
-      <div className="border-t border-border/50 bg-card/90 backdrop-blur-sm shrink-0 shadow-sm">
+      <div className="relative z-10 border-t border-border/50 bg-card/90 backdrop-blur-sm shrink-0 shadow-sm">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8 py-4">
           {isFinished ? (
             <div className="text-center space-y-3">

@@ -1854,8 +1854,8 @@ export default function Amble() {
 
   return (
     <div className="flex flex-col h-dvh bg-background pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]" data-testid="app-container">
-      <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50 shrink-0">
-        <div className="max-w-3xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-4">
+      <header className="border-b border-border/50 bg-card/90 backdrop-blur-sm sticky top-0 z-50 shrink-0 shadow-sm">
+        <div className="max-w-[1000px] mx-auto px-4 md:px-8 py-3 flex items-center justify-between gap-4">
           <button onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
             <div className="w-10 h-10 rounded-md flex items-center justify-center" style={{backgroundColor: '#7C3AED'}}>
               <Brain className="w-6 h-6 text-white" />
@@ -1908,7 +1908,7 @@ export default function Amble() {
         </div>
         {dayLabel && !isGuest && (
           <div className="bg-primary/5 border-t border-b border-border/30">
-            <div className="max-w-3xl mx-auto px-4 md:px-6 py-2 flex items-center justify-center gap-4">
+            <div className="max-w-[1000px] mx-auto px-4 md:px-8 py-2 flex items-center justify-center gap-4">
               <p className="text-xs uppercase tracking-widest text-muted-foreground" data-testid="text-daily-focus">
                 Today's Focus: {lesson?.focus}
               </p>
@@ -1926,7 +1926,7 @@ export default function Amble() {
           </div>
         )}
         <div className="border-t border-border/30">
-          <div className="max-w-3xl mx-auto px-4 md:px-6">
+          <div className="max-w-[1000px] mx-auto px-4 md:px-8">
             <ProgressBar currentStep={progressStep} isCleaning={isCleaning} />
           </div>
         </div>
@@ -1956,16 +1956,17 @@ export default function Amble() {
         className={`flex-1 overflow-y-auto${chatFading ? " palace-chat-fading" : ""}`}
         data-testid="chat-scroll"
       >
-        <div className="max-w-3xl mx-auto px-4 md:px-6 py-6 space-y-4">
+        <div className="max-w-[960px] mx-auto px-4 md:px-8 py-6 space-y-5">
           {showSoundReminder && messages.length > 0 && (
-            <div className="max-w-3xl mx-auto px-4 md:px-6 pt-2">
+            <div className="flex justify-center pt-1 pb-2">
               <div
-                className="flex items-center justify-center gap-2 py-2 px-4 rounded-full bg-primary/10 border border-primary/20 text-sm text-muted-foreground cursor-pointer hover:bg-primary/15 transition-colors"
+                className="inline-flex items-center gap-2.5 py-2.5 px-5 rounded-full text-sm font-medium cursor-pointer transition-colors"
+                style={{ backgroundColor: "#EDE9FE", border: "1px solid #D4C8F8", color: "#5B21B6" }}
                 onClick={() => setShowSoundReminder(false)}
               >
                 <span>🔊</span>
                 <span>Sound on — Timbuk is more fun with sound</span>
-                <span className="text-xs opacity-50 ml-1">✕</span>
+                <span className="text-xs opacity-60 ml-1">✕</span>
               </div>
             </div>
           )}
@@ -1986,8 +1987,8 @@ export default function Amble() {
         </div>
       </div>
 
-      <div className="border-t border-border/50 bg-background/80 backdrop-blur-sm shrink-0">
-        <div className="max-w-3xl mx-auto px-4 md:px-6 py-4">
+      <div className="border-t border-border/50 bg-card/90 backdrop-blur-sm shrink-0 shadow-sm">
+        <div className="max-w-[1100px] mx-auto px-4 md:px-8 py-4">
           {isFinished ? (
             <div className="text-center space-y-3">
               {isGuest ? (

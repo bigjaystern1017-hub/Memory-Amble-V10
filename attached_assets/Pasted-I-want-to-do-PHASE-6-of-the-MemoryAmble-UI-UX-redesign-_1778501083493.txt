@@ -1,0 +1,154 @@
+I want to do PHASE 6 of the MemoryAmble UI/UX redesign.
+
+Phase 1 was visual polish.
+Phase 2 added the “Today’s Route” / “Memory Walk” panel from existing state.
+Phase 3 added presentational Memory Object Cards.
+Phase 4 added Recall Walk Mode.
+Phase 5 redesigned the results screen into a stronger “Proof Moment.”
+Phase 6 should improve the return-user experience so MemoryAmble feels like a continuing habit, not a one-time lesson.
+
+Important:
+Do NOT rebuild the app.
+Do NOT change the beat engine.
+Do NOT change API calls, Supabase auth, localStorage keys, lesson progression, object assignment logic, recall scoring, or session saving.
+Do NOT alter beat IDs.
+Do NOT break guest behavior.
+Do NOT change auth behavior.
+Do NOT add new backend routes unless absolutely necessary. Prefer using existing progress/session/palace data.
+
+Core UX idea:
+When a user returns to MemoryAmble after completing at least one session, the app should feel like:
+“Welcome back. Your route is waiting.”
+
+This should create a calm habit loop:
+- remind the user what they built
+- show their progress/streak
+- invite them to continue today’s training
+- reinforce the Memory Palace story
+
+Relevant files:
+- client/src/pages/start.tsx
+- client/src/pages/amble.tsx
+- client/src/components/amble-results.tsx
+- client/src/components/memory-route-panel.tsx
+- client/src/lib/progress.ts
+- client/src/index.css
+
+Please inspect the existing start page and existing progress-loading behavior before editing.
+
+GOAL:
+Create or restyle a return-user start/dashboard experience that appears before entering the training session when appropriate.
+
+Potential screen title:
+“Welcome back.”
+
+Subtitle:
+“Your Memory Palace is waiting.”
+
+Support copy:
+“Today we’ll strengthen the route you’ve already begun.”
+
+Useful elements to show if data already exists:
+1. Current day:
+   “Day [currentDay]”
+
+2. Streak:
+   “Current streak: [streak]”
+
+3. Level:
+   “Today’s walk: [currentLevel] items”
+   or use existing levelLabel if available.
+
+4. Saved palace/route:
+   If existing saved stops are available from localStorage or existing progress/palace loading:
+   - Show a small route preview card:
+     “Your route”
+     1. Front Door
+     2. Hallway
+     3. Kitchen
+   If no saved route is available:
+   - Show empty state:
+     “Timbuk will help you choose a place when we begin.”
+
+5. Primary CTA:
+   “Begin today’s walk”
+   or
+   “Continue your walk”
+
+6. Secondary action:
+   “Start fresh”
+   Only include this if existing app behavior safely supports it. Do not add destructive reset behavior unless already implemented.
+
+DESIGN:
+- Warm cream background.
+- Centered desktop layout.
+- Main card max-width around 900–1000px.
+- Rounded-2xl or rounded-3xl.
+- Soft border and shadow.
+- Left side: welcome copy and CTA.
+- Right side: compact progress/route card.
+- Use purple CTA.
+- Use subtle lucide icons: Route, Flame, Calendar, Sparkles, MapPin.
+- Keep it calm and senior-friendly.
+- Do not make it look like a mobile dashboard.
+- Do not over-gamify.
+
+COPY STYLE:
+Use product language tied to the method:
+- “Don’t memorize. Walk.”
+- “Your mind already knows the way.”
+- “Today, we’ll strengthen the path.”
+- “A few minutes is enough.”
+
+Avoid generic app language:
+- “Dashboard”
+- “Tasks”
+- “XP”
+- “Level unlocked”
+- “Crush today’s lesson”
+
+IMPLEMENTATION OPTIONS:
+Use the safest existing place for this.
+
+Preferred approach:
+- If client/src/pages/start.tsx already controls the pre-session entry point, restyle it into the return-user dashboard.
+- If /start is not used in the current flow, do not force major route changes. Instead, lightly improve the existing entry point that users see before /amble.
+
+Data:
+- Use existing progress/localStorage data where available:
+  - memory-amble-day
+  - memory-amble-palace
+  - existing ProgressData from lib/progress.ts
+- If authenticated progress is already fetched somewhere, reuse that.
+- Do not add a new API call unless there is already an existing endpoint for progress/palace and it is clearly safe.
+
+Routing:
+- Primary CTA should navigate to /amble or call the existing start handler that begins training.
+- Do not create new routes unless necessary.
+- Do not break /quiz, /login, /amble, or landing page routes.
+
+Important constraints:
+- Do not change localStorage key names.
+- Do not reset progress accidentally.
+- Do not delete saved palaces.
+- Do not change how currentDay is calculated.
+- Do not change the login flow.
+- Do not change the guest flow.
+- Do not add fake user data.
+- Do not create a complex dashboard.
+- Do not add heavy animation.
+- Do not add a calendar habit tracker yet.
+- Do not rewrite amble.tsx state logic unless absolutely necessary.
+
+Optional small polish:
+- Add a small Timbuk card or quote:
+  “Your route is still there. Let’s walk it again.”
+- Use the existing Timbuk avatar asset if already available.
+- Keep it subtle.
+
+After implementation, summarize:
+1. Files changed.
+2. Where the return-user experience appears.
+3. What existing data it uses.
+4. How the primary CTA enters the training flow.
+5. What logic was intentionally left untouched.

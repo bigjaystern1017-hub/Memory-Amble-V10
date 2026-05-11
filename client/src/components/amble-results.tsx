@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { playSound } from "@/lib/sounds";
-import { Trophy, Flame, ArrowLeft, Eye, EyeOff, Download } from "lucide-react";
+import { Trophy, Flame, ArrowLeft, Eye, EyeOff, Download, CheckCircle2, Route, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 import { SiGoogle } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -564,157 +565,279 @@ export function AmbleResults({
     );
   }
 
+  const recapItems = (assignments && assignments.length > 0)
+    ? assignments
+    : (pendingSession?.assignments && pendingSession.assignments.length > 0)
+    ? pendingSession.assignments
+    : [];
+
+  const effectivePlaceName = placeName || pendingSession?.placeName;
+
+  const proofCopy =
+    correctCount === totalItems
+      ? "Your palace held everything."
+      : correctCount >= totalItems * 0.66
+      ? "Your palace is working."
+      : correctCount >= 1
+      ? "The pictures are taking shape."
+      : "You built a palace and walked through it. That's a real start.";
+
+  const headline = (currentDay || 0) <= 1
+    ? "You just built your first Memory Palace."
+    : "You strengthened your Memory Palace.";
+
   return (
     <>
-      {isPerfect && scrollPhase === "hidden" && <Confetti />}
-      <div className="min-h-dvh bg-gradient-to-b from-primary/10 to-background flex flex-col items-center justify-center px-4 py-8">
-        <div className="max-w-2xl mx-auto w-full space-y-6">
+      {isPerfect && <Confetti />}
+      <div
+        className="min-h-dvh flex flex-col items-center justify-start px-4 py-10 overflow-y-auto"
+        style={{ background: "linear-gradient(160deg, #F5F0FF 0%, #FAF7FF 40%, #FEF9F0 100%)" }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="max-w-[860px] w-full mx-auto space-y-5"
+        >
 
-          {/* SCROLL PHASE — prompt, loading, or revealed */}
-          {scrollPhase === "prompt" && (
-            <div className="text-center space-y-6">
-              {isPerfect && <Confetti />}
-              <div className="flex justify-center">
-                <img src={timbukAvatar} alt="Timbuk" className="w-16 h-16 rounded-full" />
-              </div>
-              <p className="font-serif text-xl md:text-2xl text-foreground leading-relaxed">
-                I wrote you something while you were walking.<br />Shall I show you?
-              </p>
-              <Button
-                size="lg"
-                onClick={handleShowScroll}
-                className="gap-2 text-lg px-8 py-6"
-                data-testid="button-show-scroll"
-              >
-                Show me
-              </Button>
-            </div>
-          )}
+          {/* ── PROOF MOMENT CARD ── */}
+          <div
+            className="rounded-3xl overflow-hidden"
+            style={{
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E8E3F4",
+              boxShadow: "0 4px 24px rgba(109,45,226,0.09)",
+            }}
+          >
+            {/* Purple top accent */}
+            <div style={{ height: 4, background: "linear-gradient(90deg, #6D2DE2 0%, #A78BFA 100%)" }} />
 
-          {scrollPhase === "loading" && (
-            <div className="text-center space-y-3 py-12">
-              <img src={timbukAvatar} alt="Timbuk" className="w-16 h-16 rounded-full mx-auto" />
-              <p className="text-foreground font-medium">Timbuk is writing your scroll...</p>
-              <p className="text-sm text-muted-foreground italic">He takes these seriously.</p>
-            </div>
-          )}
+            <div className="px-6 md:px-10 py-8 space-y-7">
 
-          {scrollPhase === "revealed" && (
-            <div className="space-y-6">
-              {/* THE SCROLL */}
-              <div
-                className="rounded-2xl p-6 md:p-8 space-y-4 border border-amber-200"
-                style={{
-                  background: "linear-gradient(135deg, #fef9f0 0%, #fdf3e0 50%, #fef9f0 100%)",
-                  boxShadow: "0 4px 24px rgba(180, 140, 80, 0.15)",
-                }}
-                data-testid="amble-scroll-card"
-              >
-                {/* Scroll header */}
-                <div className="flex items-center gap-3 pb-3 border-b border-amber-200/60">
-                  <img src={timbukAvatar} alt="Timbuk" className="w-10 h-10 rounded-full flex-shrink-0" />
-                  <div>
-                    <p className="font-serif text-sm font-semibold text-amber-900">The Amble Scroll of {displayName}</p>
-                    <p className="text-xs text-amber-700/70">{placeName || "Your Palace"} — Day {currentDay || 1}</p>
-                  </div>
+              {/* Eyebrow + headline */}
+              <div className="text-center space-y-3">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase"
+                  style={{ backgroundColor: "#EDE9FE", color: "#6D2DE2" }}>
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Today's Walk Complete
                 </div>
-
-                {/* Scroll body */}
-                <p className="font-serif text-base md:text-lg leading-relaxed text-amber-950">
-                  {scrollText}
-                </p>
-
-                {/* Scroll footer */}
-                <div className="pt-3 border-t border-amber-200/60 flex items-center justify-between">
-                  <p className="text-xs text-amber-700/60">Built with Timbuk</p>
-                  <p className="text-xs text-amber-700/60">MemoryAmble.com</p>
-                </div>
-              </div>
-
-              {/* Share prompt */}
-              <div className="text-center space-y-4">
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  If it made you smile — it might do the same for someone you love.
-                </p>
-                <div className="space-y-2">
-                  <Button
-                    size="lg"
-                    className="w-full gap-2"
-                    onClick={() => {
-                      playSound("click");
-                      const shareText = `${displayName} just completed their Day ${currentDay || 1} memory walk with MemoryAmble — here's what Timbuk wrote them:\n\n"${scrollText}"\n\nThis is what 10 minutes a day looks like. MemoryAmble teaches the 2,000-year-old Memory Palace technique through a guided daily practice — built for seniors who want to stay sharp and have fun doing it.\n\n→ Try your first day free: memoryamble.com`;
-                      if (navigator.share) {
-                        navigator.share({
-                          title: `${displayName}'s Memory Palace`,
-                          text: shareText,
-                        }).catch(() => {});
-                        return;
-                      }
-                      navigator.clipboard.writeText(shareText).then(() => {
-                        setShareButtonText("Copied!");
-                        setTimeout(() => setShareButtonText("Share My Scroll"), 2000);
-                      }).catch(() => {});
-                    }}
-                    data-testid="button-share-scroll"
-                  >
-                    {shareButtonText}
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Your scroll is yours. We don't post anything without your tap.
-                </p>
-              </div>
-
-              {/* Divider */}
-              <div className="h-px bg-border" />
-
-              {/* Score section */}
-              <div className="bg-background border border-primary/20 rounded-2xl p-6 space-y-4 text-center">
-                <p className="text-sm uppercase tracking-widest text-muted-foreground font-medium">How you did</p>
-                <p className="text-5xl font-bold font-serif">
-                  {correctCount}
-                  <span className="text-xl text-muted-foreground ml-2">of {totalItems}</span>
-                </p>
-                <p className="text-muted-foreground">
-                  {correctCount === totalItems
-                    ? "Your palace held everything."
-                    : correctCount >= totalItems * 0.66
-                    ? "Your palace is working."
-                    : correctCount >= 1
-                    ? "The pictures are taking shape."
-                    : "You built a palace and walked through it. That's a real start."}
-                </p>
-                {streak > 1 && (
-                  <div className="flex items-center justify-center gap-2 pt-1">
-                    <Flame className="w-5 h-5 text-orange-500" />
-                    <p className="text-lg font-semibold">{streak} days in a row. Timbuk has stopped being surprised.</p>
-                  </div>
-                )}
-                {getMilestoneNudge(currentDay || 0) && (
-                  <p className="text-sm text-primary font-medium italic">
-                    {getMilestoneNudge(currentDay || 0)}
+                {currentDay && currentDay > 0 && (
+                  <p className="text-xs font-medium uppercase tracking-widest" style={{ color: "#C4B5FD" }}>
+                    Day {currentDay} complete
                   </p>
                 )}
+                <h1 className="font-serif text-2xl md:text-3xl font-semibold leading-snug" style={{ color: "#1A1028" }}>
+                  {headline}
+                </h1>
               </div>
 
-              {/* See you tomorrow */}
-              <div className="text-center space-y-4">
-                <p className="text-sm text-muted-foreground italic">
-                  Your palace will be exactly as you left it.
+              {/* Hero score */}
+              <div
+                className="rounded-2xl px-6 py-6 text-center space-y-2"
+                style={{ backgroundColor: "#F5F0FF", border: "1px solid #DDD5F8" }}
+              >
+                <p className="text-6xl font-bold font-serif" style={{ color: "#1A1028" }}>
+                  {correctCount}
+                  <span className="text-2xl font-normal ml-2" style={{ color: "#9C8BB4" }}>of {totalItems}</span>
                 </p>
-                <Button
-                  size="lg"
-                  onClick={handleSeeYouTomorrow}
-                  className="gap-2 text-lg px-8 py-6 w-full sm:w-auto"
-                  data-testid="button-see-you-tomorrow"
-                >
-                  See You Tomorrow
-                </Button>
+                <p className="text-sm font-medium uppercase tracking-widest" style={{ color: "#9C8BB4" }}>
+                  items remembered
+                </p>
+                <p className="text-base mt-1" style={{ color: "#3D2E6E" }}>
+                  {proofCopy}
+                </p>
               </div>
-            </div>
-          )}
 
-        </div>
+              {/* Proof statement */}
+              <div className="text-center space-y-1">
+                <p className="font-serif text-lg md:text-xl" style={{ color: "#3D2E6E" }}>
+                  You didn't memorize a list. You walked a route.
+                </p>
+                <p className="text-sm font-medium" style={{ color: "#9C8BB4" }}>
+                  That is the Memory Palace working.
+                </p>
+              </div>
+
+              {/* Streak card */}
+              {streak > 0 && (
+                <div
+                  className="flex items-center justify-center gap-3 rounded-xl px-5 py-3"
+                  style={{ backgroundColor: "#FFF7ED", border: "1px solid #FED7AA" }}
+                >
+                  <Flame className="w-5 h-5 flex-shrink-0" style={{ color: "#C2540A" }} />
+                  <p className="text-sm font-semibold" style={{ color: "#92400E" }}>
+                    {streak === 1 ? "First day of your streak." : `${streak}-day streak. The palace is getting familiar.`}
+                  </p>
+                </div>
+              )}
+
+              {getMilestoneNudge(currentDay || 0) && (
+                <p className="text-center text-sm font-medium italic" style={{ color: "#6D2DE2" }}>
+                  {getMilestoneNudge(currentDay || 0)}
+                </p>
+              )}
+
+              {/* Route recap */}
+              {recapItems.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Route className="w-4 h-4" style={{ color: "#9C8BB4" }} />
+                    <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#9C8BB4" }}>
+                      {effectivePlaceName ? `Your route through ${effectivePlaceName.replace(/^my /i, "")}` : "Your route today"}
+                    </p>
+                  </div>
+                  <div className="space-y-1.5">
+                    {recapItems.map((item, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-3 rounded-xl px-4 py-2.5"
+                        style={{ backgroundColor: "#FAFAFE", border: "1px solid #EDE9FA" }}
+                      >
+                        <span
+                          className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                          style={{ backgroundColor: "#EDE9FE", color: "#6D2DE2" }}
+                        >
+                          {i + 1}
+                        </span>
+                        <span className="text-sm" style={{ color: "#5B4B8A" }}>
+                          <span className="font-medium">{item.stopName}</span>
+                          {item.object && (
+                            <>
+                              <span style={{ color: "#C4B5FD" }}> — </span>
+                              <span style={{ color: "#6D2DE2" }} className="font-semibold">
+                                {item.object.charAt(0).toUpperCase() + item.object.slice(1)}
+                              </span>
+                            </>
+                          )}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-center italic" style={{ color: "#C4B5FD" }}>
+                    The images were waiting where you placed them.
+                  </p>
+                </div>
+              )}
+
+            </div>
+          </div>
+
+          {/* ── TIMBUK'S SCROLL SECTION ── */}
+          <div
+            className="rounded-2xl overflow-hidden"
+            style={{
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E8E3F4",
+              boxShadow: "0 2px 12px rgba(109,45,226,0.06)",
+            }}
+          >
+            <div className="px-6 md:px-10 py-6">
+
+              {scrollPhase === "prompt" && (
+                <div className="text-center space-y-5">
+                  <div className="flex justify-center">
+                    <img src={timbukAvatar} alt="Timbuk" className="w-14 h-14 rounded-full" />
+                  </div>
+                  <p className="font-serif text-lg md:text-xl leading-relaxed" style={{ color: "#3D2E6E" }}>
+                    I wrote you something while you were walking.<br />Shall I show you?
+                  </p>
+                  <Button
+                    size="lg"
+                    onClick={handleShowScroll}
+                    className="gap-2 text-base px-8 py-5"
+                    data-testid="button-show-scroll"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Show me
+                  </Button>
+                </div>
+              )}
+
+              {scrollPhase === "loading" && (
+                <div className="text-center space-y-3 py-8">
+                  <img src={timbukAvatar} alt="Timbuk" className="w-14 h-14 rounded-full mx-auto" />
+                  <p className="font-medium" style={{ color: "#1A1028" }}>Timbuk is writing your scroll...</p>
+                  <p className="text-sm italic" style={{ color: "#9C8BB4" }}>He takes these seriously.</p>
+                </div>
+              )}
+
+              {scrollPhase === "revealed" && (
+                <div className="space-y-6">
+                  {/* THE SCROLL */}
+                  <div
+                    className="rounded-2xl p-6 md:p-8 space-y-4 border border-amber-200"
+                    style={{
+                      background: "linear-gradient(135deg, #fef9f0 0%, #fdf3e0 50%, #fef9f0 100%)",
+                      boxShadow: "0 4px 24px rgba(180, 140, 80, 0.12)",
+                    }}
+                    data-testid="amble-scroll-card"
+                  >
+                    <div className="flex items-center gap-3 pb-3 border-b border-amber-200/60">
+                      <img src={timbukAvatar} alt="Timbuk" className="w-10 h-10 rounded-full flex-shrink-0" />
+                      <div>
+                        <p className="font-serif text-sm font-semibold text-amber-900">The Amble Scroll of {displayName}</p>
+                        <p className="text-xs text-amber-700/70">{effectivePlaceName || "Your Palace"} — Day {currentDay || 1}</p>
+                      </div>
+                    </div>
+                    <p className="font-serif text-base md:text-lg leading-relaxed text-amber-950">
+                      {scrollText}
+                    </p>
+                    <div className="pt-3 border-t border-amber-200/60 flex items-center justify-between">
+                      <p className="text-xs text-amber-700/60">Built with Timbuk</p>
+                      <p className="text-xs text-amber-700/60">MemoryAmble.com</p>
+                    </div>
+                  </div>
+
+                  {/* Share */}
+                  <div className="text-center space-y-3">
+                    <p className="text-sm" style={{ color: "#9C8BB4" }}>
+                      If it made you smile — it might do the same for someone you love.
+                    </p>
+                    <Button
+                      size="lg"
+                      className="w-full gap-2"
+                      onClick={() => {
+                        playSound("click");
+                        const shareText = `${displayName} just completed their Day ${currentDay || 1} memory walk with MemoryAmble — here's what Timbuk wrote them:\n\n"${scrollText}"\n\nThis is what 10 minutes a day looks like. MemoryAmble teaches the 2,000-year-old Memory Palace technique through a guided daily practice — built for seniors who want to stay sharp and have fun doing it.\n\n→ Try your first day free: memoryamble.com`;
+                        if (navigator.share) {
+                          navigator.share({ title: `${displayName}'s Memory Palace`, text: shareText }).catch(() => {});
+                          return;
+                        }
+                        navigator.clipboard.writeText(shareText).then(() => {
+                          setShareButtonText("Copied!");
+                          setTimeout(() => setShareButtonText("Share My Scroll"), 2000);
+                        }).catch(() => {});
+                      }}
+                      data-testid="button-share-scroll"
+                    >
+                      {shareButtonText}
+                    </Button>
+                    <p className="text-xs" style={{ color: "#C4B5FD" }}>
+                      Your scroll is yours. We don't post anything without your tap.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </div>
+
+          {/* ── CTA ── */}
+          <div className="text-center space-y-3 pb-4">
+            <p className="text-sm italic" style={{ color: "#9C8BB4" }}>
+              Tomorrow, we'll strengthen the route.
+            </p>
+            <Button
+              size="lg"
+              onClick={handleSeeYouTomorrow}
+              className="gap-2 text-lg px-8 py-6 w-full sm:w-auto"
+              data-testid="button-see-you-tomorrow"
+            >
+              See You Tomorrow
+            </Button>
+          </div>
+
+        </motion.div>
       </div>
     </>
   );

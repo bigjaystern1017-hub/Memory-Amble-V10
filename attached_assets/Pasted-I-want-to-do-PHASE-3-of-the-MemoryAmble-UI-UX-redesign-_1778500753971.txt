@@ -1,0 +1,152 @@
+I want to do PHASE 3 of the MemoryAmble UI/UX redesign.
+
+Phase 1 was visual polish.
+Phase 2 added the “Today’s Route” / “Memory Walk” panel from existing state.
+Phase 3 should make the object-placement part of the lesson feel more tactile and memorable by adding “Memory Object Cards.”
+
+Important:
+Do NOT rebuild the app.
+Do NOT change the beat engine.
+Do NOT change API calls, Supabase auth, localStorage keys, lesson progression, object assignment logic, recall scoring, or session saving.
+Do NOT create a new lesson flow.
+Do NOT alter beat IDs.
+Do NOT break the existing typewriter/chat behavior.
+
+The goal is to visually represent existing assignments and the current object being planted.
+
+Core UX idea:
+When Timbuk gives the user an object to place in their memory palace, the UI should make that object feel like a physical card/token being planted into the route.
+
+Relevant files:
+- client/src/pages/amble.tsx
+- client/src/components/memory-route-panel.tsx
+- client/src/components/chat-message.tsx
+- client/src/components/chat-input.tsx
+- client/src/components/beat-engine.ts
+- client/src/index.css
+
+NEW COMPONENT:
+Create:
+
+client/src/components/memory-object-card.tsx
+
+Suggested props:
+
+type MemoryObjectCardProps = {
+  objectName?: string;
+  stopName?: string;
+  sceneText?: string;
+  stepIndex?: number;
+  totalItems?: number;
+  mode?: "placing" | "planted" | "recalling" | "idle";
+};
+
+Visual design:
+- White/cream tactile card.
+- Rounded-2xl.
+- Soft border and shadow.
+- Header pill:
+  - “Object 1 of 5” or whatever stepIndex/totalItems indicate.
+- Main title:
+  - objectName if available.
+- Secondary line:
+  - “Place it at: [stopName]” if stopName exists.
+- Scene preview:
+  - If sceneText exists, show it in a warm pale-lavender quote panel.
+- If no object exists yet, show a calm empty state:
+  “Timbuk will give you an object to plant here.”
+- Use a simple lucide icon such as Sparkles, MapPin, Eye, or Package.
+- Do not use big emoji as the main visual unless no icon is practical.
+
+WHEN TO SHOW IT:
+In amble.tsx, during the chat/training phase only:
+- Show MemoryObjectCard near the Timbuk message area when there is an active assignment.
+- Use existing state:
+  - state.assignments
+  - state.stepIndex
+  - state.userScenes
+  - state.itemCount
+  - currentBeat
+- Determine the current assignment safely:
+  const currentAssignment = state.assignments?.[state.stepIndex]
+- Pass:
+  - objectName: currentAssignment?.object
+  - stopName: currentAssignment?.stopName
+  - sceneText: state.userScenes?.[state.stepIndex]
+  - stepIndex: state.stepIndex
+  - totalItems: state.itemCount
+- If the current beat is a recall beat, the object card should either:
+  - hide the objectName, OR
+  - switch to mode="recalling" and show “Walk to this stop. What do you see?”
+But do this visually only. Do not change recall logic.
+
+MODE GUIDANCE:
+If currentBeat includes object placement, use mode="placing".
+If sceneText exists, use mode="planted".
+If currentBeat includes recall, use mode="recalling".
+Otherwise mode="idle".
+
+RECALL MODE:
+During recall, avoid spoiling the answer.
+If mode="recalling":
+- Show stopName.
+- Do NOT show objectName.
+- Show text:
+  “Walk to this stop in your mind. What object is waiting there?”
+- If sceneText exists but would reveal the answer, do not display it in recall mode.
+
+PLACEMENT MODE:
+When mode="placing":
+- Show:
+  “Plant this image”
+  objectName
+  “at [stopName]”
+- Add helper text:
+  “Make it strange, vivid, and personal.”
+
+PLANTED MODE:
+When sceneText exists:
+- Show:
+  “Image planted”
+  objectName at stopName
+  sceneText in a quote-like panel.
+
+LAYOUT:
+On desktop, the main chat phase should feel like:
+- Left/main column:
+  - Timbuk guide card/messages
+  - MemoryObjectCard beneath or beside the latest Timbuk card when relevant
+- Right/sidebar:
+  - Today’s Route panel from Phase 2
+- Bottom:
+  - existing response tray
+
+Do not let the UI become cluttered.
+The object card should appear only when useful:
+- after assignments exist
+- during object placement
+- during recall
+- when there is a current stop/object to show
+
+OPTIONAL:
+Update MemoryRoutePanel so the active row can visually coordinate with the MemoryObjectCard:
+- Same active purple accent.
+- Same stop number.
+- Do not add interactivity yet.
+
+Important constraints:
+- Do not add drag-and-drop.
+- Do not add fake rooms.
+- Do not create an illustrated palace builder.
+- Do not add new API calls.
+- Do not rewrite state.
+- Do not mutate any data from MemoryObjectCard.
+- Do not make the object card required for the flow to continue.
+- It is purely presentational.
+
+After implementation, summarize:
+1. Files changed.
+2. Where MemoryObjectCard is rendered.
+3. Which existing state it reads.
+4. How recall mode avoids spoiling the answer.
+5. What logic was intentionally left untouched.

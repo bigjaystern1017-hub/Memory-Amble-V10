@@ -5,6 +5,7 @@ import penguinPath from "@assets/penguin-profile_1775938237755.png";
 import { ChatMessage } from "@/components/chat-message";
 import { ChatInput } from "@/components/chat-input";
 import { EducationSlides } from "@/components/education-slides";
+import { MemoryRoutePanel } from "@/components/memory-route-panel";
 import { NameEntry } from "@/components/name-entry";
 import { ProgressBar } from "@/components/progress-bar";
 import { AmbleResults, type PendingSessionData } from "@/components/amble-results";
@@ -1951,39 +1952,54 @@ export default function Amble() {
         </div>
       )}
 
-      <div
-        ref={scrollRef}
-        className={`flex-1 overflow-y-auto${chatFading ? " palace-chat-fading" : ""}`}
-        data-testid="chat-scroll"
-      >
-        <div className="max-w-[960px] mx-auto px-4 md:px-8 py-6 space-y-5">
-          {showSoundReminder && messages.length > 0 && (
-            <div className="flex justify-center pt-1 pb-2">
-              <div
-                className="inline-flex items-center gap-2.5 py-2.5 px-5 rounded-full text-sm font-medium cursor-pointer transition-colors"
-                style={{ backgroundColor: "#EDE9FE", border: "1px solid #D4C8F8", color: "#5B21B6" }}
-                onClick={() => setShowSoundReminder(false)}
-              >
-                <span>🔊</span>
-                <span>Sound on — Timbuk is more fun with sound</span>
-                <span className="text-xs opacity-60 ml-1">✕</span>
+      <div className="flex-1 overflow-hidden flex min-h-0">
+        {/* Main chat column */}
+        <div
+          ref={scrollRef}
+          className={`flex-1 overflow-y-auto${chatFading ? " palace-chat-fading" : ""}`}
+          data-testid="chat-scroll"
+        >
+          <div className="max-w-[820px] mx-auto px-4 md:px-8 py-6 space-y-5">
+            {showSoundReminder && messages.length > 0 && (
+              <div className="flex justify-center pt-1 pb-2">
+                <div
+                  className="inline-flex items-center gap-2.5 py-2.5 px-5 rounded-full text-sm font-medium cursor-pointer transition-colors"
+                  style={{ backgroundColor: "#EDE9FE", border: "1px solid #D4C8F8", color: "#5B21B6" }}
+                  onClick={() => setShowSoundReminder(false)}
+                >
+                  <span>🔊</span>
+                  <span>Sound on — Timbuk is more fun with sound</span>
+                  <span className="text-xs opacity-60 ml-1">✕</span>
+                </div>
               </div>
-            </div>
-          )}
-          {messages.map((msg, i) => (
-            <ChatMessage
-              key={msg.id}
-              sender={msg.sender}
-              text={msg.text}
-              typewriter={msg.typewriter && msg.id === lastMessageId}
-              onTypewriterDone={msg.id === lastMessageId ? handleTypewriterDone : undefined}
-              fastForward={msg.id === lastMessageId && fastForward}
-              onSkipTyping={msg.id === lastMessageId && typewriterBusy ? () => setFastForward(true) : undefined}
-              variant={msg.variant}
-              isLatest={i === messages.length - 1}
-            />
-          ))}
-          {isTyping && <ChatMessage sender="timbuk" text="" isTyping />}
+            )}
+            {messages.map((msg, i) => (
+              <ChatMessage
+                key={msg.id}
+                sender={msg.sender}
+                text={msg.text}
+                typewriter={msg.typewriter && msg.id === lastMessageId}
+                onTypewriterDone={msg.id === lastMessageId ? handleTypewriterDone : undefined}
+                fastForward={msg.id === lastMessageId && fastForward}
+                onSkipTyping={msg.id === lastMessageId && typewriterBusy ? () => setFastForward(true) : undefined}
+                variant={msg.variant}
+                isLatest={i === messages.length - 1}
+              />
+            ))}
+            {isTyping && <ChatMessage sender="timbuk" text="" isTyping />}
+          </div>
+        </div>
+
+        {/* Today's Route sidebar — desktop only */}
+        <div className="hidden lg:flex flex-col w-[340px] shrink-0 border-l border-border/40 overflow-y-auto px-5 py-6 bg-background/60">
+          <MemoryRoutePanel
+            placeName={state.placeName}
+            stops={state.stops}
+            assignments={state.assignments}
+            userScenes={state.userScenes}
+            currentStepIndex={state.stepIndex}
+            currentBeat={currentBeat}
+          />
         </div>
       </div>
 

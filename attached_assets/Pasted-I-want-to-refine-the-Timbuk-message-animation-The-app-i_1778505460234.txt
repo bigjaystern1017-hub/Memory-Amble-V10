@@ -1,0 +1,96 @@
+I want to refine the Timbuk message animation.
+
+The app is working well now, but the current Timbuk text effect feels a bit too punchy/typewriter-like. I want it to feel softer, smoother, and more cloud-like — as if Timbuk’s thought is gently appearing in the card.
+
+Important:
+Do NOT change the beat engine.
+Do NOT change message logic.
+Do NOT change API calls.
+Do NOT change recall logic.
+Do NOT change user input behavior.
+Do NOT remove the ability to skip/fast-forward if it currently exists.
+Do NOT break the existing typewriter completion callback behavior.
+
+Relevant file:
+- client/src/components/chat-message.tsx
+
+Goal:
+Replace or soften the current character-by-character typewriter feel with a gentler reveal animation.
+
+Current issue:
+The text appears too mechanically, with a terminal/typewriter feeling. It feels punchy. For MemoryAmble, Timbuk should feel calm, warm, and meditative.
+
+Desired feel:
+- soft
+- smooth
+- cloud-like
+- gentle
+- calm
+- not robotic
+- not too slow
+- not flashy
+
+Preferred approach:
+Instead of revealing one character at a time, reveal text in small word groups or phrase chunks with a subtle opacity/blur transition.
+
+Example behavior:
+- Text starts very slightly blurred and transparent.
+- Words or short phrase chunks softly fade in.
+- Each chunk becomes crisp as it appears.
+- The whole message should feel like it is “breathing into view.”
+- Keep total timing reasonable so users are not waiting too long.
+
+Implementation guidance:
+In chat-message.tsx:
+- Replace the current hard character-by-character typewriter effect with a softer reveal component.
+- You can create a new component like SoftRevealText.
+- It should still accept:
+  - text
+  - onDone
+  - fastForward
+- It must call onDone exactly once when complete.
+- If fastForward is true, show the full text immediately and call onDone.
+- Preserve skip behavior.
+
+Possible animation:
+- Split text into words or phrase chunks.
+- Render chunks as inline spans.
+- Each span animates from:
+  opacity: 0
+  filter: blur(4px)
+  transform: translateY(3px)
+  to:
+  opacity: 1
+  filter: blur(0px)
+  transform: translateY(0)
+- Use Framer Motion if it is already used in the file.
+- Keep the animation subtle.
+
+Timing:
+- Do not animate each individual letter.
+- Animate by word or small phrase.
+- Delay between chunks should be gentle but not slow.
+- Suggested delay: 35–70ms per word/chunk.
+- Suggested duration per chunk: 250–450ms.
+- Cap long messages so they do not take forever.
+- For longer messages, reveal larger chunks rather than every word.
+
+Cursor:
+- Remove the hard blinking typewriter cursor or make it much subtler.
+- Prefer no cursor.
+- If a cursor remains, make it a soft fading dot or very subtle shimmer, not a terminal bar.
+
+Accessibility:
+- Do not make text hard to read.
+- Avoid excessive blur duration.
+- Respect fastForward.
+- Keep final text fully selectable/readable.
+- Do not alter the message text.
+
+Important:
+The final result should feel like a soft cloud of text appearing in Timbuk’s card, not like a person typing into a chat terminal.
+
+After implementation, summarize:
+1. What changed in chat-message.tsx.
+2. How onDone / fastForward behavior was preserved.
+3. Whether the old character typewriter was replaced or softened.

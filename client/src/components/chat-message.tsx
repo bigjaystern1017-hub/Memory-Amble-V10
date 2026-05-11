@@ -1,14 +1,109 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
 import { User } from "lucide-react";
 import timbukAvatarPath from "@assets/timbuk-avatar_1773957235129.png";
 
-const CHAR_DELAY_MS = 55;
+const CHUNK_DELAY_MS = 55;
+const CHUNK_DURATION_MS = 340;
 
-function charDelay(ch: string): number {
-  if (ch === "?" || ch === "!") return CHAR_DELAY_MS + 250;
-  if (ch === "." || ch === "," || ch === "-") return CHAR_DELAY_MS + 180;
-  return CHAR_DELAY_MS;
+function buildChunks(text: string): string[] {
+  if (!text) return [];
+  const words = text.split(" ");
+  const size = words.length > 20 ? 4 : words.length > 10 ? 3 : 2;
+  const result: string[] = [];
+  for (let i = 0; i < words.length; i += size) {
+    result.push(words.slice(i, i + size).join(" "));
+  }
+  return result;
+}
+
+function SoftRevealText({
+  text,
+  onDone,
+  fastForward,
+}: {
+  text: string;
+  onDone?: () => void;
+  fastForward?: boolean;
+}) {
+  const doneRef = useRef(false);
+  const onDoneRef = useRef(onDone);
+  onDoneRef.current = onDone;
+  const containerRef = useRef<HTMLParagraphElement>(null);
+
+  const [revealed, setRevealed] = useState(() => !!fastForward);
+
+  const chunks = useMemo(() => buildChunks(text), [text]);
+
+  useEffect(() => {
+    if (doneRef.current) return;
+
+    if (fastForward) {
+      doneRef.current = true;
+      setRevealed(true);
+      onDoneRef.current?.();
+      return;
+    }
+
+    const totalMs = (chunks.length - 1) * CHUNK_DELAY_MS + CHUNK_DURATION_MS + 100;
+    const t = setTimeout(() => {
+      if (!doneRef.current) {
+        doneRef.current = true;
+        onDoneRef.current?.();
+      }
+    }, totalMs);
+    return () => clearTimeout(t);
+  }, [fastForward, chunks.length]);
+
+  useEffect(() => {
+    if (revealed) return;
+    const scrollEl = () => {
+      if (containerRef.current) {
+        const el = containerRef.current.closest("[data-testid='chat-scroll']");
+        if (el) el.scrollTop = el.scrollHeight;
+      }
+    };
+    scrollEl();
+    const interval = setInterval(scrollEl, 120);
+    const totalMs = (chunks.length - 1) * CHUNK_DELAY_MS + CHUNK_DURATION_MS + 200;
+    const stopper = setTimeout(() => clearInterval(interval), totalMs);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(stopper);
+    };
+  }, [revealed, chunks.length]);
+
+  if (revealed) {
+    return (
+      <p className="text-xl md:text-2xl leading-relaxed whitespace-pre-wrap">
+        {text}
+      </p>
+    );
+  }
+
+  return (
+    <p
+      ref={containerRef}
+      className="text-xl md:text-2xl leading-relaxed whitespace-pre-wrap"
+    >
+      {chunks.map((chunk, i) => (
+        <motion.span
+          key={i}
+          initial={{ opacity: 0, filter: "blur(6px)", y: 4 }}
+          animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+          transition={{
+            duration: CHUNK_DURATION_MS / 1000,
+            delay: (i * CHUNK_DELAY_MS) / 1000,
+            ease: [0.25, 0.46, 0.45, 0.94],
+          }}
+          style={{ display: "inline" }}
+        >
+          {i > 0 ? " " : ""}
+          {chunk}
+        </motion.span>
+      ))}
+    </p>
+  );
 }
 
 interface ChatMessageProps {
@@ -23,58 +118,17 @@ interface ChatMessageProps {
   isLatest?: boolean;
 }
 
-function TypewriterText({ text, onDone, fastForward }: { text: string; onDone?: () => void; fastForward?: boolean }) {
-  const [charIndex, setCharIndex] = useState(0);
-  const doneRef = useRef(false);
-  const containerRef = useRef<HTMLParagraphElement>(null);
-
-  useEffect(() => {
-    if (fastForward && !doneRef.current) {
-      doneRef.current = true;
-      setCharIndex(text.length);
-      onDone?.();
-      return;
-    }
-
-    if (charIndex >= text.length) {
-      if (!doneRef.current) {
-        doneRef.current = true;
-        onDone?.();
-      }
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setCharIndex((prev) => prev + 1);
-    }, charDelay(text[charIndex]));
-
-    return () => clearTimeout(timer);
-  }, [charIndex, text.length, onDone, fastForward, text]);
-
-  useEffect(() => {
-    if (fastForward || charIndex % 5 === 0) {
-      if (containerRef.current) {
-        const el = containerRef.current.closest("[data-testid='chat-scroll']");
-        if (el) {
-          requestAnimationFrame(() => {
-            el.scrollTop = el.scrollHeight;
-          });
-        }
-      }
-    }
-  }, [charIndex, fastForward]);
-
-  return (
-    <p ref={containerRef} className="text-xl md:text-2xl leading-relaxed whitespace-pre-wrap">
-      {text.slice(0, charIndex)}
-      {charIndex < text.length && (
-        <span className="inline-block w-0.5 h-5 md:h-6 bg-foreground/40 animate-pulse ml-0.5 align-text-bottom" />
-      )}
-    </p>
-  );
-}
-
-export function ChatMessage({ sender, text, isTyping, typewriter, onTypewriterDone, fastForward, onSkipTyping, variant, isLatest = true }: ChatMessageProps) {
+export function ChatMessage({
+  sender,
+  text,
+  isTyping,
+  typewriter,
+  onTypewriterDone,
+  fastForward,
+  onSkipTyping,
+  variant,
+  isLatest = true,
+}: ChatMessageProps) {
   const isTimbuk = sender === "timbuk";
   const isWisdom = variant === "wisdom";
 
@@ -92,15 +146,17 @@ export function ChatMessage({ sender, text, isTyping, typewriter, onTypewriterDo
           className="shrink-0 mt-1 rounded-full overflow-hidden border-2 border-white shadow-sm"
           style={{ width: 56, height: 56, minWidth: 56 }}
         >
-          <img src={timbukAvatarPath} alt="Timbuk" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <img
+            src={timbukAvatarPath}
+            alt="Timbuk"
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
         </div>
 
         {/* Card */}
         <div
           className={`relative flex-1 max-w-[88%] md:max-w-[82%] rounded-2xl px-6 py-5 flex flex-col gap-2 ${
-            isWisdom
-              ? "italic"
-              : ""
+            isWisdom ? "italic" : ""
           }`}
           style={{
             backgroundColor: isWisdom ? "#F9F6FF" : "#FFFFFF",
@@ -132,10 +188,20 @@ export function ChatMessage({ sender, text, isTyping, typewriter, onTypewriterDo
             </div>
           ) : typewriter ? (
             <div className={isWisdom ? "italic" : ""}>
-              <TypewriterText text={text} onDone={onTypewriterDone} fastForward={fastForward} />
+              <SoftRevealText
+                text={text}
+                onDone={onTypewriterDone}
+                fastForward={fastForward}
+              />
             </div>
           ) : (
-            <p className={`text-xl md:text-2xl leading-relaxed whitespace-pre-wrap${isWisdom ? " italic text-muted-foreground" : ""}`}>{text}</p>
+            <p
+              className={`text-xl md:text-2xl leading-relaxed whitespace-pre-wrap${
+                isWisdom ? " italic text-muted-foreground" : ""
+              }`}
+            >
+              {text}
+            </p>
           )}
         </div>
       </motion.div>
@@ -157,7 +223,9 @@ export function ChatMessage({ sender, text, isTyping, typewriter, onTypewriterDo
           color: "#fff",
         }}
       >
-        <p className="text-xl md:text-2xl leading-relaxed whitespace-pre-wrap">{text}</p>
+        <p className="text-xl md:text-2xl leading-relaxed whitespace-pre-wrap">
+          {text}
+        </p>
       </div>
       <div
         className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 mt-1"

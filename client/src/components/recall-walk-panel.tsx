@@ -129,7 +129,7 @@ export function RecallWalkPanel({
                       </p>
                     )}
                     {hasAnswer && !isActive && (
-                      <p className="text-xs mt-0.5" style={{ color: "#6EE7B7" }}>
+                      <p className="text-xs mt-0.5 font-medium" style={{ color: "#059669" }}>
                         Answered
                       </p>
                     )}

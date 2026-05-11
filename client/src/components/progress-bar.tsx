@@ -24,7 +24,7 @@ interface ProgressBarProps {
 export function ProgressBar({ currentStep, isCleaning }: ProgressBarProps) {
   const steps = isCleaning ? cleaningSteps : defaultSteps;
   return (
-    <div className="flex items-center justify-center py-4" data-testid="progress-bar">
+    <div className="flex items-center justify-center py-3" data-testid="progress-bar">
       {steps.map((step, i) => {
         const Icon = step.icon;
         const isActive = i === currentStep;
@@ -32,14 +32,10 @@ export function ProgressBar({ currentStep, isCleaning }: ProgressBarProps) {
 
         return (
           <div key={i} className="flex items-center">
-            <div className="flex flex-col items-center gap-1.5">
+            <div className="flex flex-col items-center gap-1">
               <div
-                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ${
-                  isActive
-                    ? "shadow-md"
-                    : isComplete
-                    ? ""
-                    : ""
+                className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all duration-300 ${
+                  isActive ? "shadow-md" : ""
                 }`}
                 style={
                   isActive
@@ -49,9 +45,11 @@ export function ProgressBar({ currentStep, isCleaning }: ProgressBarProps) {
                     : { backgroundColor: "#F1F0F5" }
                 }
                 data-testid={`progress-step-${i}`}
+                role="img"
+                aria-label={`${step.label}${isActive ? " — current step" : isComplete ? " — complete" : ""}`}
               >
                 <Icon
-                  className="w-5 h-5"
+                  className="w-4 h-4 sm:w-5 sm:h-5"
                   style={
                     isActive
                       ? { color: "#ffffff" }
@@ -62,7 +60,7 @@ export function ProgressBar({ currentStep, isCleaning }: ProgressBarProps) {
                 />
               </div>
               <span
-                className="text-xs font-medium transition-colors whitespace-nowrap"
+                className="hidden sm:block text-xs font-medium transition-colors whitespace-nowrap"
                 style={
                   isActive
                     ? { color: "#6D2DE2" }
@@ -76,7 +74,7 @@ export function ProgressBar({ currentStep, isCleaning }: ProgressBarProps) {
             </div>
             {i < steps.length - 1 && (
               <div
-                className="h-px w-8 md:w-12 mx-1 mb-5 transition-colors"
+                className="h-px w-5 sm:w-8 md:w-12 mx-1 sm:mb-5 transition-colors"
                 style={i < currentStep ? { backgroundColor: "#C4B5FD" } : { backgroundColor: "#E5E3ED" }}
               />
             )}

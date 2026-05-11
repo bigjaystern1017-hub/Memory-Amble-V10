@@ -55,7 +55,7 @@ export function EducationSlides({ onComplete }: EducationSlidesProps) {
                 <button
                   key={goal.id}
                   onClick={() => handleGoalSelect(goal.id)}
-                  className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl border-2 transition-all duration-150 text-left"
+                  className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl border-2 transition-all duration-150 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                   style={
                     isSelected
                       ? { borderColor: "#6D2DE2", backgroundColor: "#F5F0FF" }
@@ -232,7 +232,7 @@ export function EducationSlides({ onComplete }: EducationSlidesProps) {
           className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white font-semibold text-lg transition-all duration-150"
           style={{ backgroundColor: "#6D2DE2" }}
         >
-          Let's go <ArrowRight className="w-5 h-5" />
+          Begin the walk <ArrowRight className="w-5 h-5" />
         </button>
       </div>
     </div>

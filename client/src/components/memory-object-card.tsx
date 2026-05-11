@@ -51,7 +51,7 @@ export function MemoryObjectCard({
           className="h-1 w-full"
           style={{
             background:
-              mode === "placed" || mode === "planted"
+              mode === "planted"
                 ? "linear-gradient(90deg, #059669 0%, #34D399 100%)"
                 : mode === "recalling"
                 ? "linear-gradient(90deg, #C2540A 0%, #FB923C 100%)"

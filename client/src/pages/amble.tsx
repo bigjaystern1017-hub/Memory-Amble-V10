@@ -48,7 +48,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 import { playSound } from "@/lib/sounds";
-import { Brain, ArrowRight, Lightbulb, LogOut, Flame, LogIn, User } from "lucide-react";
+import { Brain, ArrowRight, Lightbulb, LogOut, Flame, LogIn, User, HelpCircle, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Message {
@@ -1859,8 +1859,8 @@ export default function Amble() {
     <div className="flex flex-col h-dvh bg-background pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]" data-testid="app-container">
       <header className="border-b border-border/50 bg-card/90 backdrop-blur-sm sticky top-0 z-50 shrink-0 shadow-sm">
         <div className="max-w-[1000px] mx-auto px-4 md:px-8 py-3 flex items-center justify-between gap-4">
-          <button onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-            <div className="w-10 h-10 rounded-md flex items-center justify-center" style={{backgroundColor: '#7C3AED'}}>
+          <button onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-lg">
+            <div className="w-10 h-10 rounded-md flex items-center justify-center" style={{backgroundColor: '#6D2DE2'}}>
               <Brain className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -1974,9 +1974,9 @@ export default function Amble() {
                   style={{ backgroundColor: "#EDE9FE", border: "1px solid #D4C8F8", color: "#5B21B6" }}
                   onClick={() => setShowSoundReminder(false)}
                 >
-                  <span>🔊</span>
+                  <Volume2 className="w-4 h-4 flex-shrink-0" />
                   <span>Sound on — Timbuk is more fun with sound</span>
-                  <span className="text-xs opacity-60 ml-1">✕</span>
+                  <span className="text-xs opacity-60 ml-1">×</span>
                 </div>
               </div>
             )}
@@ -2050,7 +2050,7 @@ export default function Amble() {
       </div>
 
       <div className="border-t border-border/50 bg-card/90 backdrop-blur-sm shrink-0 shadow-sm">
-        <div className="max-w-[1100px] mx-auto px-4 md:px-8 py-4">
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8 py-4">
           {isFinished ? (
             <div className="text-center space-y-3">
               {isGuest ? (
@@ -2086,7 +2086,7 @@ export default function Amble() {
                   data-testid="button-new-palace"
                 >
                   <ArrowRight className="w-5 h-5" />
-                  Build Another Palace
+                  Begin a New Walk
                 </Button>
               )}
             </div>
@@ -2153,10 +2153,11 @@ export default function Amble() {
                   <button
                     onClick={handleConfused}
                     disabled={confusedLoading}
-                    className="shrink-0 text-xs text-muted-foreground hover:text-primary px-2 py-1 rounded-md border border-border/50"
+                    className="shrink-0 text-xs text-muted-foreground hover:text-primary px-2 py-1 rounded-md border border-border/50 flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                     data-testid="button-confused"
                   >
-                    {confusedLoading ? "..." : "🤔 I'm confused"}
+                    <HelpCircle className="w-3.5 h-3.5" />
+                    {confusedLoading ? "..." : "I'm confused"}
                   </button>
                 )}
                 <div className="flex-1">

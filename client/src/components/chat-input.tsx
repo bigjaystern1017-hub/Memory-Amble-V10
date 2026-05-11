@@ -77,7 +77,7 @@ export function ChatInput({ onSend, placeholder = "Type your answer...", disable
           onClick={isListening ? stopListening : startListening}
           data-testid="button-microphone"
           aria-label={isListening ? "Stop listening" : "Start voice input"}
-          className="flex items-center justify-center w-14 h-14 rounded-xl border transition-all duration-150 shrink-0"
+          className="flex items-center justify-center w-14 h-14 rounded-xl border transition-all duration-150 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-primary"
           style={
             isListening
               ? { backgroundColor: "#6D2DE2", borderColor: "#6D2DE2", color: "#fff" }
@@ -110,7 +110,7 @@ export function ChatInput({ onSend, placeholder = "Type your answer...", disable
         disabled={!value.trim() || disabled}
         data-testid="button-send"
         aria-label="Send message"
-        className="flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-150 shrink-0 disabled:opacity-40"
+        className="flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-150 shrink-0 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-primary"
         style={{ backgroundColor: "#6D2DE2", color: "#fff" }}
       >
         <Send className="w-5 h-5" />

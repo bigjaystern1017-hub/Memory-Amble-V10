@@ -216,7 +216,6 @@ export default function Amble() {
   const [state, setState] = useState<ConversationState>(createFreshState());
   const [resultsSummary, setResultsSummary] = useState({ correctCount: 0, totalItems: 0, streak: 0, justCompletedDay: 0 });
   const [pendingSession, setPendingSession] = useState<PendingSessionData | undefined>(undefined);
-  const [transcriptOpen, setTranscriptOpen] = useState(false);
 
   const [progressData, setProgressData] = useState<ProgressData>({
     currentDay: 1,
@@ -2006,130 +2005,64 @@ export default function Amble() {
           className={`flex-1 overflow-y-auto${chatFading ? " palace-chat-fading" : ""}`}
           data-testid="chat-scroll"
         >
-          {/* Derive latest messages for single-card stage */}
-          {(() => {
-            const latestTimbukMessage = [...messages].reverse().find(m => m.sender === "timbuk");
-            const latestUserMessage = [...messages].reverse().find(m => m.sender === "gladys");
-            const hasMessages = messages.length > 0;
-
-            const PLACEMENT_BEATS = new Set(["place-object", "mirror-object", "onboard-vivid", "react-practice"]);
-            const RECALL_BEATS = new Set(["recall", "react-recall", "check-in-recall", "react-check-in"]);
-            const isObjectPlacementBeat = PLACEMENT_BEATS.has(currentBeat) || RECALL_BEATS.has(currentBeat);
-            const currentAssignment = state.assignments?.[state.stepIndex];
-            const hasAssignment = !!currentAssignment?.object;
-            const sceneText = state.userScenes?.[state.stepIndex];
-            const inRecall = RECALL_BEATS.has(currentBeat);
-            const inPlacement = PLACEMENT_BEATS.has(currentBeat);
-            const shouldShowObjectCard = hasAssignment && isObjectPlacementBeat;
-
-            let objectCardMode: MemoryObjectCardMode = "idle";
-            if (inRecall) objectCardMode = "recalling";
-            else if (sceneText) objectCardMode = "planted";
-            else if (inPlacement) objectCardMode = "placing";
-
-            return (
-              <div className="max-w-[820px] mx-auto px-4 md:px-8 pt-6 pb-40 md:pb-44">
-                {/* Sound reminder */}
-                {showSoundReminder && hasMessages && (
-                  <div className="flex justify-center mb-4">
-                    <div
-                      className="inline-flex items-center gap-2.5 py-2.5 px-5 rounded-full text-sm font-medium cursor-pointer transition-colors"
-                      style={{ backgroundColor: "#EDE9FE", border: "1px solid #D4C8F8", color: "#5B21B6" }}
-                      onClick={() => setShowSoundReminder(false)}
-                    >
-                      <Volume2 className="w-4 h-4 flex-shrink-0" />
-                      <span>Sound on — Timbuk is more fun with sound</span>
-                      <span className="text-xs opacity-60 ml-1">×</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Stable lesson stage — single current Timbuk card */}
+          <div className="max-w-[820px] mx-auto px-4 md:px-8 py-6 space-y-5">
+            {showSoundReminder && messages.length > 0 && (
+              <div className="flex justify-center pt-1 pb-2">
                 <div
-                  className="lesson-stage relative w-full min-h-[280px] md:min-h-[340px] flex flex-col justify-center"
-                  data-testid="lesson-stage"
+                  className="inline-flex items-center gap-2.5 py-2.5 px-5 rounded-full text-sm font-medium cursor-pointer transition-colors"
+                  style={{ backgroundColor: "#EDE9FE", border: "1px solid #D4C8F8", color: "#5B21B6" }}
+                  onClick={() => setShowSoundReminder(false)}
                 >
-                  {isTyping && !latestTimbukMessage && (
-                    <ChatMessage sender="timbuk" text="" isTyping />
-                  )}
-
-                  {latestTimbukMessage && (
-                    <ChatMessage
-                      key={latestTimbukMessage.id}
-                      sender={latestTimbukMessage.sender}
-                      text={latestTimbukMessage.text}
-                      typewriter={latestTimbukMessage.typewriter && latestTimbukMessage.id === lastMessageId}
-                      onTypewriterDone={latestTimbukMessage.id === lastMessageId ? handleTypewriterDone : undefined}
-                      fastForward={latestTimbukMessage.id === lastMessageId && fastForward}
-                      onSkipTyping={latestTimbukMessage.id === lastMessageId && typewriterBusy ? () => setFastForward(true) : undefined}
-                      variant={latestTimbukMessage.variant}
-                      isLatest={latestTimbukMessage.id === lastMessageId}
-                    />
-                  )}
-
-                  {isTyping && latestTimbukMessage && (
-                    <div className="mt-3">
-                      <ChatMessage sender="timbuk" text="" isTyping />
-                    </div>
-                  )}
-
-                  {/* Latest user reply — compact chip below Timbuk card */}
-                  {latestUserMessage && latestTimbukMessage && latestUserMessage.id > latestTimbukMessage.id && (
-                    <div className="mt-3 flex justify-end">
-                      <div
-                        className="inline-block max-w-[80%] px-4 py-2 rounded-2xl text-sm bg-primary/10 text-foreground border border-primary/15"
-                        data-testid="user-reply-chip"
-                      >
-                        {latestUserMessage.text}
-                      </div>
-                    </div>
-                  )}
+                  <Volume2 className="w-4 h-4 flex-shrink-0" />
+                  <span>Sound on — Timbuk is more fun with sound</span>
+                  <span className="text-xs opacity-60 ml-1">×</span>
                 </div>
-
-                {/* Memory Object Card */}
-                {shouldShowObjectCard && (
-                  <div className="mt-4">
-                    <MemoryObjectCard
-                      objectName={currentAssignment?.object}
-                      stopName={currentAssignment?.stopName}
-                      sceneText={inRecall ? undefined : sceneText}
-                      stepIndex={state.stepIndex}
-                      totalItems={state.itemCount}
-                      mode={objectCardMode}
-                    />
-                  </div>
-                )}
-
-                {/* Collapsed transcript drawer */}
-                {hasMessages && messages.length > 1 && (
-                  <div className="mt-8">
-                    <button
-                      onClick={() => setTranscriptOpen(o => !o)}
-                      className="w-full flex items-center justify-center gap-2 text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors py-2"
-                      data-testid="button-transcript-toggle"
-                    >
-                      <span>{transcriptOpen ? "Hide" : "Review earlier messages"}</span>
-                      <span className="text-muted-foreground/40">{transcriptOpen ? "▲" : "▼"}</span>
-                    </button>
-                    {transcriptOpen && (
-                      <div className="mt-2 space-y-4 border-t border-border/30 pt-4" data-testid="transcript-drawer">
-                        {messages.map((msg, i) => (
-                          <ChatMessage
-                            key={msg.id}
-                            sender={msg.sender}
-                            text={msg.text}
-                            typewriter={false}
-                            variant={msg.variant}
-                            isLatest={false}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
-            );
-          })()}
+            )}
+            {messages.map((msg, i) => (
+              <ChatMessage
+                key={msg.id}
+                sender={msg.sender}
+                text={msg.text}
+                typewriter={msg.typewriter && msg.id === lastMessageId}
+                onTypewriterDone={msg.id === lastMessageId ? handleTypewriterDone : undefined}
+                fastForward={msg.id === lastMessageId && fastForward}
+                onSkipTyping={msg.id === lastMessageId && typewriterBusy ? () => setFastForward(true) : undefined}
+                variant={msg.variant}
+                isLatest={i === messages.length - 1}
+              />
+            ))}
+            {isTyping && <ChatMessage sender="timbuk" text="" isTyping />}
+
+            {/* Memory Object Card — shown during placement and recall beats */}
+            {(() => {
+              const PLACEMENT_BEATS = new Set(["place-object", "mirror-object", "onboard-vivid", "react-practice"]);
+              const RECALL_BEATS = new Set(["recall", "react-recall", "check-in-recall", "react-check-in"]);
+              const currentAssignment = state.assignments?.[state.stepIndex];
+              const hasAssignment = !!currentAssignment?.object;
+              const sceneText = state.userScenes?.[state.stepIndex];
+              const inPlacement = PLACEMENT_BEATS.has(currentBeat);
+              const inRecall = RECALL_BEATS.has(currentBeat);
+              const shouldShow = hasAssignment && (inPlacement || inRecall || !!sceneText);
+              if (!shouldShow) return null;
+              let mode: MemoryObjectCardMode = "idle";
+              if (inRecall) mode = "recalling";
+              else if (sceneText) mode = "planted";
+              else if (inPlacement) mode = "placing";
+              return (
+                <div className="mt-2">
+                  <MemoryObjectCard
+                    objectName={currentAssignment?.object}
+                    stopName={currentAssignment?.stopName}
+                    sceneText={inRecall ? undefined : sceneText}
+                    stepIndex={state.stepIndex}
+                    totalItems={state.itemCount}
+                    mode={mode}
+                  />
+                </div>
+              );
+            })()}
+          </div>
         </div>
 
         {/* Sidebar — swaps between route panel and recall walk panel */}

@@ -457,6 +457,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
 
     case "onboard-welcome": {
       const goal = typeof window !== 'undefined' ? localStorage.getItem('memoryamble-goal') : null;
+      const fromQuiz = typeof window !== 'undefined' && !!localStorage.getItem("memoryamble-goal");
       const goalLine = goal === 'names'
         ? `Names and faces — one of my favourites.`
         : goal === 'sharp'
@@ -464,6 +465,9 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
         : goal === 'active'
         ? `Keeping your mind active. That is why I am here too.`
         : `Curiosity is how every great palace begins.`;
+      if (fromQuiz) {
+        return `Welcome back, ${name}! I am Timbuk. ${goalLine}\n\nLet us build your first Memory Palace — it takes about 10 minutes.`;
+      }
       return `Ah, ${name}! I am Timbuk — your guide. ${goalLine}\n\nToday we build your Memory Palace. I have a small surprise waiting for you at the end.`;
     }
 
@@ -854,6 +858,7 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
       return "onboard-welcome";
 
     case "onboard-welcome":
+      if (typeof window !== "undefined" && localStorage.getItem("memoryamble-goal")) return "onboard-ready";
       return "onboard-skill";
 
     case "onboard-skill":

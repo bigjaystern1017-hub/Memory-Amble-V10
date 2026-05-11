@@ -1,12 +1,42 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { Brain } from "lucide-react";
+import { Brain, Flame, MapPin, Route, Sparkles, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import timbukAvatarPath from "@assets/timbuk-avatar_1773957235129.png";
 
+const DAY_ITEMS: Record<number, number> = { 1: 3, 2: 5, 3: 5, 4: 8, 5: 10 };
+const DAY_LABELS: Record<number, string> = {
+  1: "The Foundation",
+  2: "The Expansion",
+  3: "The Reverse",
+  4: "The Stretch",
+  5: "The Graduation",
+};
+
 export default function Start() {
+  const [, navigate] = useLocation();
+
+  const [currentDay, setCurrentDay] = useState(1);
+  const [userName, setUserName] = useState("");
+  const [savedStops, setSavedStops] = useState<string[]>([]);
+  const [isReturning, setIsReturning] = useState(false);
+
+  // New-user flow state
   const [step, setStep] = useState(1);
   const [visible, setVisible] = useState(false);
-  const [, navigate] = useLocation();
+
+  useEffect(() => {
+    const dayRaw = localStorage.getItem("memory-amble-day");
+    const day = dayRaw ? parseInt(dayRaw, 10) : 1;
+    const name = localStorage.getItem("memory-amble-name") || "";
+    const palaceRaw = localStorage.getItem("memory-amble-palace");
+    const stops = palaceRaw ? (() => { try { return JSON.parse(palaceRaw); } catch { return []; } })() : [];
+
+    setCurrentDay(day);
+    setUserName(name);
+    setSavedStops(Array.isArray(stops) ? stops : []);
+    setIsReturning(day > 1 || (stops && stops.length > 0));
+  }, []);
 
   useEffect(() => {
     if (step === 2) {
@@ -20,10 +50,210 @@ export default function Start() {
     setStep(2);
   }
 
+  const displayName = userName || "friend";
+  const itemCount = DAY_ITEMS[currentDay] ?? 5;
+  const dayLabel = DAY_LABELS[currentDay] ?? `Day ${currentDay}`;
+
+  // ── RETURN-USER DASHBOARD ──
+  if (isReturning) {
+    return (
+      <div
+        className="min-h-dvh flex flex-col items-center justify-center px-4 py-10"
+        style={{ background: "linear-gradient(160deg, #F5F0FF 0%, #FAF7FF 40%, #FEF9F0 100%)" }}
+      >
+        {/* Logo */}
+        <div className="flex items-center gap-2 mb-10">
+          <div className="w-9 h-9 rounded-md flex items-center justify-center" style={{ backgroundColor: "#7C3AED" }}>
+            <Brain className="w-5 h-5 text-white" />
+          </div>
+          <span className="font-serif text-xl font-semibold" style={{ color: "#26215C" }}>MemoryAmble</span>
+        </div>
+
+        {/* Main card */}
+        <div
+          className="w-full rounded-3xl overflow-hidden"
+          style={{
+            maxWidth: 960,
+            backgroundColor: "#FFFFFF",
+            border: "1px solid #E8E3F4",
+            boxShadow: "0 4px 28px rgba(109,45,226,0.10)",
+          }}
+        >
+          {/* Purple top accent */}
+          <div style={{ height: 4, background: "linear-gradient(90deg, #6D2DE2 0%, #A78BFA 100%)" }} />
+
+          <div className="grid md:grid-cols-[1fr_320px] gap-0">
+
+            {/* ── LEFT: Welcome copy ── */}
+            <div className="px-8 md:px-12 py-10 space-y-7">
+
+              {/* Day pill */}
+              <div
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest"
+                style={{ backgroundColor: "#EDE9FE", color: "#6D2DE2" }}
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                Day {currentDay} — {dayLabel}
+              </div>
+
+              {/* Welcome heading */}
+              <div className="space-y-2">
+                <h1 className="font-serif text-3xl md:text-4xl font-semibold leading-tight" style={{ color: "#1A1028" }}>
+                  Welcome back{userName ? `, ${displayName}` : ""}.
+                </h1>
+                <p className="text-lg" style={{ color: "#5B4B8A" }}>
+                  Your Memory Palace is waiting.
+                </p>
+              </div>
+
+              {/* Today's session info */}
+              <div
+                className="rounded-2xl px-6 py-4 space-y-1"
+                style={{ backgroundColor: "#F5F0FF", border: "1px solid #DDD5F8" }}
+              >
+                <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#9C8BB4" }}>Today's walk</p>
+                <p className="text-base font-semibold" style={{ color: "#3D2E6E" }}>
+                  {itemCount} items · {dayLabel}
+                </p>
+                <p className="text-sm" style={{ color: "#9C8BB4" }}>
+                  Today we'll strengthen the route you've already begun.
+                </p>
+              </div>
+
+              {/* Timbuk quote */}
+              <div className="flex items-start gap-3">
+                <img
+                  src={timbukAvatarPath}
+                  alt="Timbuk"
+                  className="w-10 h-10 rounded-full shrink-0 mt-0.5"
+                />
+                <div
+                  className="rounded-2xl px-4 py-3 text-sm italic leading-relaxed"
+                  style={{ backgroundColor: "#FAFAFE", border: "1px solid #EDE9FA", color: "#5B4B8A" }}
+                >
+                  "Your route is still there. Let's walk it again."
+                </div>
+              </div>
+
+              {/* Method tag */}
+              <p className="text-sm font-medium" style={{ color: "#C4B5FD" }}>
+                Don't memorize. Walk.
+              </p>
+
+              {/* CTA */}
+              <div className="space-y-3 pt-2">
+                <Button
+                  size="lg"
+                  className="w-full sm:w-auto gap-2 text-base px-8 py-6"
+                  onClick={() => navigate("/amble")}
+                  data-testid="button-start-walk"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Begin today's walk
+                </Button>
+                <p className="text-xs" style={{ color: "#C4B5FD" }}>
+                  A few minutes is enough.
+                </p>
+              </div>
+            </div>
+
+            {/* ── RIGHT: Route preview ── */}
+            <div
+              className="px-7 py-10 border-t md:border-t-0 md:border-l space-y-5"
+              style={{ borderColor: "#EDE9F8", backgroundColor: "#FAFAFE" }}
+            >
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Route className="w-4 h-4" style={{ color: "#9C8BB4" }} />
+                  <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#9C8BB4" }}>
+                    Your route
+                  </p>
+                </div>
+                <p className="text-xs" style={{ color: "#C4B5FD" }}>Your memory palace stops</p>
+              </div>
+
+              {savedStops.length > 0 ? (
+                <div className="space-y-2">
+                  {savedStops.map((stop: string, i: number) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 rounded-xl px-4 py-3"
+                      style={{ backgroundColor: "#FFFFFF", border: "1px solid #EDE9FA" }}
+                    >
+                      <span
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                        style={{ backgroundColor: "#EDE9FE", color: "#6D2DE2" }}
+                      >
+                        {i + 1}
+                      </span>
+                      <span className="text-sm font-medium capitalize" style={{ color: "#3D2E6E" }}>
+                        {stop}
+                      </span>
+                    </div>
+                  ))}
+                  <p className="text-xs text-center italic pt-1" style={{ color: "#C4B5FD" }}>
+                    Your mind already knows the way.
+                  </p>
+                </div>
+              ) : (
+                <div
+                  className="rounded-xl px-4 py-5 text-center"
+                  style={{ backgroundColor: "#FFFFFF", border: "1px solid #EDE9FA" }}
+                >
+                  <MapPin className="w-6 h-6 mx-auto mb-2" style={{ color: "#DDD5F8" }} />
+                  <p className="text-sm italic" style={{ color: "#C4B5FD" }}>
+                    Timbuk will help you choose a place when we begin.
+                  </p>
+                </div>
+              )}
+
+              {/* Day progress */}
+              <div
+                className="rounded-xl px-4 py-4 space-y-2"
+                style={{ backgroundColor: "#FFFFFF", border: "1px solid #EDE9FA" }}
+              >
+                <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#9C8BB4" }}>5-day bootcamp</p>
+                <div className="flex gap-1.5">
+                  {[1, 2, 3, 4, 5].map((d) => (
+                    <div
+                      key={d}
+                      className="flex-1 h-2 rounded-full"
+                      style={{
+                        backgroundColor: d < currentDay
+                          ? "#6D2DE2"
+                          : d === currentDay
+                          ? "#C4B5FD"
+                          : "#EDE9FE",
+                      }}
+                    />
+                  ))}
+                </div>
+                <p className="text-xs" style={{ color: "#9C8BB4" }}>
+                  Day {currentDay} of 5
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Skip / go home */}
+        <button
+          className="mt-6 text-xs underline-offset-2 hover:underline transition-colors"
+          style={{ color: "#C4B5FD" }}
+          onClick={() => navigate("/")}
+          data-testid="button-go-home"
+        >
+          Back to home
+        </button>
+      </div>
+    );
+  }
+
+  // ── NEW-USER FLOW (unchanged logic, restyled) ──
   return (
     <div
       className="min-h-dvh flex flex-col items-center justify-center px-4 py-10"
-      style={{ backgroundColor: "#F3F0FC" }}
+      style={{ background: "linear-gradient(160deg, #F5F0FF 0%, #FAF7FF 40%, #FEF9F0 100%)" }}
     >
       <div className="flex items-center gap-2 mb-10">
         <div className="w-9 h-9 rounded-md flex items-center justify-center" style={{ backgroundColor: "#7C3AED" }}>

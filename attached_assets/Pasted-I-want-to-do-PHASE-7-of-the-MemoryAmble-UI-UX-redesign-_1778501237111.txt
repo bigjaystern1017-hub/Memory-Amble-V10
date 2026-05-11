@@ -1,0 +1,182 @@
+I want to do PHASE 7 of the MemoryAmble UI/UX redesign.
+
+Phase 1 was visual polish.
+Phase 2 added the “Today’s Route” / “Memory Walk” panel.
+Phase 3 added Memory Object Cards.
+Phase 4 added Recall Walk Mode.
+Phase 5 redesigned the results screen into a “Proof Moment.”
+Phase 6 improved the return-user “Continue Your Walk” experience.
+
+Phase 7 is final polish, responsive cleanup, accessibility, copy consistency, and QA.
+
+Important:
+Do NOT rebuild the app.
+Do NOT add new major features.
+Do NOT change the beat engine.
+Do NOT change API calls, Supabase auth, localStorage keys, lesson progression, object assignment logic, recall scoring, session saving, guest behavior, or routing.
+Do NOT alter beat IDs.
+Do NOT add new backend routes.
+Do NOT make large architectural changes.
+
+Goal:
+Make the app feel cohesive, polished, senior-friendly, desktop-first, and intentionally designed.
+
+Relevant files likely include:
+- client/src/pages/amble.tsx
+- client/src/pages/start.tsx
+- client/src/components/education-slides.tsx
+- client/src/components/progress-bar.tsx
+- client/src/components/chat-message.tsx
+- client/src/components/chat-input.tsx
+- client/src/components/memory-route-panel.tsx
+- client/src/components/memory-object-card.tsx
+- client/src/components/recall-walk-panel.tsx
+- client/src/components/amble-results.tsx
+- client/src/index.css
+
+PHASE 7 TASKS:
+
+1. Visual consistency pass
+Review all redesigned components and make sure they share the same design language:
+- warm cream background
+- white/cream cards
+- rounded-2xl or rounded-3xl cards
+- subtle borders
+- soft shadows
+- purple primary CTA
+- pale lavender accents
+- readable typography
+- consistent spacing
+- consistent button shapes
+- consistent card padding
+
+Avoid:
+- random one-off colors
+- mismatched border radii
+- overuse of gradients
+- loud shadows
+- emoji-heavy visuals
+- mobile-app framing on desktop
+
+2. Desktop layout QA
+Check the main training view:
+- header
+- progress stepper
+- main chat/guide area
+- Memory Object Card
+- Today’s Route panel
+- Recall Walk panel
+- bottom response tray
+
+Make sure:
+- the app looks like a real desktop web app
+- max-widths are consistent
+- sidebars do not squeeze the main content too much
+- bottom composer aligns cleanly
+- route/sidebar panels do not create clutter
+- the content does not feel cramped
+
+3. Responsive pass
+Make sure it works on:
+- desktop
+- tablet-width screens
+- narrow/mobile screens
+
+On smaller screens:
+- stack panels vertically
+- route panel can move below the main guide card
+- composer stays usable
+- text remains readable
+- buttons do not overflow
+- progress stepper remains legible or gracefully compresses
+
+Do not optimize only for mobile. Desktop remains primary.
+
+4. Accessibility pass
+Check:
+- all buttons remain real button elements
+- clickable cards have focus states
+- focus rings are visible
+- text contrast is readable
+- font sizes are senior-friendly
+- input labels/placeholders are clear
+- icons are decorative unless they need aria labels
+- no important information is communicated by color alone
+- recall mode does not reveal answers
+
+Preserve existing data-testid attributes.
+
+5. Copy consistency pass
+Unify product language across the app around the central metaphor:
+
+Preferred phrases:
+- “Begin the walk”
+- “Continue your walk”
+- “Choose a place”
+- “Plant the image”
+- “Walk the route”
+- “Walk it back”
+- “Don’t memorize. Walk.”
+- “Your mind already knows the way.”
+- “That is the Memory Palace working.”
+- “Your route is waiting.”
+
+Avoid generic or off-brand phrases:
+- “Submit”
+- “Complete task”
+- “Dashboard”
+- “Quiz”
+- “XP”
+- “Level unlocked”
+- “Crush it”
+- “Brain game”
+
+Do not rewrite Timbuk’s entire beat-engine script. Only adjust visible UI labels, headings, subheads, CTA text, and helper copy where safe.
+
+6. Motion restraint
+Review animations:
+- keep subtle fades, small rises, gentle card transitions
+- avoid bouncy or childish effects
+- avoid distracting motion during recall
+- make sure animations do not block usability
+
+If Framer Motion is already used, keep it subtle.
+
+7. QA for no broken logic
+Manually inspect code paths and avoid changing logic. Confirm:
+- onboarding still advances
+- name entry still works
+- chat/typewriter still works
+- skip typing still works
+- input/mic/send still work
+- “I’m confused” or helper actions still work if present
+- object assignment still works
+- recall scoring still works
+- results still show
+- guest behavior still works
+- signup/save behavior still works
+- return-user flow still works
+- localStorage keys are untouched
+- Supabase/API calls are untouched
+
+8. Remove visual clutter
+If any of the new components make the chat phase too busy:
+- de-emphasize secondary panels
+- reduce duplicate text
+- hide redundant cards during recall
+- keep Timbuk’s active instruction as the main focus
+
+The hierarchy should be:
+1. Timbuk’s current instruction
+2. The current action/object/recall prompt
+3. Route/progress context
+4. Secondary helper controls
+
+9. Final implementation summary
+After implementation, summarize:
+1. Files changed.
+2. Visual consistency improvements made.
+3. Responsive improvements made.
+4. Accessibility improvements made.
+5. Copy labels changed.
+6. Any issues you found but did not change because they might affect app logic.

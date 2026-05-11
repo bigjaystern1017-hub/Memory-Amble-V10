@@ -91,7 +91,7 @@ export default function Landing() {
 
   function handleCta() {
     playSound("click");
-    navigate("/amble");
+    navigate(currentDay > 1 ? "/start" : "/amble");
   }
 
   return (

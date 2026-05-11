@@ -1,0 +1,157 @@
+I want one more refinement to the Timbuk message animation.
+
+The current card reveal is better, but it still comes in a little too fast and too plain. I want the text/card to feel like it is slowly rippling into view from left to right — like a desert wind moving across sand dunes, or like shaking out a silk/satin sheet.
+
+Important:
+Do NOT change the beat engine.
+Do NOT change message logic.
+Do NOT change API calls.
+Do NOT change recall logic.
+Do NOT change user input behavior.
+Do NOT remove skip/fast-forward behavior.
+Do NOT break the existing onDone callback behavior.
+Do NOT make the animation so slow that users get bored.
+
+Relevant file:
+- client/src/components/chat-message.tsx
+
+Goal:
+Create a slower, smoother, left-to-right ripple reveal for Timbuk messages.
+
+Desired feel:
+- soft
+- slow-er, but not sluggish
+- silk/satin sheet shaking out
+- gentle diagonal wave marks like / / / moving left to right
+- desert wind ripple
+- premium, calm, meditative
+- not typewriter
+- not chatbot
+- not herky-jerky
+- not word-by-word popping
+
+Animation model:
+The text should not type character by character.
+The text should not pop in word by word.
+Instead, the full text should be rendered, then revealed by a soft animated mask/wave moving left to right.
+
+Preferred implementation:
+Use a card-level reveal plus a text-level mask effect.
+
+For Timbuk reveal messages:
+1. Render the full text immediately.
+2. Start the card slightly blurred/transparent.
+3. Animate the card gently into place.
+4. Apply a left-to-right reveal mask over the text/card.
+5. Add a subtle wave/shimmer overlay moving diagonally across the card.
+
+Suggested card animation:
+Initial:
+- opacity: 0
+- x: -20px
+- y: 8px
+- scale: 0.985
+- filter: blur(10px)
+
+Animate:
+- opacity: 1
+- x: 0
+- y: 0
+- scale: 1
+- filter: blur(0px)
+
+Timing:
+- duration: 1.35s to 1.75s
+- ease: [0.16, 1, 0.3, 1]
+
+Text/wave reveal:
+Use a soft left-to-right reveal effect:
+- The full text is present, but initially masked or transparent.
+- Reveal passes across the text from left to right over about 1.5s to 2.1s.
+- The reveal edge should not be straight/hard.
+- It should feel slightly rippled or diagonal, like / / / waves.
+
+Possible CSS approach:
+- Wrap Timbuk text in a container with class like .soft-ripple-text.
+- Use a pseudo-element or overlay with a repeating-linear-gradient at a diagonal angle.
+- Animate the overlay or mask-position from left to right.
+- Use mask-image / -webkit-mask-image if practical.
+- Or use a Framer Motion overlay that passes across the card with:
+  background: repeating-linear-gradient(
+    105deg,
+    transparent 0px,
+    rgba(255,255,255,0.18) 12px,
+    transparent 24px
+  )
+- Overlay should move left-to-right slowly and fade out.
+- Keep opacity low so it feels like satin shimmer, not a flashy scanline.
+
+Possible implementation idea:
+Inside the Timbuk card:
+- Add an absolute overlay:
+  className="pointer-events-none absolute inset-0 rounded-2xl overflow-hidden"
+- Inside it, animate a wide shimmering layer:
+  initial x: "-120%"
+  animate x: "120%"
+  duration: 1.8
+  ease: "easeInOut"
+- Use a diagonal repeating gradient, not a single straight highlight.
+- Opacity around 0.18–0.28.
+- Fade opacity to 0 near the end.
+
+For the text:
+- Avoid per-word animation.
+- If a pure CSS mask is reliable, use a left-to-right mask reveal:
+  from mask-size: 0% 100%
+  to mask-size: 100% 100%
+- Or animate opacity/blur of the whole text:
+  opacity 0 → 1
+  blur 5px → 0
+  duration 1.4–1.8s
+- The shimmer/ripple overlay should create the left-to-right wave feeling.
+
+Do not:
+- reveal individual letters
+- reveal individual words
+- use a blinking cursor
+- make it look like loading skeleton shimmer
+- use a harsh scanner/bar effect
+- make the shimmer too bright
+- delay user interaction unnecessarily
+
+Timing guidance:
+The animation should feel slower than the current one:
+- total reveal around 1.6s
+- maximum 2.1s for long text
+- onDone should fire after the reveal completes
+- long messages should not take proportionally longer than short messages
+
+Callback behavior:
+- onDone must be called exactly once after the reveal.
+- If fastForward is true:
+  - show full text/card instantly
+  - skip ripple animation
+  - call onDone immediately or very quickly
+- If Skip is clicked:
+  - complete reveal instantly
+  - call onDone once
+  - hide skip if existing behavior expects that
+
+Reduced motion:
+If prefers-reduced-motion is active:
+- use a simple 250ms fade-in
+- no shimmer/ripple
+- call onDone after fade
+
+CSS naming:
+Use clear class names like:
+- timbuk-soft-card
+- timbuk-ripple-overlay
+- timbuk-ripple-text
+
+After implementation, summarize:
+1. What animation was changed.
+2. Whether text is still rendered all at once.
+3. How the ripple/shimmer effect works.
+4. The final duration used.
+5. How fastForward, Skip, and onDone are preserved.

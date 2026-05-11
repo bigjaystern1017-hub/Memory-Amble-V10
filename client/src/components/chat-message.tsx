@@ -3,9 +3,17 @@ import { motion, useReducedMotion } from "framer-motion";
 import { User } from "lucide-react";
 import timbukAvatarPath from "@assets/timbuk-avatar_1773957235129.png";
 
-const REVEAL_DURATION = 1.05;
-const SHIMMER_DURATION = 1.3;
-const REVEAL_EASE = [0.16, 1, 0.3, 1] as const;
+// Timing constants
+const CARD_DURATION    = 1.35;  // card entrance (blur + x + scale)
+const TEXT_DURATION    = 1.55;  // text opacity + blur fade-in
+const SHIMMER_DURATION = 1.85;  // diagonal ripple sweep
+const DONE_DELAY_MS    = 1700;  // when onDone fires (ms)
+const REDUCED_DONE_MS  = 280;   // when onDone fires under reduced-motion
+const EASE             = [0.16, 1, 0.3, 1] as const;
+
+// Diagonal repeating-gradient: fine silk/satin lines at ~105°
+const RIPPLE_GRADIENT =
+  "repeating-linear-gradient(105deg, transparent 0px, rgba(255,252,248,0.30) 9px, rgba(237,233,254,0.18) 14px, transparent 23px)";
 
 interface ChatMessageProps {
   sender: "timbuk" | "gladys";
@@ -30,11 +38,12 @@ export function ChatMessage({
   variant,
   isLatest = true,
 }: ChatMessageProps) {
-  const isTimbuk = sender === "timbuk";
-  const isWisdom = variant === "wisdom";
-  const prefersReducedMotion = useReducedMotion();
+  const isTimbuk        = sender === "timbuk";
+  const isWisdom        = variant === "wisdom";
+  const reducedMotion   = useReducedMotion();
 
-  const doneRef = useRef(false);
+  // ─── onDone management ───────────────────────────────────────────────────
+  const doneRef   = useRef(false);
   const onDoneRef = useRef(onTypewriterDone);
   onDoneRef.current = onTypewriterDone;
 
@@ -42,22 +51,20 @@ export function ChatMessage({
     if (!isTimbuk || !typewriter) return;
     if (doneRef.current) return;
 
-    if (fastForward || prefersReducedMotion) {
-      doneRef.current = true;
-      onDoneRef.current?.();
-      return;
-    }
+    const instant = fastForward || reducedMotion;
+    const delay   = instant ? 0 : DONE_DELAY_MS;
 
     const t = setTimeout(() => {
       if (!doneRef.current) {
         doneRef.current = true;
         onDoneRef.current?.();
       }
-    }, (REVEAL_DURATION + 0.15) * 1000);
+    }, delay);
 
     return () => clearTimeout(t);
-  }, [fastForward, isTimbuk, typewriter, prefersReducedMotion]);
+  }, [fastForward, isTimbuk, typewriter, reducedMotion]);
 
+  // ─── User (Gladys) bubble ────────────────────────────────────────────────
   if (!isTimbuk) {
     return (
       <motion.div
@@ -71,9 +78,7 @@ export function ChatMessage({
           className="max-w-[75%] md:max-w-[65%] rounded-2xl px-5 py-4"
           style={{ backgroundColor: "#6D2DE2", color: "#fff" }}
         >
-          <p className="text-xl md:text-2xl leading-relaxed whitespace-pre-wrap">
-            {text}
-          </p>
+          <p className="text-xl md:text-2xl leading-relaxed whitespace-pre-wrap">{text}</p>
         </div>
         <div
           className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 mt-1"
@@ -85,23 +90,33 @@ export function ChatMessage({
     );
   }
 
-  const isReveal = typewriter && !fastForward && !prefersReducedMotion;
+  // ─── Reveal mode: is this a typewriter-style Timbuk message? ─────────────
+  const isReveal = typewriter && !fastForward && !reducedMotion;
 
-  const outerInitial = isReveal
-    ? { opacity: 0, x: -18, y: 6, filter: "blur(8px)", scale: 0.985 }
+  // Card entrance animation values
+  const cardInit = isReveal
+    ? { opacity: 0, x: -20, y: 8, filter: "blur(10px)", scale: 0.985 }
+    : reducedMotion
+    ? { opacity: 0 }
     : { opacity: 0, y: 14 };
 
-  const outerAnimate = { opacity: 1, x: 0, y: 0, filter: "blur(0px)", scale: 1 };
+  const cardAnimate  = { opacity: 1, x: 0, y: 0, filter: "blur(0px)", scale: 1 };
+  const cardDuration = isReveal ? CARD_DURATION : reducedMotion ? 0.25 : 0.3;
+  const cardEase     = isReveal ? EASE : ("easeOut" as const);
 
-  const outerTransition = isReveal
-    ? { duration: REVEAL_DURATION, ease: REVEAL_EASE }
-    : { duration: 0.3, ease: "easeOut" };
+  // Text content animation (whole block — not per word)
+  const textInit = isReveal
+    ? { opacity: 0, filter: "blur(5px)" }
+    : { opacity: 1, filter: "blur(0px)" };
+
+  const textAnimate  = { opacity: 1, filter: "blur(0px)" };
+  const textDuration = isReveal ? TEXT_DURATION : 0;
 
   return (
     <motion.div
-      initial={outerInitial}
-      animate={outerAnimate}
-      transition={outerTransition}
+      initial={cardInit}
+      animate={cardAnimate}
+      transition={{ duration: cardDuration, ease: cardEase }}
       className={`flex gap-4 justify-start${!isLatest ? " opacity-30 scale-[0.98] transition-all duration-500" : ""}`}
       data-testid={`message-${sender}`}
     >
@@ -139,22 +154,23 @@ export function ChatMessage({
           </button>
         )}
 
-        {/* Shimmer sweep — only during card reveal, never when fast-forwarding */}
+        {/* ── Diagonal ripple shimmer — sweeps left to right ── */}
         {isReveal && (
           <motion.div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 rounded-2xl"
-            initial={{ x: "-110%" }}
-            animate={{ x: "115%" }}
-            transition={{ duration: SHIMMER_DURATION, ease: REVEAL_EASE }}
+            initial={{ x: "-130%", opacity: 1 }}
+            animate={{ x: "130%", opacity: 0 }}
+            transition={{ duration: SHIMMER_DURATION, ease: EASE }}
             style={{
-              background:
-                "linear-gradient(100deg, transparent 0%, rgba(255,252,248,0.42) 48%, rgba(237,233,254,0.22) 55%, transparent 100%)",
+              background: RIPPLE_GRADIENT,
+              width: "200%",
+              left: "-50%",
             }}
           />
         )}
 
-        {/* Text content */}
+        {/* ── Text content ── */}
         {isTyping ? (
           <div className="flex items-center gap-1.5 py-1">
             {[0, 0.2, 0.4].map((delay, i) => (
@@ -167,13 +183,16 @@ export function ChatMessage({
             ))}
           </div>
         ) : (
-          <p
+          <motion.p
             className={`text-xl md:text-2xl leading-relaxed whitespace-pre-wrap${
               isWisdom ? " italic text-muted-foreground" : ""
             }`}
+            initial={textInit}
+            animate={textAnimate}
+            transition={{ duration: textDuration, ease: EASE }}
           >
             {text}
-          </p>
+          </motion.p>
         )}
       </div>
     </motion.div>

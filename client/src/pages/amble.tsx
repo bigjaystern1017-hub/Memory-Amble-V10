@@ -228,7 +228,6 @@ export default function Amble() {
 
   const msgIdRef = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const latestMsgRef = useRef<HTMLDivElement>(null);
   const processingRef = useRef(false);
   const typewriterResolveRef = useRef<(() => void) | null>(null);
   const initRef = useRef(false);
@@ -245,59 +244,60 @@ export default function Amble() {
     window.scrollTo(0, 0);
   }, [phase]);
 
-  const scrollToLatest = useCallback(() => {
-    setTimeout(() => {
-      if (latestMsgRef.current) {
-        latestMsgRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-      } else if (scrollRef.current) {
-        scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-      }
-    }, 80);
+  const scrollToBottom = useCallback(() => {
+    if (scrollRef.current) {
+      setTimeout(() => {
+        scrollRef.current?.scrollTo({
+          top: scrollRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }, 50);
+    }
   }, []);
 
   const addUserMessage = useCallback(
     (text: string) => {
       const id = ++msgIdRef.current;
       setMessages((prev) => [...prev, { id, sender: "gladys", text }]);
-      scrollToLatest();
+      scrollToBottom();
     },
-    [scrollToLatest]
+    [scrollToBottom]
   );
 
   const showTimbukWithTypewriter = useCallback(
     (text: string): Promise<void> => {
       return new Promise((resolve) => {
         setIsTyping(true);
-        scrollToLatest();
+        scrollToBottom();
         setTimeout(() => {
           setIsTyping(false);
           const id = ++msgIdRef.current;
           setMessages((prev) => [...prev, { id, sender: "timbuk", text, typewriter: true }]);
           setTypewriterBusy(true);
           typewriterResolveRef.current = resolve;
-          scrollToLatest();
+          scrollToBottom();
         }, 500);
       });
     },
-    [scrollToLatest]
+    [scrollToBottom]
   );
 
   const showWisdomMessage = useCallback(
     (text: string): Promise<void> => {
       return new Promise((resolve) => {
         setIsTyping(true);
-        scrollToLatest();
+        scrollToBottom();
         setTimeout(() => {
           setIsTyping(false);
           const id = ++msgIdRef.current;
           setMessages((prev) => [...prev, { id, sender: "timbuk", text, typewriter: true, variant: "wisdom" }]);
           setTypewriterBusy(true);
           typewriterResolveRef.current = resolve;
-          scrollToLatest();
+          scrollToBottom();
         }, 500);
       });
     },
-    [scrollToLatest]
+    [scrollToBottom]
   );
 
   const handleTypewriterDone = useCallback(() => {
@@ -321,9 +321,9 @@ export default function Amble() {
     (text: string) => {
       const id = ++msgIdRef.current;
       setMessages((prev) => [...prev, { id, sender: "timbuk", text }]);
-      scrollToLatest();
+      scrollToBottom();
     },
-    [scrollToLatest]
+    [scrollToBottom]
   );
 
   const fetchAssignments = useCallback(
@@ -456,7 +456,7 @@ export default function Amble() {
     async (beat: BeatId, currentState: ConversationState) => {
       if (beat === "assigning") {
         setIsTyping(true);
-        scrollToLatest();
+        scrollToBottom();
         const newState = await fetchAssignments(currentState);
         setIsTyping(false);
 
@@ -511,7 +511,7 @@ export default function Amble() {
       if (resolvedText === SMART_CONFIRM) {
         console.log("SMART_CONFIRM block entered for beat:", beat, "text value:", resolvedText, "SMART_CONFIRM sentinel:", SMART_CONFIRM);
         setIsTyping(true);
-        scrollToLatest();
+        scrollToBottom();
 
         if (beat === "react-place") {
           const fallback = getReactPlaceFallback(currentState);
@@ -828,7 +828,7 @@ export default function Amble() {
         await advanceBeat(next, nextState);
       }
     },
-    [showTimbukWithTypewriter, showWisdomMessage, addTimbukInstant, scrollToLatest, fetchAssignments, updateState, saveProgressToDB, saveSessionToDB, savePalaceToDB, progressData, doScreenWipe]
+    [showTimbukWithTypewriter, showWisdomMessage, addTimbukInstant, scrollToBottom, fetchAssignments, updateState, saveProgressToDB, saveSessionToDB, savePalaceToDB, progressData, doScreenWipe]
   );
 
   const advanceBeatRef = useRef(advanceBeat);
@@ -1969,7 +1969,7 @@ export default function Amble() {
         )}
         <div className="border-t border-border/30">
           <div className="max-w-[1000px] mx-auto px-4 md:px-8">
-            <ProgressBar currentStep={progressStep} isCleaning={isCleaning} compact={!isOnboardingMode} />
+            <ProgressBar currentStep={progressStep} isCleaning={isCleaning} />
           </div>
         </div>
       </header>
@@ -2005,7 +2005,7 @@ export default function Amble() {
           className={`flex-1 overflow-y-auto${chatFading ? " palace-chat-fading" : ""}`}
           data-testid="chat-scroll"
         >
-          <div className="max-w-[820px] mx-auto px-4 md:px-8 py-6 pb-44 space-y-5">
+          <div className="max-w-[820px] mx-auto px-4 md:px-8 py-6 space-y-5">
             {showSoundReminder && messages.length > 0 && (
               <div className="flex justify-center pt-1 pb-2">
                 <div
@@ -2019,30 +2019,19 @@ export default function Amble() {
                 </div>
               </div>
             )}
-            {messages.map((msg, i) => {
-              const isLast = i === messages.length - 1;
-              const card = (
-                <ChatMessage
-                  key={msg.id}
-                  sender={msg.sender}
-                  text={msg.text}
-                  typewriter={msg.typewriter && msg.id === lastMessageId}
-                  onTypewriterDone={msg.id === lastMessageId ? handleTypewriterDone : undefined}
-                  fastForward={msg.id === lastMessageId && fastForward}
-                  onSkipTyping={msg.id === lastMessageId && typewriterBusy ? () => setFastForward(true) : undefined}
-                  variant={msg.variant}
-                  isLatest={isLast}
-                />
-              );
-              if (isLast) {
-                return (
-                  <div key={msg.id} ref={latestMsgRef} style={{ scrollMarginTop: "120px" }}>
-                    {card}
-                  </div>
-                );
-              }
-              return <div key={msg.id}>{card}</div>;
-            })}
+            {messages.map((msg, i) => (
+              <ChatMessage
+                key={msg.id}
+                sender={msg.sender}
+                text={msg.text}
+                typewriter={msg.typewriter && msg.id === lastMessageId}
+                onTypewriterDone={msg.id === lastMessageId ? handleTypewriterDone : undefined}
+                fastForward={msg.id === lastMessageId && fastForward}
+                onSkipTyping={msg.id === lastMessageId && typewriterBusy ? () => setFastForward(true) : undefined}
+                variant={msg.variant}
+                isLatest={i === messages.length - 1}
+              />
+            ))}
             {isTyping && <ChatMessage sender="timbuk" text="" isTyping />}
 
             {/* Memory Object Card — shown during placement and recall beats */}

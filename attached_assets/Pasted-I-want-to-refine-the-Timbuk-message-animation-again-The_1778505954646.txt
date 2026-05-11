@@ -1,0 +1,117 @@
+I want to refine the Timbuk message animation again.
+
+The current softer text reveal is better than the old typewriter, but it still feels too fast and a little herky-jerky because the text appears in chunks.
+
+I want to change the animation model:
+
+Instead of animating the text word-by-word or chunk-by-chunk, animate the entire Timbuk message card as one soft object.
+
+Desired feel:
+The whole card should blow in slowly and smoothly from left to right, like a gentle wind moving across sand dunes. It should softly fade in, slightly blur-to-clear, and settle into place. The text should already be present inside the card, not typed in.
+
+Important:
+Do NOT change the beat engine.
+Do NOT change message logic.
+Do NOT change API calls.
+Do NOT change recall logic.
+Do NOT change user input behavior.
+Do NOT remove skip/fast-forward behavior if currently present.
+Do NOT break the existing onDone callback behavior.
+Do NOT make users wait too long.
+
+Relevant file:
+- client/src/components/chat-message.tsx
+
+Goal:
+Replace the word/chunk reveal with a smooth card-level reveal for Timbuk messages.
+
+Animation direction:
+For Timbuk messages with typewriter/reveal behavior:
+- Render the full text immediately inside the card.
+- The card itself animates in gently.
+- Use Framer Motion if already available.
+
+Suggested animation:
+Initial state:
+- opacity: 0
+- x: -18px
+- y: 6px
+- filter: blur(8px)
+- scale: 0.985
+
+Animate to:
+- opacity: 1
+- x: 0
+- y: 0
+- filter: blur(0px)
+- scale: 1
+
+Timing:
+- duration: around 0.9s to 1.25s
+- ease: [0.16, 1, 0.3, 1] or another smooth ease-out
+- This should feel slower and softer than the current reveal, but not sluggish.
+
+Left-to-right “wind” effect:
+Add a very subtle overlay/mask shimmer across the card during entry:
+- A soft translucent highlight or cream/lavender wash moves from left to right.
+- It should be extremely subtle, not flashy.
+- It should feel like wind/light moving across paper.
+- It should last about 1.1s to 1.4s.
+- It should not obscure readability.
+- It should be disabled or skipped when fastForward is true.
+
+Implementation idea:
+- Wrap the Timbuk message card in a motion.div.
+- Add an absolutely positioned child overlay inside the card:
+  - pointer-events-none
+  - inset-0
+  - rounded inherit
+  - background: a very soft linear-gradient, something like transparent → rgba(255,255,255,0.45) → transparent
+  - animate x from "-120%" to "120%"
+  - opacity maybe 0.35 down to 0
+- Keep it subtle.
+
+Text behavior:
+- Do NOT reveal each word.
+- Do NOT reveal each character.
+- Do NOT use a blinking cursor.
+- Show full text as soon as the card appears.
+- Text can inherit the parent card opacity/blur animation.
+
+Callback behavior:
+Because we are no longer typing text character-by-character, the animation still needs to call onDone after the reveal completes.
+- Call onDone once after the card reveal duration completes.
+- If fastForward is true:
+  - immediately show the final card
+  - skip animation
+  - call onDone immediately or very quickly
+- Ensure onDone is never called more than once.
+
+Skip behavior:
+If the Skip button currently exists:
+- Keep it.
+- During the reveal, Skip should complete the reveal instantly and call onDone.
+- After reveal completes, Skip should disappear if that matches the existing behavior.
+
+Accessibility:
+- Text must remain readable.
+- Avoid excessive blur.
+- Do not create motion that feels flashy.
+- Consider reduced motion:
+  - If prefers-reduced-motion is active, show the card instantly or with a simple short fade.
+
+Tone:
+The final effect should feel like:
+- a thought arriving
+- a soft cloud of text
+- a gentle wind over sand
+- calm and premium
+- not chatbot typing
+- not terminal
+- not jittery
+
+After implementation, summarize:
+1. Whether the text-level reveal was removed.
+2. How the card-level reveal works.
+3. How onDone and fastForward were preserved.
+4. Whether reduced-motion handling was included.

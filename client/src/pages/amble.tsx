@@ -250,7 +250,7 @@ export default function Amble() {
     if (scrollRef.current) {
       setTimeout(() => {
         scrollRef.current?.scrollTo({
-          top: scrollRef.current.scrollHeight,
+          top: 0,
           behavior: "smooth",
         });
       }, 50);

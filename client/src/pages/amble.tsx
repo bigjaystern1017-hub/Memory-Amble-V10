@@ -486,10 +486,7 @@ export default function Amble() {
       }
 
       if (beat === "assigning") {
-        setIsTyping(true);
-        scrollToBottom();
         const newState = await fetchAssignments(currentState);
-        setIsTyping(false);
 
         if (!newState || !newState.assignments?.length) {
           setGenError(true);
@@ -720,6 +717,11 @@ export default function Amble() {
         if (beat === "react-place" && currentState.dayCount === 0) {
           addTimbukInstant("(If that is not quite right, just type the correct name and I will fix it.)");
         }
+      }
+
+      if (beatNeedsContinueButton(beat) && beat !== "graduation-offer" && beat !== "final") {
+        setShowContinue(true);
+        return;
       }
 
       if (beat === "graduation-offer") {

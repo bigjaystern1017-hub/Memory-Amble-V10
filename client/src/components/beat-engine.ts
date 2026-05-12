@@ -1085,7 +1085,10 @@ export function beatNeedsContinueButton(beatId: BeatId): boolean {
     || beatId === "react-place"
     || beatId === "practice-intro"
     || beatId === "placement-intro"
-    || beatId === "walkthrough-intro";
+    || beatId === "walkthrough-intro"
+    || beatId === "mirror-object"
+    || beatId === "react-practice"
+    || beatId === "final";
 }
 
 export function getContinueButtonLabel(beatId: BeatId): string {
@@ -1103,6 +1106,9 @@ export function getContinueButtonLabel(beatId: BeatId): string {
   if (beatId === "practice-intro") return "I'm ready →";
   if (beatId === "placement-intro") return "Let's place them →";
   if (beatId === "walkthrough-intro") return "Let's walk →";
+  if (beatId === "mirror-object") return "Next →";
+  if (beatId === "react-practice") return "Next →";
+  if (beatId === "final") return "See my Amble Scroll →";
   return "I'm Ready, Let's Go!";
 }
 

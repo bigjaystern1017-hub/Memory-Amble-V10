@@ -2053,7 +2053,7 @@ export default function Amble() {
             else if (inPlacement) objectCardMode = "placing";
 
             return (
-              <div className="max-w-[820px] mx-auto px-4 md:px-8 pt-6 pb-40 md:pb-44">
+              <div className="max-w-[820px] mx-auto px-4 md:px-8 pt-[170px] pb-40 md:pb-44">
                 {/* Sound reminder */}
                 {showSoundReminder && hasMessages && (
                   <div className="flex justify-center mb-4">

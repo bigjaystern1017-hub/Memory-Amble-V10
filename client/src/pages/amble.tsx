@@ -1455,6 +1455,10 @@ export default function Amble() {
           break;
         }
 
+        case "onboard-choice":
+          s = { ...s, lastUserMessage: text };
+          break;
+
         case "onboard-skill":
           s = { ...s, placeName: cleanPlaceName(cleanUserInput(text)), stops: [] };
           break;

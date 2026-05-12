@@ -213,13 +213,10 @@ export default function Amble() {
   const [showBurst, setShowBurst] = useState(false);
   const [showPenguin, setShowPenguin] = useState(false);
   const [chatFading, setChatFading] = useState(false);
-  const [showObjectCard, setShowObjectCard] = useState(false);
-  const [showTranscript, setShowTranscript] = useState(false);
-  const [soundBannerFading, setSoundBannerFading] = useState(false);
-  const [focusKey, setFocusKey] = useState(0);
   const [state, setState] = useState<ConversationState>(createFreshState());
   const [resultsSummary, setResultsSummary] = useState({ correctCount: 0, totalItems: 0, streak: 0, justCompletedDay: 0 });
   const [pendingSession, setPendingSession] = useState<PendingSessionData | undefined>(undefined);
+  const [transcriptOpen, setTranscriptOpen] = useState(false);
 
   const [progressData, setProgressData] = useState<ProgressData>({
     currentDay: 1,
@@ -235,7 +232,6 @@ export default function Amble() {
   const processingRef = useRef(false);
   const typewriterResolveRef = useRef<(() => void) | null>(null);
   const initRef = useRef(false);
-  const soundBannerTimerRef = useRef(false);
   const stateRef = useRef(state);
   stateRef.current = state;
   const currentBeatRef = useRef(currentBeat);
@@ -248,14 +244,6 @@ export default function Amble() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [phase]);
-
-  useEffect(() => {
-    if (!showSoundReminder || messages.length === 0 || soundBannerTimerRef.current) return;
-    soundBannerTimerRef.current = true;
-    const t1 = setTimeout(() => setSoundBannerFading(true), 4000);
-    const t2 = setTimeout(() => setShowSoundReminder(false), 5000);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, [showSoundReminder, messages.length]);
 
   const scrollToBottom = useCallback(() => {
     if (scrollRef.current) {
@@ -367,7 +355,6 @@ export default function Amble() {
   const doScreenWipe = useCallback(async (useMagic?: boolean) => {
     playSound(useMagic ? "magic-transition" : "transition");
     setChatFading(true);
-    setShowObjectCard(false);
     await new Promise<void>((r) => setTimeout(r, 600));
     setMessages([]);
     setChatFading(false);
@@ -489,12 +476,6 @@ export default function Amble() {
           await advanceBeat(nextBeat, newState);
         }
         return;
-      }
-
-      if (beat === "mirror-object") {
-        await new Promise<void>((r) => setTimeout(r, 2000));
-        setShowObjectCard(false);
-        await new Promise<void>((r) => setTimeout(r, 300));
       }
 
       const text = getTimbukMessage(beat, currentState);
@@ -666,12 +647,6 @@ export default function Amble() {
         displayText = `So here's your route through your ${placeName}:\n\n${stopLines}.\n\nThat, ${currentState.userName}, is the skeleton of your Memory Palace. Now let me find some items to put in it...`;
       }
 
-      if (beat === "onboard-welcome" && displayText.startsWith("Welcome back,")) {
-        if (progressData.dayCount === 0 && !localStorage.getItem("memory-amble-palace")) {
-          displayText = displayText.replace(/^Welcome back,/, "Welcome,");
-        }
-      }
-
       if (beat === "practice-success" && currentState.practiceRecallAnswer) {
         const recallFallback = `You got it!`;
         try {
@@ -715,11 +690,6 @@ export default function Amble() {
         if (beat === "react-place" && currentState.dayCount === 0) {
           addTimbukInstant("(If that is not quite right, just type the correct name and I will fix it.)");
         }
-      }
-
-      if (beat === "mirror-object" || beat === "react-recall") {
-        setShowContinue(true);
-        return;
       }
 
       if (beat === "graduation-offer") {
@@ -789,16 +759,28 @@ export default function Amble() {
 
       if (beatNeedsContinueButton(beat)) {
         setShowContinue(true);
+        if (beat === "palace-buffer") {
+          setTimeout(async () => {
+            if (processingRef.current) return;
+            if (currentBeatRef.current !== "palace-buffer") return;
+            processingRef.current = true;
+            setShowContinue(false);
+            await doScreenWipe();
+            const next = getNextBeat("palace-buffer", stateRef.current);
+            if (next) {
+              const resetState = { ...stateRef.current, stepIndex: 0 };
+              updateState(resetState);
+              setCurrentBeat(next);
+              await advanceBeatRef.current(next, resetState);
+            }
+            processingRef.current = false;
+          }, 3000);
+        }
         return;
       }
 
       if (beatNeedsUserInput(beat)) {
         setInputEnabled(true);
-        setFocusKey((k) => k + 1);
-        if (beat === "place-object") {
-          setShowObjectCard(false);
-          setTimeout(() => setShowObjectCard(true), 400);
-        }
         setShowSparkButton(beat === "place-object");
         setRecallHint(null);
         return;
@@ -1206,28 +1188,6 @@ export default function Amble() {
       updateState(nextState);
       setCurrentBeat(next);
       await advanceBeatRef.current(next, nextState);
-    } else if (beat === "mirror-object") {
-      const mirrorNext = getNextBeat(beat, s);
-      if (!mirrorNext) { processingRef.current = false; return; }
-      let nextState = s;
-      if (mirrorNext === "place-object") {
-        nextState = { ...s, stepIndex: s.stepIndex + 1 };
-        updateState(nextState);
-      } else if (mirrorNext === "palace-buffer") {
-        await doScreenWipe();
-      }
-      setCurrentBeat(mirrorNext);
-      await advanceBeatRef.current(mirrorNext, nextState);
-    } else if (beat === "react-recall") {
-      const rrNext = getNextBeat(beat, s);
-      if (!rrNext) { processingRef.current = false; return; }
-      let nextState = s;
-      if (rrNext === "recall") {
-        nextState = { ...s, stepIndex: s.stepIndex + 1 };
-        updateState(nextState);
-      }
-      setCurrentBeat(rrNext);
-      await advanceBeatRef.current(rrNext, nextState);
     } else if (next) {
       setCurrentBeat(next);
       await advanceBeatRef.current(next, s);
@@ -1689,17 +1649,6 @@ export default function Amble() {
   }
 
   const lastMessageId = messages.length > 0 ? messages[messages.length - 1].id : -1;
-
-  let latestTimbukIdx = -1;
-  let latestUserIdx = -1;
-  for (let i = 0; i < messages.length; i++) {
-    if (messages[i].sender === "timbuk") latestTimbukIdx = i;
-    if (messages[i].sender === "gladys") latestUserIdx = i;
-  }
-  const latestTimbukMsg = latestTimbukIdx >= 0 ? messages[latestTimbukIdx] : undefined;
-  const latestUserMsg = latestUserIdx > latestTimbukIdx ? messages[latestUserIdx] : undefined;
-  const transcriptMessages = messages.filter((_, i) => i !== latestTimbukIdx);
-
   const lesson = state.lessonConfig;
   const dayLabel = lesson ? `Day ${state.dayCount + 1}: ${lesson.title}` : "";
   const lvl = levelLabel(progressData.currentLevel);
@@ -2046,154 +1995,164 @@ export default function Amble() {
       )}
 
       <div
-        className="relative z-10 flex-1 overflow-hidden flex flex-col min-h-0 transition-colors duration-500"
+        className="relative z-10 flex-1 overflow-hidden flex min-h-0 transition-colors duration-500"
         style={["recall", "react-recall", "check-in-recall", "react-check-in"].includes(currentBeat)
           ? { backgroundColor: "rgba(237,233,254,0.18)" }
           : undefined}
       >
-        {/* Stage row — stage scroll + sidebar */}
-        <div className="flex-1 flex overflow-hidden min-h-0">
-          {/* Stage scroll column */}
-          <div
-            ref={scrollRef}
-            className={`flex-1 overflow-y-auto${chatFading ? " palace-chat-fading" : ""}`}
-            data-testid="chat-scroll"
-          >
-            <div className="max-w-[820px] mx-auto px-4 md:px-8 py-6 space-y-4">
-              {/* Sound reminder banner — auto-fades after 4s */}
-              {showSoundReminder && messages.length > 0 && (
-                <div className="flex justify-center pt-1 pb-2">
-                  <div
-                    className="inline-flex items-center gap-2.5 py-2.5 px-5 rounded-full text-sm font-medium cursor-pointer"
-                    style={{
-                      backgroundColor: "#EDE9FE",
-                      border: "1px solid #D4C8F8",
-                      color: "#5B21B6",
-                      opacity: soundBannerFading ? 0 : 1,
-                      transition: "opacity 1s ease-out",
-                    }}
-                    onClick={() => setShowSoundReminder(false)}
-                  >
-                    <Volume2 className="w-4 h-4 flex-shrink-0" />
-                    <span>Sound on — Timbuk is more fun with sound</span>
-                    <span className="text-xs opacity-60 ml-1">×</span>
+        {/* Main chat column */}
+        <div
+          ref={scrollRef}
+          className={`flex-1 overflow-y-auto${chatFading ? " palace-chat-fading" : ""}`}
+          data-testid="chat-scroll"
+        >
+          {/* Derive latest messages for single-card stage */}
+          {(() => {
+            const latestTimbukMessage = [...messages].reverse().find(m => m.sender === "timbuk");
+            const latestUserMessage = [...messages].reverse().find(m => m.sender === "gladys");
+            const hasMessages = messages.length > 0;
+
+            const PLACEMENT_BEATS = new Set(["place-object", "mirror-object", "onboard-vivid", "react-practice"]);
+            const RECALL_BEATS = new Set(["recall", "react-recall", "check-in-recall", "react-check-in"]);
+            const isObjectPlacementBeat = PLACEMENT_BEATS.has(currentBeat) || RECALL_BEATS.has(currentBeat);
+            const currentAssignment = state.assignments?.[state.stepIndex];
+            const hasAssignment = !!currentAssignment?.object;
+            const sceneText = state.userScenes?.[state.stepIndex];
+            const inRecall = RECALL_BEATS.has(currentBeat);
+            const inPlacement = PLACEMENT_BEATS.has(currentBeat);
+            const shouldShowObjectCard = hasAssignment && isObjectPlacementBeat;
+
+            let objectCardMode: MemoryObjectCardMode = "idle";
+            if (inRecall) objectCardMode = "recalling";
+            else if (sceneText) objectCardMode = "planted";
+            else if (inPlacement) objectCardMode = "placing";
+
+            return (
+              <div className="max-w-[820px] mx-auto px-4 md:px-8 pt-6 pb-40 md:pb-44">
+                {/* Sound reminder */}
+                {showSoundReminder && hasMessages && (
+                  <div className="flex justify-center mb-4">
+                    <div
+                      className="inline-flex items-center gap-2.5 py-2.5 px-5 rounded-full text-sm font-medium cursor-pointer transition-colors"
+                      style={{ backgroundColor: "#EDE9FE", border: "1px solid #D4C8F8", color: "#5B21B6" }}
+                      onClick={() => setShowSoundReminder(false)}
+                    >
+                      <Volume2 className="w-4 h-4 flex-shrink-0" />
+                      <span>Sound on — Timbuk is more fun with sound</span>
+                      <span className="text-xs opacity-60 ml-1">×</span>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Typing indicator */}
-              {isTyping && <ChatMessage sender="timbuk" text="" isTyping />}
+                {/* Stable lesson stage — single current Timbuk card */}
+                <div
+                  className="lesson-stage relative w-full min-h-[280px] md:min-h-[340px] flex flex-col justify-center"
+                  data-testid="lesson-stage"
+                >
+                  {isTyping && !latestTimbukMessage && (
+                    <ChatMessage sender="timbuk" text="" isTyping />
+                  )}
 
-              {/* Stage: only the latest Timbuk message */}
-              {!isTyping && latestTimbukMsg && (
-                <ChatMessage
-                  key={latestTimbukMsg.id}
-                  sender={latestTimbukMsg.sender}
-                  text={latestTimbukMsg.text}
-                  typewriter={latestTimbukMsg.typewriter && latestTimbukMsg.id === lastMessageId}
-                  onTypewriterDone={latestTimbukMsg.id === lastMessageId ? handleTypewriterDone : undefined}
-                  fastForward={latestTimbukMsg.id === lastMessageId && fastForward}
-                  onSkipTyping={latestTimbukMsg.id === lastMessageId && typewriterBusy ? () => setFastForward(true) : undefined}
-                  variant={latestTimbukMsg.variant}
-                  isLatest={true}
-                />
-              )}
-
-              {/* Last user message echo — only shown if user spoke after latest Timbuk */}
-              {latestUserMsg && (
-                <div className="flex justify-end">
-                  <div
-                    className="max-w-[80%] px-4 py-2.5 rounded-2xl text-base leading-snug"
-                    style={{ backgroundColor: "#F0EBFF", color: "#5B21B6" }}
-                  >
-                    {latestUserMsg.text}
-                  </div>
-                </div>
-              )}
-
-              {/* Transcript toggle */}
-              {transcriptMessages.length > 0 && (
-                <div className="text-center">
-                  <button
-                    className="text-xs text-muted-foreground/40 hover:text-muted-foreground/70 transition-colors py-1"
-                    onClick={() => setShowTranscript((t) => !t)}
-                    data-testid="button-transcript-toggle"
-                  >
-                    {showTranscript ? "Hide transcript" : "Show earlier messages"}
-                  </button>
-                </div>
-              )}
-
-              {/* Expanded transcript */}
-              {showTranscript && (
-                <div className="space-y-4 border-t border-border/30 pt-4 opacity-60">
-                  {transcriptMessages.map((msg) => (
+                  {latestTimbukMessage && (
                     <ChatMessage
-                      key={msg.id}
-                      sender={msg.sender}
-                      text={msg.text}
-                      variant={msg.variant}
-                      isLatest={false}
+                      key={latestTimbukMessage.id}
+                      sender={latestTimbukMessage.sender}
+                      text={latestTimbukMessage.text}
+                      typewriter={latestTimbukMessage.typewriter && latestTimbukMessage.id === lastMessageId}
+                      onTypewriterDone={latestTimbukMessage.id === lastMessageId ? handleTypewriterDone : undefined}
+                      fastForward={latestTimbukMessage.id === lastMessageId && fastForward}
+                      onSkipTyping={latestTimbukMessage.id === lastMessageId && typewriterBusy ? () => setFastForward(true) : undefined}
+                      variant={latestTimbukMessage.variant}
+                      isLatest={latestTimbukMessage.id === lastMessageId}
                     />
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+                  )}
 
-          {/* Sidebar — swaps between route panel and recall walk panel */}
-          <div className="hidden lg:flex flex-col w-[340px] shrink-0 border-l border-border/40 overflow-y-auto px-5 py-6 bg-background/60">
-            {["recall", "react-recall", "check-in-recall", "react-check-in"].includes(currentBeat) ? (
-              <RecallWalkPanel
-                placeName={state.placeName}
-                stops={state.stops}
-                currentRecallIndex={state.stepIndex}
-                userAnswers={state.userAnswers}
-                totalItems={state.itemCount}
-              />
-            ) : (
-              <MemoryRoutePanel
-                placeName={state.placeName}
-                stops={state.stops}
-                assignments={state.assignments}
-                userScenes={state.userScenes}
-                currentStepIndex={state.stepIndex}
-                currentBeat={currentBeat}
-              />
-            )}
-          </div>
+                  {isTyping && latestTimbukMessage && (
+                    <div className="mt-3">
+                      <ChatMessage sender="timbuk" text="" isTyping />
+                    </div>
+                  )}
+
+                  {/* Latest user reply — compact chip below Timbuk card */}
+                  {latestUserMessage && latestTimbukMessage && latestUserMessage.id > latestTimbukMessage.id && (
+                    <div className="mt-3 flex justify-end">
+                      <div
+                        className="inline-block max-w-[80%] px-4 py-2 rounded-2xl text-sm bg-primary/10 text-foreground border border-primary/15"
+                        data-testid="user-reply-chip"
+                      >
+                        {latestUserMessage.text}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Memory Object Card */}
+                {shouldShowObjectCard && (
+                  <div className="mt-4">
+                    <MemoryObjectCard
+                      objectName={currentAssignment?.object}
+                      stopName={currentAssignment?.stopName}
+                      sceneText={inRecall ? undefined : sceneText}
+                      stepIndex={state.stepIndex}
+                      totalItems={state.itemCount}
+                      mode={objectCardMode}
+                    />
+                  </div>
+                )}
+
+                {/* Collapsed transcript drawer */}
+                {hasMessages && messages.length > 1 && (
+                  <div className="mt-8">
+                    <button
+                      onClick={() => setTranscriptOpen(o => !o)}
+                      className="w-full flex items-center justify-center gap-2 text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors py-2"
+                      data-testid="button-transcript-toggle"
+                    >
+                      <span>{transcriptOpen ? "Hide" : "Review earlier messages"}</span>
+                      <span className="text-muted-foreground/40">{transcriptOpen ? "▲" : "▼"}</span>
+                    </button>
+                    {transcriptOpen && (
+                      <div className="mt-2 space-y-4 border-t border-border/30 pt-4" data-testid="transcript-drawer">
+                        {messages.map((msg, i) => (
+                          <ChatMessage
+                            key={msg.id}
+                            sender={msg.sender}
+                            text={msg.text}
+                            typewriter={false}
+                            variant={msg.variant}
+                            isLatest={false}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
 
-        {/* Object card zone — below stage scroll, above input tray, non-scrollable */}
-        {(() => {
-          const PLACEMENT_BEATS = new Set(["place-object", "mirror-object", "onboard-vivid", "react-practice"]);
-          const RECALL_BEATS = new Set(["recall", "react-recall", "check-in-recall", "react-check-in"]);
-          const currentAssignment = state.assignments?.[state.stepIndex];
-          const hasAssignment = !!currentAssignment?.object;
-          const sceneText = state.userScenes?.[state.stepIndex];
-          const inPlacement = PLACEMENT_BEATS.has(currentBeat);
-          const inRecall = RECALL_BEATS.has(currentBeat);
-          const cardVisible = hasAssignment && ((inPlacement && showObjectCard) || inRecall);
-          if (!cardVisible) return null;
-          let mode: MemoryObjectCardMode = "idle";
-          if (inRecall) mode = "recalling";
-          else if (sceneText) mode = "planted";
-          else if (inPlacement) mode = "placing";
-          return (
-            <div className="shrink-0 border-t border-border/20 bg-background/60 backdrop-blur-sm">
-              <div className="max-w-[820px] mx-auto px-4 md:px-8 py-3">
-                <MemoryObjectCard
-                  objectName={currentAssignment?.object}
-                  stopName={currentAssignment?.stopName}
-                  sceneText={inRecall ? undefined : sceneText}
-                  stepIndex={state.stepIndex}
-                  totalItems={state.itemCount}
-                  mode={mode}
-                />
-              </div>
-            </div>
-          );
-        })()}
+        {/* Sidebar — swaps between route panel and recall walk panel */}
+        <div className="hidden lg:flex flex-col w-[340px] shrink-0 border-l border-border/40 overflow-y-auto px-5 py-6 bg-background/60">
+          {["recall", "react-recall", "check-in-recall", "react-check-in"].includes(currentBeat) ? (
+            <RecallWalkPanel
+              placeName={state.placeName}
+              stops={state.stops}
+              currentRecallIndex={state.stepIndex}
+              userAnswers={state.userAnswers}
+              totalItems={state.itemCount}
+            />
+          ) : (
+            <MemoryRoutePanel
+              placeName={state.placeName}
+              stops={state.stops}
+              assignments={state.assignments}
+              userScenes={state.userScenes}
+              currentStepIndex={state.stepIndex}
+              currentBeat={currentBeat}
+            />
+          )}
+        </div>
       </div>
 
       <div className="relative z-10 border-t border-border/50 bg-card/90 backdrop-blur-sm shrink-0 shadow-sm">
@@ -2312,7 +2271,6 @@ export default function Amble() {
                     onSend={handleUserInput}
                     placeholder={getInputPlaceholder(currentBeat, state)}
                     disabled={!inputEnabled || isTyping || typewriterBusy}
-                    focusKey={focusKey}
                   />
                 </div>
                 {currentBeat === "recall" && inputEnabled && !typewriterBusy && (

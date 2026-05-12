@@ -22,21 +22,21 @@ export function RecallWalkPanel({
     <div
       className="rounded-2xl overflow-hidden flex flex-col"
       style={{
-        backgroundColor: "#FFF8E7",
-        border: "1px solid #D4A843",
-        boxShadow: "0 2px 14px rgba(212,168,67,0.12)",
+        backgroundColor: "#FFFFFF",
+        border: "1px solid #E8E3F4",
+        boxShadow: "0 2px 14px rgba(109,45,226,0.08)",
       }}
     >
-      {/* Amber/gold top accent */}
+      {/* Amber top accent — signals recall mode */}
       <div
         className="h-1 w-full"
-        style={{ background: "linear-gradient(90deg, #D4A843 0%, #F5C842 100%)" }}
+        style={{ background: "linear-gradient(90deg, #C2540A 0%, #FB923C 100%)" }}
       />
 
       {/* Header */}
-      <div className="px-5 py-4 border-b" style={{ borderColor: "#EDD98A" }}>
+      <div className="px-5 py-4 border-b" style={{ borderColor: "#F0EBF8" }}>
         <div className="flex items-center gap-2 mb-0.5">
-          <Footprints className="w-4 h-4" style={{ color: "#8B6914" }} />
+          <Footprints className="w-4 h-4" style={{ color: "#C2540A" }} />
           <h3 className="font-semibold text-sm" style={{ color: "#1A1028" }}>Walk It Back</h3>
         </div>
         <p className="text-xs" style={{ color: "#9C8BB4" }}>
@@ -46,7 +46,7 @@ export function RecallWalkPanel({
         {/* Instruction pill */}
         <div
           className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium"
-          style={{ backgroundColor: "#FFF3D4", color: "#8B6914" }}
+          style={{ backgroundColor: "#FFF7ED", color: "#C2540A" }}
         >
           Don't memorize. Walk.
         </div>
@@ -61,7 +61,7 @@ export function RecallWalkPanel({
         )}
 
         {count > 0 && (
-          <p className="mt-2 text-xs" style={{ color: "#C4A44A" }}>
+          <p className="mt-2 text-xs" style={{ color: "#C4B5FD" }}>
             Stop {Math.min(currentRecallIndex + 1, count)} of {count}
           </p>
         )}
@@ -70,7 +70,7 @@ export function RecallWalkPanel({
       {/* Stop list */}
       <div className="px-5 py-4">
         {!hasStops ? (
-          <p className="text-xs leading-relaxed text-center py-4" style={{ color: "#C4A44A" }}>
+          <p className="text-xs leading-relaxed text-center py-4" style={{ color: "#C4B5FD" }}>
             Your recall walk will appear here once your route is ready.
           </p>
         ) : (
@@ -86,10 +86,10 @@ export function RecallWalkPanel({
                   className="flex gap-3 rounded-xl px-3 py-3 transition-all duration-200"
                   style={
                     isActive
-                      ? { backgroundColor: "#FFF3D4", border: "1px solid #D4A843" }
+                      ? { backgroundColor: "#FFF7ED", border: "1px solid #FED7AA" }
                       : isDone
                       ? { backgroundColor: "#FAFAFE", border: "1px solid #EDE9FA" }
-                      : { backgroundColor: "#FAFAF5", border: "1px solid #EDE9D0" }
+                      : { backgroundColor: "#FAFAFA", border: "1px solid #F0EDF8" }
                   }
                 >
                   {/* Circle */}
@@ -106,8 +106,8 @@ export function RecallWalkPanel({
                         className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
                         style={
                           isActive
-                            ? { backgroundColor: "#8B6914", color: "#fff" }
-                            : { backgroundColor: "#EDE9D4", color: "#B8A06A" }
+                            ? { backgroundColor: "#C2540A", color: "#fff" }
+                            : { backgroundColor: "#EDE9FE", color: "#9C8BB4" }
                         }
                       >
                         {i + 1}
@@ -119,12 +119,12 @@ export function RecallWalkPanel({
                   <div className="flex-1 min-w-0">
                     <span
                       className="text-sm font-medium"
-                      style={{ color: isActive ? "#1A1028" : isDone ? "#3D2E6E" : "#A09060" }}
+                      style={{ color: isActive ? "#1A1028" : isDone ? "#3D2E6E" : "#A094BC" }}
                     >
                       {stop}
                     </span>
                     {isActive && (
-                      <p className="text-xs mt-0.5 font-semibold" style={{ color: "#8B6914" }}>
+                      <p className="text-xs mt-0.5 font-semibold" style={{ color: "#C2540A" }}>
                         You are here
                       </p>
                     )}

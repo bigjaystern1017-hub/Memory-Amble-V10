@@ -6,10 +6,9 @@ interface ChatInputProps {
   placeholder?: string;
   disabled?: boolean;
   autoFocus?: boolean;
-  focusKey?: number;
 }
 
-export function ChatInput({ onSend, placeholder = "Type your answer...", disabled, autoFocus = true, focusKey = 0 }: ChatInputProps) {
+export function ChatInput({ onSend, placeholder = "Type your answer...", disabled, autoFocus = true }: ChatInputProps) {
   const [value, setValue] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
@@ -22,10 +21,10 @@ export function ChatInput({ onSend, placeholder = "Type your answer...", disable
   }, []);
 
   useEffect(() => {
-    if (autoFocus && inputRef.current && !disabled) {
-      setTimeout(() => inputRef.current?.focus(), 50);
+    if (autoFocus && inputRef.current) {
+      inputRef.current.focus();
     }
-  }, [autoFocus, placeholder, focusKey, disabled]);
+  }, [autoFocus, placeholder]);
 
   const startListening = useCallback(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;

@@ -2357,30 +2357,41 @@ export default function Amble() {
                 </div>
               )}
               <div className="flex items-center gap-2">
-                {inputEnabled && (
-                  <button
-                    onClick={handleConfused}
-                    disabled={confusedLoading}
-                    className="shrink-0 text-xs text-muted-foreground hover:text-primary px-2 py-1 rounded-md border border-border/50 flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-                    data-testid="button-confused"
-                  >
-                    <HelpCircle className="w-3.5 h-3.5" />
-                    {confusedLoading ? "..." : "I'm confused"}
-                  </button>
-                )}
-                {currentBeat === "recall" && inputEnabled && !typewriterBusy && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleRecallHint}
-                    disabled={recallHintLoading}
-                    className="shrink-0 h-14 px-3 text-xs text-muted-foreground hover:text-primary gap-1.5 border border-border/50 rounded-xl"
-                    data-testid="button-recall-hint"
-                  >
-                    <Lightbulb className="w-3.5 h-3.5" />
-                    {recallHintLoading ? "..." : "Hint?"}
-                  </Button>
-                )}
+                <div className="flex flex-col gap-1.5 shrink-0">
+                  {inputEnabled && (
+                    <button
+                      onClick={handleConfused}
+                      disabled={confusedLoading}
+                      className="shrink-0 text-xs text-muted-foreground hover:text-primary px-2 py-1 rounded-md border border-border/50 flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                      data-testid="button-confused"
+                    >
+                      <HelpCircle className="w-3.5 h-3.5" />
+                      {confusedLoading ? "..." : "I'm confused"}
+                    </button>
+                  )}
+                  {showSparkButton && inputEnabled && !typewriterBusy && (
+                    <button
+                      onClick={handleSpark}
+                      disabled={sparkLoading}
+                      className="shrink-0 text-xs text-muted-foreground hover:text-primary px-2 py-1 rounded-md border border-border/50 flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                      data-testid="button-spark"
+                    >
+                      <Lightbulb className="w-3.5 h-3.5" />
+                      {sparkLoading ? "..." : "Get a spark"}
+                    </button>
+                  )}
+                  {currentBeat === "recall" && inputEnabled && !typewriterBusy && (
+                    <button
+                      onClick={handleRecallHint}
+                      disabled={recallHintLoading}
+                      className="shrink-0 text-xs text-muted-foreground hover:text-primary px-2 py-1 rounded-md border border-border/50 flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                      data-testid="button-recall-hint"
+                    >
+                      <Lightbulb className="w-3.5 h-3.5" />
+                      {recallHintLoading ? "..." : "Hint?"}
+                    </button>
+                  )}
+                </div>
                 <div className="flex-1">
                   <ChatInput
                     onSend={handleUserInput}
@@ -2390,21 +2401,6 @@ export default function Amble() {
                   />
                 </div>
               </div>
-              {showSparkButton && inputEnabled && !typewriterBusy && (
-                <div className="flex justify-center">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleSpark}
-                    disabled={sparkLoading}
-                    className="gap-2 text-muted-foreground"
-                    data-testid="button-spark"
-                  >
-                    <Lightbulb className="w-4 h-4" />
-                    {sparkLoading ? "Thinking..." : "Stuck? Get a spark from Timbuk"}
-                  </Button>
-                </div>
-              )}
             </div>
           )}
         </div>

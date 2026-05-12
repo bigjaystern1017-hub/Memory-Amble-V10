@@ -1,0 +1,104 @@
+Make changes to client/src/components/beat-engine.ts and client/src/pages/amble.tsx. Read ALL instructions fully before making any changes.
+PART A: Data & Beat Engine (beat-engine.ts)
+1. Add palace templates.
+Near the top of the file (after the imports and before the BeatId type), add this constant:
+typescriptexport const PALACE_TEMPLATES = [
+  {
+    id: "house",
+    name: "Your House",
+    emoji: "🏠",
+    description: "A place you know by heart.",
+    stops: ["Front Door", "Hallway", "Kitchen"],
+  },
+  {
+    id: "hike",
+    name: "A Nature Walk",
+    emoji: "🌿",
+    description: "A peaceful path through the outdoors.",
+    stops: ["Trailhead", "Wooden Bridge", "Clearing"],
+  },
+  {
+    id: "timbuk",
+    name: "Timbuk's Palace",
+    emoji: "🏰",
+    description: "A mysterious place. Timbuk's favorite.",
+    stops: ["The Grand Door", "The Library", "The Tower"],
+  },
+];
+2. Add new beat IDs.
+Add "choose-palace" and "confirm-palace" to the BeatId type union.
+3. Update getTimbukMessage.
+Add cases:
+
+choose-palace: return an empty string "" (the UI handles this beat with tappable cards, not a Timbuk message)
+confirm-palace: return a message that shows the user what they picked. Use the state to get the palace name and stops. Format it as: "${palaceName}. Your stops: ${stop1}, ${stop2}, and ${stop3}. This is your Memory Palace." For example: "Your House. Your stops: Front Door, Hallway, and Kitchen. This is your Memory Palace."
+
+4. Update getNextBeat.
+Change the flow for Day 1 users (dayCount === 0):
+
+onboard-ready should go to choose-palace (instead of ask-place)
+choose-palace should go to confirm-palace
+confirm-palace should go to assigning (skipping all the old ask-stop / react-stop loops)
+
+For returning users (dayCount > 0), keep the existing flow — they may use the same palace or build a new one through the existing ask-place / ask-stop flow.
+5. Update beatNeedsContinueButton.
+Add confirm-palace — it should return true (user sees the palace summary and taps to continue).
+Do NOT add choose-palace — that beat uses custom tappable cards, not a continue button.
+6. Update getContinueButtonLabel.
+Add: if (beatId === "confirm-palace") return "Looks good — let's go →";
+7. Update beatNeedsUserInput.
+choose-palace should return false (custom UI, not text input).
+confirm-palace should return false (continue button, not text input).
+PART B: Palace Selection UI (amble.tsx)
+8. Render the palace selection screen.
+Import PALACE_TEMPLATES from beat-engine.ts at the top of amble.tsx.
+In the JSX, when currentBeat === "choose-palace", render a palace selection screen INSTEAD of the normal chat stage. This screen should:
+
+Show Timbuk's avatar and a speech bubble that says: "Every palace starts with a place you know. Pick one to begin."
+Below the speech bubble, show three tappable cards in a vertical stack (one for each palace template).
+Each card should match the existing aesthetic from education-slides.tsx — use the same styling patterns:
+
+White background with a 1px solid #E8E3F4 border
+border-radius: 1rem (rounded-2xl)
+box-shadow: 0 2px 8px rgba(109,45,226,0.06)
+Padding: px-5 py-4
+On hover/tap: border color changes to purple #6D2DE2, subtle scale transform
+
+
+Each card shows:
+
+Left side: the emoji in a 44px purple-tinted circle (background #F0EBFF)
+Right side: the palace name in bold (16px, font-serif, color #1A1028), the description below in smaller gray text (14px, color #6B7280), and below that the stops listed as small purple text: "Front Door → Hallway → Kitchen"
+
+
+When the user taps a card:
+
+Play the click sound
+Set the palace name in state (update state.placeName or however the palace name is stored — check how react-place currently stores it)
+Set the stops in state (update state.stops array with the template's stops)
+Set state.itemCount to match the number of stops (3 for all Day 1 templates)
+Advance to the next beat (confirm-palace)
+
+
+
+9. Hide the text input during choose-palace.
+When currentBeat === "choose-palace", hide the input tray at the bottom. The tappable cards ARE the input.
+10. Handle the "confirm-palace" beat normally.
+This beat shows Timbuk's message (the palace summary) with a continue button ("Looks good — let's go →"). It renders using the existing message + continue button system — no special UI needed.
+11. Optional: Add a "Pick a different one" option on confirm-palace.
+Below the continue button, add a small text link: "← Pick a different palace" that goes back to choose-palace. Style it as: text-sm text-muted-foreground hover:text-primary cursor-pointer mt-2. When tapped, set currentBeat back to choose-palace.
+IMPORTANT — DO NOT CHANGE:
+
+The education-slides.tsx component
+The landing page
+The existing ask-place / ask-stop flow for returning users (dayCount > 0)
+The practice round flow (practice-intro through practice-done)
+The placement flow (placement-intro through recall)
+Any server files
+The route panel component
+The progress stepper component
+
+The route panel should still populate when the user selects a palace — it should show the palace name and all three stops just as it does now when stops are manually entered.
+Do not change anything else.
+
+That's Prompt #6. It only adds two new beats and a selection screen. It removes complexity from Day 1 by skipping the 8-beat palace naming loop. The rest of the session flow stays exactly as it is. Run it and let me know what you get.

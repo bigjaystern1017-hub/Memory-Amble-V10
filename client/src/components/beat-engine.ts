@@ -1,6 +1,30 @@
 import type { Assignment } from "@shared/schema";
 import type { LessonConfig } from "@/lib/progress";
 
+export const PALACE_TEMPLATES = [
+  {
+    id: "house",
+    name: "Your House",
+    emoji: "🏠",
+    description: "A place you know by heart.",
+    stops: ["Front Door", "Hallway", "Kitchen"],
+  },
+  {
+    id: "hike",
+    name: "A Nature Walk",
+    emoji: "🌿",
+    description: "A peaceful path through the outdoors.",
+    stops: ["Trailhead", "Wooden Bridge", "Clearing"],
+  },
+  {
+    id: "timbuk",
+    name: "Timbuk's Palace",
+    emoji: "🏰",
+    description: "A mysterious place. Timbuk's favorite.",
+    stops: ["The Grand Door", "The Library", "The Tower"],
+  },
+];
+
 export type BeatId =
   | "check-in-intro"
   | "check-in-recall"
@@ -51,7 +75,9 @@ export type BeatId =
   | "expansion-stop-1"
   | "expansion-stop-2"
   | "expansion-intro"
-  | "expansion-preview";
+  | "expansion-preview"
+  | "choose-palace"
+  | "confirm-palace";
 
 export interface ConversationState {
   userName: string;
@@ -486,6 +512,17 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
     case "onboard-ready":
       return `If you can picture your home, you have done half the work. Hint button is there if you get stuck.\n\nLet us find your palace.`;
 
+    case "choose-palace":
+      return "";
+
+    case "confirm-palace": {
+      const stops = state.stops;
+      const s1 = stops[0] || "";
+      const s2 = stops[1] || "";
+      const s3 = stops[2] || "";
+      return `${firstCap(state.placeName)}. Your stops: ${s1}, ${s2}, and ${s3}. This is your Memory Palace.`;
+    }
+
     case "welcome": {
       if (state.sessionOpenerGreeting) {
         return state.sessionOpenerGreeting;
@@ -874,7 +911,13 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
       return "onboard-ready";
 
     case "onboard-ready":
-      return "ask-place";
+      return "choose-palace";
+
+    case "choose-palace":
+      return "confirm-palace";
+
+    case "confirm-palace":
+      return "assigning";
 
     case "ask-place":
       return "react-place";
@@ -1036,10 +1079,12 @@ export function beatNeedsContinueButton(beatId: BeatId): boolean {
     || beatId === "palace-buffer"
     || beatId === "wisdom-drop"
     || beatId === "expansion-offer"
-    || beatId === "expansion-preview";
+    || beatId === "expansion-preview"
+    || beatId === "confirm-palace";
 }
 
 export function getContinueButtonLabel(beatId: BeatId): string {
+  if (beatId === "confirm-palace") return "Looks good — let's go →";
   if (beatId === "onboard-welcome") return "Yes, let us go!";
   if (beatId === "onboard-secret") return "Let the Memory-Ambling Begin!";
   if (beatId === "item-preview") return "Ready to place them →";

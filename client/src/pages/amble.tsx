@@ -34,6 +34,7 @@ import {
   getReactPlaceStopIntro,
   stopPhrase,
   yourify,
+  PALACE_TEMPLATES,
 } from "@/components/beat-engine";
 import {
   getLessonConfig,
@@ -453,8 +454,32 @@ export default function Amble() {
     }
   }, [isGuest]);
 
+  const handlePalaceSelect = useCallback(
+    (template: typeof PALACE_TEMPLATES[0]) => {
+      playSound("click");
+      const newState: ConversationState = {
+        ...stateRef.current,
+        placeName: template.name,
+        stops: template.stops,
+        itemCount: template.stops.length,
+      };
+      updateState(newState);
+      setCurrentBeat("confirm-palace");
+      setTimeout(() => {
+        advanceBeatRef.current("confirm-palace", newState);
+      }, 0);
+    },
+    [updateState]
+  );
+
   const advanceBeat = useCallback(
     async (beat: BeatId, currentState: ConversationState) => {
+      if (beat === "choose-palace") {
+        setInputEnabled(false);
+        setShowContinue(false);
+        return;
+      }
+
       if (beat === "assigning") {
         setIsTyping(true);
         scrollToBottom();
@@ -2044,47 +2069,97 @@ export default function Amble() {
                   </div>
                 )}
 
-                {/* Stable lesson stage — single current Timbuk card */}
-                <div
-                  className="lesson-stage relative w-full min-h-[280px] md:min-h-[340px] flex flex-col justify-center"
-                  data-testid="lesson-stage"
-                >
-                  {isTyping && !latestTimbukMessage && (
-                    <ChatMessage sender="timbuk" text="" isTyping />
-                  )}
-
-                  {latestTimbukMessage && (
-                    <ChatMessage
-                      key={latestTimbukMessage.id}
-                      sender={latestTimbukMessage.sender}
-                      text={latestTimbukMessage.text}
-                      typewriter={latestTimbukMessage.typewriter && latestTimbukMessage.id === lastMessageId}
-                      onTypewriterDone={latestTimbukMessage.id === lastMessageId ? handleTypewriterDone : undefined}
-                      fastForward={latestTimbukMessage.id === lastMessageId && fastForward}
-                      onSkipTyping={latestTimbukMessage.id === lastMessageId && typewriterBusy ? () => setFastForward(true) : undefined}
-                      variant={latestTimbukMessage.variant}
-                      isLatest={latestTimbukMessage.id === lastMessageId}
-                    />
-                  )}
-
-                  {isTyping && latestTimbukMessage && (
-                    <div className="mt-3">
-                      <ChatMessage sender="timbuk" text="" isTyping />
-                    </div>
-                  )}
-
-                  {/* Latest user reply — compact chip below Timbuk card */}
-                  {latestUserMessage && latestTimbukMessage && latestUserMessage.id > latestTimbukMessage.id && (
-                    <div className="mt-3 flex justify-end">
+                {/* Palace selection cards — shown instead of chat stage */}
+                {currentBeat === "choose-palace" ? (
+                  <div className="w-full" data-testid="palace-selection">
+                    <div className="flex items-start gap-4 mb-6">
+                      <img
+                        src={timbukAvatarPath}
+                        alt="Timbuk"
+                        className="w-10 h-10 rounded-full shrink-0 mt-1"
+                      />
                       <div
-                        className="inline-block max-w-[80%] px-4 py-2 rounded-2xl text-sm bg-primary/10 text-foreground border border-primary/15"
-                        data-testid="user-reply-chip"
+                        className="px-5 py-4 rounded-2xl text-base font-serif text-foreground"
+                        style={{ background: "#fff", border: "1px solid #E8E3F4", boxShadow: "0 2px 8px rgba(109,45,226,0.06)" }}
                       >
-                        {latestUserMessage.text}
+                        Every palace starts with a place you know. Pick one to begin.
                       </div>
                     </div>
-                  )}
-                </div>
+                    <div className="space-y-3">
+                      {PALACE_TEMPLATES.map((template) => (
+                        <button
+                          key={template.id}
+                          onClick={() => handlePalaceSelect(template)}
+                          className="w-full text-left flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-150 hover:scale-[1.01] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                          style={{ background: "#fff", border: "1px solid #E8E3F4", boxShadow: "0 2px 8px rgba(109,45,226,0.06)" }}
+                          onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#6D2DE2")}
+                          onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#E8E3F4")}
+                          data-testid={`button-palace-${template.id}`}
+                        >
+                          <div
+                            className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 text-xl"
+                            style={{ background: "#F0EBFF" }}
+                          >
+                            {template.emoji}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-serif font-bold text-base leading-snug" style={{ color: "#1A1028" }}>
+                              {template.name}
+                            </p>
+                            <p className="text-sm mt-0.5 leading-snug" style={{ color: "#6B7280" }}>
+                              {template.description}
+                            </p>
+                            <p className="text-xs mt-1 font-medium" style={{ color: "#6D2DE2" }}>
+                              {template.stops.join(" → ")}
+                            </p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  /* Stable lesson stage — single current Timbuk card */
+                  <div
+                    className="lesson-stage relative w-full min-h-[280px] md:min-h-[340px] flex flex-col justify-center"
+                    data-testid="lesson-stage"
+                  >
+                    {isTyping && !latestTimbukMessage && (
+                      <ChatMessage sender="timbuk" text="" isTyping />
+                    )}
+
+                    {latestTimbukMessage && (
+                      <ChatMessage
+                        key={latestTimbukMessage.id}
+                        sender={latestTimbukMessage.sender}
+                        text={latestTimbukMessage.text}
+                        typewriter={latestTimbukMessage.typewriter && latestTimbukMessage.id === lastMessageId}
+                        onTypewriterDone={latestTimbukMessage.id === lastMessageId ? handleTypewriterDone : undefined}
+                        fastForward={latestTimbukMessage.id === lastMessageId && fastForward}
+                        onSkipTyping={latestTimbukMessage.id === lastMessageId && typewriterBusy ? () => setFastForward(true) : undefined}
+                        variant={latestTimbukMessage.variant}
+                        isLatest={latestTimbukMessage.id === lastMessageId}
+                      />
+                    )}
+
+                    {isTyping && latestTimbukMessage && (
+                      <div className="mt-3">
+                        <ChatMessage sender="timbuk" text="" isTyping />
+                      </div>
+                    )}
+
+                    {/* Latest user reply — compact chip below Timbuk card */}
+                    {latestUserMessage && latestTimbukMessage && latestUserMessage.id > latestTimbukMessage.id && (
+                      <div className="mt-3 flex justify-end">
+                        <div
+                          className="inline-block max-w-[80%] px-4 py-2 rounded-2xl text-sm bg-primary/10 text-foreground border border-primary/15"
+                          data-testid="user-reply-chip"
+                        >
+                          {latestUserMessage.text}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Memory Object Card */}
                 {shouldShowObjectCard && (
@@ -2157,7 +2232,7 @@ export default function Amble() {
 
       <div className="relative z-10 border-t border-border/50 bg-card/90 backdrop-blur-sm shrink-0 shadow-sm">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8 py-4">
-          {isFinished ? (
+          {currentBeat === "choose-palace" ? null : isFinished ? (
             <div className="text-center space-y-3">
               {isGuest ? (
                 <>
@@ -2235,7 +2310,7 @@ export default function Amble() {
               </Button>
             </div>
           ) : showContinue ? (
-            <div className="text-center">
+            <div className="text-center space-y-2">
               <Button
                 size="lg"
                 onClick={handleContinue}
@@ -2245,6 +2320,21 @@ export default function Amble() {
                 {getContinueButtonLabel(currentBeat)}
                 <ArrowRight className="w-5 h-5" />
               </Button>
+              {currentBeat === "confirm-palace" && (
+                <div>
+                  <button
+                    className="text-sm text-muted-foreground hover:text-primary cursor-pointer mt-2 transition-colors"
+                    onClick={() => {
+                      setShowContinue(false);
+                      setCurrentBeat("choose-palace");
+                      setMessages([]);
+                    }}
+                    data-testid="button-back-to-palace-choice"
+                  >
+                    ← Pick a different palace
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-2">

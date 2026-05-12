@@ -1700,7 +1700,7 @@ export default function Amble() {
           <img src={warmBgPath} alt="" className="absolute inset-0 w-full h-full object-cover object-bottom" />
           <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/45 to-background/20" />
         </div>
-        <header className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 shrink-0">
+        <header className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-sm shrink-0">
           <div className="max-w-3xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-3">
             <button onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
               <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center">
@@ -1749,7 +1749,7 @@ export default function Amble() {
           <img src={warmBgPath} alt="" className="absolute inset-0 w-full h-full object-cover object-bottom" />
           <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/45 to-background/20" />
         </div>
-        <header className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 shrink-0">
+        <header className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-sm shrink-0">
           <div className="max-w-3xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-3">
             <button onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
               <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center">

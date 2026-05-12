@@ -1,0 +1,71 @@
+That's a great idea — it gives the user agency on the very first interaction, it lets experienced users skip the explanation, and it makes Timbuk feel like he's listening not just presenting. The user made a choice and the app responded to it. That's dialogue.
+Let me add that to the prompt. Here's the updated version — Prompt #2 with the choice added:
+
+PROMPT #2 — Fixed Stage Layout with User-Controlled Pacing
+Make changes to client/src/pages/amble.tsx and client/src/components/beat-engine.ts. Read ALL instructions before starting.
+PART A: DIALOGUE CHANGE (beat-engine.ts)
+Add a branching choice after Timbuk's welcome.
+In the onboard-welcome case in getTimbukMessage, change the message to end with a question. The current message introduces Timbuk and references the user's goal. Keep that, but end with: "Are you familiar with memory palaces?"
+In the getNextBeat function, change the transition from onboard-welcome. Currently it goes to onboard-skill (or onboard-ready for quiz users). Instead, it should go to a new beat called onboard-choice.
+Add onboard-choice to the BeatId type union.
+Add onboard-choice to the getTimbukMessage function — it should return an empty string (the choice buttons handle this beat, not a Timbuk message).
+Add onboard-choice to the beatNeedsUserInput function — return false (it uses buttons, not text input).
+Add onboard-choice to the beatNeedsContinueButton function — return false (custom buttons handle it).
+In getNextBeat, add the onboard-choice case. It needs to branch based on the user's selection:
+
+If the user chose "tell me more" → go to onboard-skill (the existing explanation beats)
+If the user chose "let's get started" → go to ask-place (skip the explanation, go straight to palace building)
+
+To handle the branching: check state.lastUserMessage for the user's choice. If it contains "tell" or "more" or "not" → go to onboard-skill. Otherwise → go to ask-place.
+Add onboard-choice to the getProgressStep function — return 1 (same as other onboarding beats).
+Also shorten the place-object prompt. In the place-object case, change the format from "${stop} — ${emoji} ${object}. Make it YOURS — what is happening with that ${object} at the ${stop}?" to just: "${stop} — ${object}. Make it strange and vivid." The object card handles the details.
+PART B: LAYOUT CHANGE (amble.tsx)
+Render two choice buttons for the onboard-choice beat.
+When the current beat is onboard-choice, render two large tappable buttons in the stage area instead of the text input:
+Button 1: "I'm not sure — tell me more, Timbuk."
+
+Style: white background, purple border, purple text, rounded-2xl, full width, py-4, text-lg
+
+Button 2: "I know what they are — let's get started!"
+
+Style: purple background, white text, rounded-2xl, full width, py-4, text-lg
+
+When tapped, each button should submit its label text as the user's message (same as if they typed it), which will trigger the beat engine to advance based on the content.
+THE STAGE LAYOUT
+The visible screen should be divided into exactly these zones, top to bottom:
+
+Top bar (pinned): App header. Don't change.
+Progress stepper (pinned): The Learn → Choose Place → Plant Images → Walk → Recall stepper. Don't change.
+THE STAGE (fills remaining space): This is the main content area. It uses flex-grow or flex: 1 to fill all space between the progress stepper and the input tray. Inside this stage, content is vertically centered. NOTHING inside the stage scrolls. The stage contains at most:
+
+One Timbuk speech bubble (the current/latest message)
+One user reply bubble (if the user just responded)
+One object card OR recall card OR choice buttons (when applicable)
+Maximum 3 elements visible at once.
+
+
+Input tray (pinned at bottom): Text input, confused button, mic button. Don't change positioning. Hide the input tray when choice buttons are showing (the buttons replace the input for that beat).
+
+Key CSS: the stage container should be display: flex; flex-direction: column; justify-content: center; overflow: hidden; with flex-grow to fill the viewport. No scrolling inside the stage.
+TRANSITIONS
+When content changes in the stage, use a simple crossfade: old content fades out over 300ms, new content fades in over 300ms. No sliding, no pushing, no height changes.
+USER-CONTROLLED PACING
+After Timbuk's message finishes revealing, if the beat requires text input, the input tray is active — the user types and submits. If the beat needs a continue button, show it inside the stage below Timbuk's message. Use the existing getContinueButtonLabel function for contextual labels. If the beat shows choice buttons (like onboard-choice), those ARE the advance action.
+Nothing auto-advances. Nothing clears until the user acts.
+REMOVE THE TRANSCRIPT DRAWER
+Remove the "Review earlier messages" toggle and the transcript drawer entirely from the stage area.
+OBJECT CARD BEHAVIOR
+During placement: compact card inside the stage below Timbuk's bubble. Shows object name (bold), stop name, and "Make it strange and vivid." — no "Plant this image" header, no "Object X of Y".
+During recall: same position, amber/gold colors (border: #D4A843, background: #FFF8E7, header text: #8B6914). Prompt text: "Walk to this stop. What's waiting there?"
+AUTO-FOCUS INPUT
+After every Timbuk message that expects text input, call .focus() on the input field after the typewriter animation completes.
+SOUND BANNER
+Auto-fade the "Sound on" banner after 4 seconds. Use setTimeout to set opacity to 0 with a 1-second CSS transition, then remove from DOM.
+DO NOT CHANGE:
+
+education-slides.tsx, landing.tsx, start.tsx, quiz.tsx
+The route panel on the right side
+The progress stepper
+Any server files
+
+Do not change anything else.

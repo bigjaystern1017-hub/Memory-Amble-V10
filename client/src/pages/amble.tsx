@@ -492,6 +492,7 @@ export default function Amble() {
         const nextBeat = getNextBeat("assigning", newState);
         if (nextBeat) {
           setCurrentBeat(nextBeat);
+          await new Promise(resolve => setTimeout(resolve, 600));
           await advanceBeat(nextBeat, newState);
         }
         return;
@@ -502,6 +503,7 @@ export default function Amble() {
         const next = getNextBeat(beat, currentState);
         if (next) {
           setCurrentBeat(next);
+          await new Promise(resolve => setTimeout(resolve, 600));
           await advanceBeat(next, currentState);
         }
         return;

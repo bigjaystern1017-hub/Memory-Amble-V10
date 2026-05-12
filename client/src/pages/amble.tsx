@@ -484,6 +484,16 @@ export default function Amble() {
 
   const advanceBeat = useCallback(
     async (beat: BeatId, currentState: ConversationState) => {
+      if (beat === "onboard-choice") {
+        const text = getTimbukMessage(beat, currentState);
+        if (text) {
+          await showTimbukWithTypewriter(text);
+        }
+        setInputEnabled(false);
+        setShowContinue(false);
+        return;
+      }
+
       if (beat === "choose-palace") {
         setInputEnabled(false);
         setShowContinue(false);

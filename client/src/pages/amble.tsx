@@ -497,6 +497,7 @@ export default function Amble() {
         }
 
         updateState(newState);
+        setIsTyping(false);
         const nextBeat = getNextBeat("assigning", newState);
         if (nextBeat) {
           setCurrentBeat(nextBeat);
@@ -1220,6 +1221,25 @@ export default function Amble() {
       updateState(nextState);
       setCurrentBeat(next);
       await advanceBeatRef.current(next, nextState);
+    } else if (beat === "mirror-object" && next) {
+      let nextState = { ...s, stepIndex: s.stepIndex + 1 };
+      updateState(nextState);
+      if (next === "palace-buffer") {
+        await doScreenWipe();
+      }
+      setCurrentBeat(next);
+      await advanceBeatRef.current(next, nextState);
+    } else if (beat === "react-stop" && next) {
+      let nextState = s;
+      if (next === "ask-stop") {
+        nextState = { ...s, stepIndex: s.stepIndex + 1 };
+        updateState(nextState);
+      }
+      setCurrentBeat(next);
+      await advanceBeatRef.current(next, nextState);
+    } else if (beat === "react-practice" && next) {
+      setCurrentBeat(next);
+      await advanceBeatRef.current(next, s);
     } else if (next) {
       setCurrentBeat(next);
       await advanceBeatRef.current(next, s);
@@ -2046,13 +2066,14 @@ export default function Amble() {
 
             const PLACEMENT_BEATS = new Set(["place-object", "mirror-object", "onboard-vivid", "react-practice"]);
             const RECALL_BEATS = new Set(["recall", "react-recall", "check-in-recall", "react-check-in"]);
+            const PRACTICE_BEATS = new Set(["practice-item", "practice-intro", "practice-recall", "practice-buffer", "react-practice", "practice-success", "practice-done"]);
             const isObjectPlacementBeat = PLACEMENT_BEATS.has(currentBeat) || RECALL_BEATS.has(currentBeat);
             const currentAssignment = state.assignments?.[state.stepIndex];
             const hasAssignment = !!currentAssignment?.object;
             const sceneText = state.userScenes?.[state.stepIndex];
             const inRecall = RECALL_BEATS.has(currentBeat);
             const inPlacement = PLACEMENT_BEATS.has(currentBeat);
-            const shouldShowObjectCard = hasAssignment && isObjectPlacementBeat;
+            const shouldShowObjectCard = hasAssignment && isObjectPlacementBeat && !PRACTICE_BEATS.has(currentBeat);
 
             let objectCardMode: MemoryObjectCardMode = "idle";
             if (inRecall) objectCardMode = "recalling";

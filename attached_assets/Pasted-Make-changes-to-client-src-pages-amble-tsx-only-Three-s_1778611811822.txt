@@ -1,0 +1,34 @@
+Make changes to client/src/pages/amble.tsx only. Three specific fixes:
+Fix 1: mirror-object not advancing stepIndex
+In the handleContinue function, find the else if (next) block near the end (the generic fallback handler). BEFORE that generic block, add a new condition:
+javascript} else if (beat === "mirror-object" && next) {
+  let nextState = { ...s, stepIndex: s.stepIndex + 1 };
+  updateState(nextState);
+  if (next === "palace-buffer") {
+    await doScreenWipe();
+  }
+  setCurrentBeat(next);
+  await advanceBeatRef.current(next, nextState);
+Also add similar handling for react-stop advancing to ask-stop:
+javascript} else if (beat === "react-stop" && next) {
+  let nextState = s;
+  if (next === "ask-stop") {
+    nextState = { ...s, stepIndex: s.stepIndex + 1 };
+    updateState(nextState);
+  }
+  setCurrentBeat(next);
+  await advanceBeatRef.current(next, nextState);
+And for react-practice:
+javascript} else if (beat === "react-practice" && next) {
+  setCurrentBeat(next);
+  await advanceBeatRef.current(next, s);
+Place all three of these BEFORE the generic else if (next) fallback.
+Fix 2: Ghost screen from assigning beat
+In the advanceBeat function, find the assigning handler (around line 49-67). It currently calls await advanceBeat(nextBeat, newState) which can cause a flash. Change it so that after fetching assignments, it sets the beat and state WITHOUT showing any message, then silently advances:
+After updateState(newState); and before getting the next beat, add:
+javascriptsetIsTyping(false);
+This ensures no typing indicator appears during the assignment fetch.
+Fix 3: Object card appearing during pineapple practice
+In the JSX where the memory object card renders (search for MemoryObjectCard or the "Plant this image" card), add a condition to hide it during practice beats. The card should only show during place-object beats, NOT during practice-item. Check the condition that controls when the card renders — if it currently checks for placement-related beats, make sure practice-item and practice-intro are excluded.
+Do not change beat-engine.ts, landing.tsx, or any other files.
+Do not change anything else.

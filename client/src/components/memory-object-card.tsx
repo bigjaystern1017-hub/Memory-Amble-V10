@@ -15,7 +15,7 @@ export type MemoryObjectCardProps = {
 const PILL_CONFIG = {
   placing: { bg: "#F0EBFF", color: "#6D2DE2", icon: Sparkles, label: "Plant this image" },
   planted: { bg: "#ECFDF5", color: "#059669", icon: Eye, label: "Image planted" },
-  recalling: { bg: "#FFF7ED", color: "#C2540A", icon: Eye, label: "Walk it back" },
+  recalling: { bg: "#FFF8E7", color: "#8B6914", icon: Eye, label: "Walk it back" },
   idle: { bg: "#F5F0FF", color: "#9C8BB4", icon: Package, label: "Up next" },
 };
 
@@ -54,7 +54,7 @@ export function MemoryObjectCard({
               mode === "planted"
                 ? "linear-gradient(90deg, #059669 0%, #34D399 100%)"
                 : mode === "recalling"
-                ? "linear-gradient(90deg, #C2540A 0%, #FB923C 100%)"
+                ? "linear-gradient(90deg, #D4A843 0%, #F5C842 100%)"
                 : "linear-gradient(90deg, #6D2DE2 0%, #A78BFA 100%)",
           }}
         />
@@ -81,7 +81,7 @@ export function MemoryObjectCard({
             <div className="space-y-2">
               {stopName && (
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 shrink-0" style={{ color: "#C2540A" }} />
+                  <MapPin className="w-4 h-4 shrink-0" style={{ color: "#8B6914" }} />
                   <span className="text-base font-semibold" style={{ color: "#1A1028" }}>
                     {stopName}
                   </span>

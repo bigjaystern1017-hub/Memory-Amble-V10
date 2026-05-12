@@ -209,6 +209,7 @@ export default function Amble() {
   const [recallHintLoading, setRecallHintLoading] = useState(false);
   const [confusedLoading, setConfusedLoading] = useState(false);
   const [showSoundReminder, setShowSoundReminder] = useState(true);
+  const [inputFocusTrigger, setInputFocusTrigger] = useState(0);
   const [typewriterBusy, setTypewriterBusy] = useState(false);
   const [fastForward, setFastForward] = useState(false);
   const [showBurst, setShowBurst] = useState(false);
@@ -321,6 +322,9 @@ export default function Amble() {
       const resolve = typewriterResolveRef.current;
       typewriterResolveRef.current = null;
       resolve();
+    }
+    if (beatNeedsUserInput(currentBeatRef.current)) {
+      setTimeout(() => setInputFocusTrigger((t) => t + 1), 100);
     }
   }, []);
 
@@ -472,7 +476,7 @@ export default function Amble() {
       setCurrentBeat("confirm-palace");
       setTimeout(() => {
         advanceBeatRef.current("confirm-palace", newState);
-      }, 0);
+      }, 300);
     },
     [updateState]
   );
@@ -734,59 +738,7 @@ export default function Amble() {
 
       if (beat === "final") {
         playSound("complete");
-        setIsFinished(true);
-        const nextLevel = getNextLevel(
-          progressData.currentLevel,
-          currentState.correctCount,
-          currentState.itemCount
-        );
-        const nextDayCount = progressData.dayCount + 1;
-        const nextCategory = shouldSwitchCategory(nextDayCount, progressData.currentCategory as "objects" | "names");
-        const newProgress: ProgressData = {
-          currentDay: progressData.currentDay + 1,
-          currentLevel: nextLevel,
-          currentCategory: nextCategory,
-          dayCount: nextDayCount,
-          streak: progressData.streak + 1,
-          lastLogin: todayStr(),
-        };
-        await saveSessionToDB(currentState);
-        await savePalaceToDB(currentState.stops);
-        await saveProgressToDB(newProgress);
-        
-        setResultsSummary({
-          correctCount: Math.min(currentState.correctCount, currentState.itemCount),
-          totalItems: currentState.itemCount,
-          streak: newProgress.streak,
-          justCompletedDay: progressData.dayCount + 1,
-        });
-
-        if (isGuest) {
-          setPendingSession({
-            date: todayStr(),
-            level: currentState.itemCount,
-            category: currentState.category,
-            score: currentState.correctCount,
-            totalItems: currentState.itemCount,
-            assignments: currentState.assignments,
-            placeName: currentState.placeName,
-            stops: currentState.stops,
-            dayCount: progressData.dayCount,
-          });
-        }
-
-        setTimeout(() => {
-          setPhase("results");
-        }, 500);
-        
-        if (isGuest) {
-          localStorage.setItem("memory-amble-day", String(newProgress.currentDay));
-        } else {
-          await authFetch("/api/user/current-day", {
-            method: "POST",
-            body: JSON.stringify({ currentDay: newProgress.currentDay }),
-          });
-        }
+        setShowContinue(true);
         return;
       }
 
@@ -1221,6 +1173,48 @@ export default function Amble() {
       updateState(nextState);
       setCurrentBeat(next);
       await advanceBeatRef.current(next, nextState);
+    } else if (beat === "final") {
+      setIsFinished(true);
+      const nextLevel = getNextLevel(progressData.currentLevel, s.correctCount, s.itemCount);
+      const nextDayCount = progressData.dayCount + 1;
+      const nextCategory = shouldSwitchCategory(nextDayCount, progressData.currentCategory as "objects" | "names");
+      const newProgress: ProgressData = {
+        currentDay: progressData.currentDay + 1,
+        currentLevel: nextLevel,
+        currentCategory: nextCategory,
+        dayCount: nextDayCount,
+        streak: progressData.streak + 1,
+        lastLogin: todayStr(),
+      };
+      await saveSessionToDB(s);
+      await savePalaceToDB(s.stops);
+      await saveProgressToDB(newProgress);
+      setResultsSummary({
+        correctCount: Math.min(s.correctCount, s.itemCount),
+        totalItems: s.itemCount,
+        streak: newProgress.streak,
+        justCompletedDay: progressData.dayCount + 1,
+      });
+      if (isGuest) {
+        setPendingSession({
+          date: todayStr(),
+          level: s.itemCount,
+          category: s.category,
+          score: s.correctCount,
+          totalItems: s.itemCount,
+          assignments: s.assignments,
+          placeName: s.placeName,
+          stops: s.stops,
+          dayCount: progressData.dayCount,
+        });
+        localStorage.setItem("memory-amble-day", String(newProgress.currentDay));
+      } else {
+        await authFetch("/api/user/current-day", {
+          method: "POST",
+          body: JSON.stringify({ currentDay: newProgress.currentDay }),
+        });
+      }
+      setTimeout(() => setPhase("results"), 500);
     } else if (beat === "mirror-object" && next) {
       let nextState = { ...s, stepIndex: s.stepIndex + 1 };
       updateState(nextState);
@@ -2379,6 +2373,7 @@ export default function Amble() {
                     onSend={handleUserInput}
                     placeholder={getInputPlaceholder(currentBeat, state)}
                     disabled={!inputEnabled || isTyping || typewriterBusy}
+                    focusTrigger={inputFocusTrigger}
                   />
                 </div>
                 {currentBeat === "recall" && inputEnabled && !typewriterBusy && (

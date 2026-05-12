@@ -603,7 +603,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
 
     case "practice-item": {
       const firstStop = yourify(firstCap(state.stops[0] || "your first stop"));
-      return `${firstStop} — 🍍 Pineapple. Now make it YOURS — what is happening with that Pineapple at __STOP__?`;
+      return `${firstStop} — Pineapple. Make it strange and vivid.`;
     }
 
     case "react-practice":

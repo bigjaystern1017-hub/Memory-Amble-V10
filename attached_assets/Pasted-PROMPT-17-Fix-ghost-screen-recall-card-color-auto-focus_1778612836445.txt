@@ -1,0 +1,32 @@
+PROMPT #17 — Fix ghost screen, recall card color, auto-focus, and final beat
+Changes to multiple files as specified below.
+Fix 1: Ghost screen between palace pick and confirm (amble.tsx)
+In the handlePalaceSelect function, the setTimeout(() => advanceBeatRef.current("confirm-palace", newState), 0) causes a blank frame. Change the delay from 0 to 300 — this gives React time to update the UI state before the typewriter starts, preventing the ghost flash:
+javascriptsetTimeout(() => {
+  advanceBeatRef.current("confirm-palace", newState);
+}, 300);
+Fix 2: Recall card color — change from orange/red to amber/gold (memory-object-card.tsx)
+In client/src/components/memory-object-card.tsx, find the recalling style definition on or near line 18:
+javascriptrecalling: { bg: "#FFF7ED", color: "#C2540A", icon: Eye, label: "Walk it back" },
+Change it to amber/gold:
+javascriptrecalling: { bg: "#FFF8E7", color: "#8B6914", icon: Eye, label: "Walk it back" },
+Also search the same file for any border colors related to the recalling state. If there's an orange border (#F97316, #FB923C, #C2540A, or similar), change it to #D4A843.
+Fix 3: Auto-focus the input after each Timbuk message (amble.tsx)
+Find the text input element — it should be an <input> or component with a placeholder like "Describe what you imagine..." or "What do you see at this stop?" Add a ref to it if one doesn't exist already (e.g., const inputRef = useRef<HTMLInputElement>(null);).
+Then in the showTimbukWithTypewriter function, after the typewriter animation completes (at the end of the function, after setIsTyping(false)), add:
+javascriptsetTimeout(() => {
+  inputRef.current?.focus();
+}, 100);
+Also add the same focus call in advanceBeat after setShowContinue(false) is set and a message is shown that requires user input. Check beatNeedsUserInput(beat) — if true, focus the input.
+Fix 4: Final beat too fast — needs continue button (beat-engine.ts)
+Check if "final" is already in beatNeedsContinueButton. If it is but the screen still advances too fast, the issue is in advanceBeat — the final beat handler (around line 295 in the extracted code) calls setIsFinished(true) and saves data, which might trigger a state change that immediately shows the results screen.
+In amble.tsx, find the final beat handler. Make sure setShowContinue(true) fires BEFORE setIsFinished(true). The continue button should appear with label "See my Amble Scroll →", and only when the user taps it should setIsFinished(true) trigger the results screen.
+Move setIsFinished(true) and all the save/results logic into a new handler or into the handleContinue function under a beat === "final" condition, so it only runs when the user taps the button.
+Fix 5: Practice-item text still uses old "Make it YOURS" phrasing (beat-engine.ts)
+Find the practice-item case in getTimbukMessage. Change:
+return `${firstStop} — 🍍 Pineapple. Now make it YOURS — what is happening with that Pineapple at __STOP__?`;
+To:
+return `${firstStop} — Pineapple. Make it strange and vivid.`;
+Remove the emoji and the __STOP__ placeholder. Keep it consistent with the place-object prompt.
+Do not change landing.tsx, education-slides.tsx, start.tsx, or any server files.
+Do not change anything else.

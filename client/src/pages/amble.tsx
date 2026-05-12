@@ -1922,7 +1922,7 @@ export default function Amble() {
           <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/45 to-background/20" />
         </div>
       </div>
-      <header className="relative z-10 border-b border-border/50 bg-card/90 backdrop-blur-sm sticky top-0 shrink-0 shadow-sm">
+      <header className="relative z-10 border-b border-border/50 bg-card/90 backdrop-blur-sm shrink-0 shadow-sm">
         <div className="max-w-[1000px] mx-auto px-4 md:px-8 py-3 flex items-center justify-between gap-4">
           <button onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-lg">
             <div className="w-10 h-10 rounded-md flex items-center justify-center" style={{backgroundColor: '#6D2DE2'}}>
@@ -2053,7 +2053,7 @@ export default function Amble() {
             else if (inPlacement) objectCardMode = "placing";
 
             return (
-              <div className="max-w-[820px] mx-auto px-4 md:px-8 pt-[170px] pb-40 md:pb-44">
+              <div className="max-w-[820px] mx-auto px-4 md:px-8 pt-6 pb-40 md:pb-44">
                 {/* Sound reminder */}
                 {showSoundReminder && hasMessages && (
                   <div className="flex justify-center mb-4">
@@ -2120,7 +2120,7 @@ export default function Amble() {
                 ) : (
                   /* Stable lesson stage — single current Timbuk card */
                   <div
-                    className="lesson-stage relative w-full min-h-[280px] md:min-h-[340px] flex flex-col justify-center"
+                    className="lesson-stage relative w-full flex flex-col justify-start"
                     data-testid="lesson-stage"
                   >
                     {isTyping && !latestTimbukMessage && (

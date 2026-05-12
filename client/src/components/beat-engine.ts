@@ -903,7 +903,7 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
 
     case "onboard-choice": {
       const answer = (state.lastUserMessage || "").toLowerCase();
-      if (answer.includes("not") || answer.includes("tell") || answer.includes("more") || answer.includes("what")) {
+      if (answer.includes("not sure") || answer.includes("tell") || answer.includes("more")) {
         return "onboard-skill";
       }
       return "choose-palace";

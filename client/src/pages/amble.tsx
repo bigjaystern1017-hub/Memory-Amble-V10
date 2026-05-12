@@ -246,6 +246,11 @@ export default function Amble() {
     window.scrollTo(0, 0);
   }, [phase]);
 
+  useEffect(() => {
+    const t = setTimeout(() => setShowSoundReminder(false), 4000);
+    return () => clearTimeout(t);
+  }, []);
+
   const scrollToBottom = useCallback(() => {
     if (scrollRef.current) {
       setTimeout(() => {
@@ -2123,10 +2128,6 @@ export default function Amble() {
                     className="lesson-stage relative w-full flex flex-col justify-start"
                     data-testid="lesson-stage"
                   >
-                    {isTyping && !latestTimbukMessage && (
-                      <ChatMessage sender="timbuk" text="" isTyping />
-                    )}
-
                     {latestTimbukMessage && (
                       <ChatMessage
                         key={latestTimbukMessage.id}
@@ -2139,12 +2140,6 @@ export default function Amble() {
                         variant={latestTimbukMessage.variant}
                         isLatest={latestTimbukMessage.id === lastMessageId}
                       />
-                    )}
-
-                    {isTyping && latestTimbukMessage && (
-                      <div className="mt-3">
-                        <ChatMessage sender="timbuk" text="" isTyping />
-                      </div>
                     )}
 
                     {/* Latest user reply — compact chip below Timbuk card */}

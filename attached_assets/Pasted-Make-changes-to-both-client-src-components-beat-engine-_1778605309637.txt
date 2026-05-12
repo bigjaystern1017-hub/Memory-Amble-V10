@@ -1,0 +1,36 @@
+Make changes to both client/src/components/beat-engine.ts and client/src/pages/amble.tsx.
+PART A: beat-engine.ts — Add continue buttons to stop auto-chaining
+In the beatNeedsContinueButton function, add these beats to the return statement:
+
+"react-stop" — after Timbuk confirms a stop name
+"react-place" — after Timbuk confirms the palace name
+"practice-intro" — before the pineapple practice starts
+"placement-intro" — before real placement starts
+"walkthrough-intro" — before the recall walk starts
+
+In the getContinueButtonLabel function, add these cases:
+if (beatId === "react-stop") return "Next →";
+if (beatId === "react-place") return "Next →";
+if (beatId === "practice-intro") return "I'm ready →";
+if (beatId === "placement-intro") return "Let's place them →";
+if (beatId === "walkthrough-intro") return "Let's walk →";
+PART B: amble.tsx — Remove ghost typing indicators
+Find these two JSX blocks that render the typing indicator bubbles (the "..." ghost bubbles). They look approximately like:
+{isTyping && !latestTimbukMessage && (
+  <ChatMessage sender="timbuk" text="" isTyping />
+)}
+and
+{isTyping && latestTimbukMessage && (
+  <ChatMessage sender="timbuk" text="" isTyping />
+)}
+DELETE both of these blocks entirely. Do not render any ChatMessage with isTyping prop. The isTyping state variable can remain in the code — just don't render anything visible from it.
+PART C: amble.tsx — Scroll to top instead of bottom
+Find the scrollToBottom function. Change its implementation so it scrolls to TOP instead of bottom. Replace:
+scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+with:
+scrollRef.current.scrollTop = 0;
+This ensures every new message is visible from the top, not pushed off screen.
+PART D: amble.tsx — Fade sound banner after 4 seconds
+Find where the "Sound on — Timbuk is more fun with sound" banner is rendered. Wrap it in a component or add state that hides it after 4 seconds. Add a useState for the banner visibility, default true. Add a useEffect that sets a setTimeout to set it to false after 4000ms. When false, don't render the banner.
+Do not change the landing page, education slides, start page, or any server files.
+Do not change anything else.

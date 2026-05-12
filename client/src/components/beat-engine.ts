@@ -1080,7 +1080,12 @@ export function beatNeedsContinueButton(beatId: BeatId): boolean {
     || beatId === "wisdom-drop"
     || beatId === "expansion-offer"
     || beatId === "expansion-preview"
-    || beatId === "confirm-palace";
+    || beatId === "confirm-palace"
+    || beatId === "react-stop"
+    || beatId === "react-place"
+    || beatId === "practice-intro"
+    || beatId === "placement-intro"
+    || beatId === "walkthrough-intro";
 }
 
 export function getContinueButtonLabel(beatId: BeatId): string {
@@ -1093,6 +1098,11 @@ export function getContinueButtonLabel(beatId: BeatId): string {
   if (beatId === "practice-done") return "Let's do it!";
   if (beatId === "palace-buffer") return "I'm ready";
   if (beatId === "wisdom-drop") return "Continue →";
+  if (beatId === "react-stop") return "Next →";
+  if (beatId === "react-place") return "Next →";
+  if (beatId === "practice-intro") return "I'm ready →";
+  if (beatId === "placement-intro") return "Let's place them →";
+  if (beatId === "walkthrough-intro") return "Let's walk →";
   return "I'm Ready, Let's Go!";
 }
 

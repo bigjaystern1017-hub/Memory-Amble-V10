@@ -38,6 +38,7 @@ export type BeatId =
   | "cleaning-walkthrough-done"
   | "welcome"
   | "onboard-welcome"
+  | "onboard-choice"
   | "onboard-skill"
   | "onboard-palace"
   | "onboard-vivid"
@@ -260,7 +261,7 @@ export function getProgressStep(beatId: BeatId): number {
   if (checkInBeats.includes(beatId)) return 0;
   if (cleaningBeats.includes(beatId)) return 0;
   if (beatId === "pre-clean" || beatId === "cleaning-walkthrough" || beatId === "cleaning-walkthrough-done") return 0;
-  if (beatId === "onboard-welcome" || beatId === "onboard-skill" || beatId === "onboard-palace" || beatId === "onboard-vivid" || beatId === "onboard-secret" || beatId === "onboard-ready") return 1;
+  if (beatId === "onboard-welcome" || beatId === "onboard-choice" || beatId === "onboard-skill" || beatId === "onboard-palace" || beatId === "onboard-vivid" || beatId === "onboard-secret" || beatId === "onboard-ready") return 1;
   if (palaceBeats.includes(beatId)) return 1;
   if (practiceBeats.includes(beatId)) return 2;
   if (rememberBeats.includes(beatId)) return 2;
@@ -496,6 +497,9 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       }
       return `Ah, ${name}! I am Timbuk — your guide. ${goalLine}\n\nToday we build your Memory Palace. I have a small surprise waiting for you at the end.`;
     }
+
+    case "onboard-choice":
+      return "Are you familiar with memory palaces?";
 
     case "onboard-skill":
       return `Memory is a skill — and like any skill, it trains.\n\nIs there a place you know so well you could walk through it with your eyes closed? Your home, a garden, somewhere you have been a thousand times?`;
@@ -895,8 +899,15 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
       return "onboard-welcome";
 
     case "onboard-welcome":
-      if (typeof window !== "undefined" && localStorage.getItem("memoryamble-goal")) return "onboard-ready";
-      return "onboard-skill";
+      return "onboard-choice";
+
+    case "onboard-choice": {
+      const answer = (state.lastUserMessage || "").toLowerCase();
+      if (answer.includes("not") || answer.includes("tell") || answer.includes("more") || answer.includes("what")) {
+        return "onboard-skill";
+      }
+      return "choose-palace";
+    }
 
     case "onboard-skill":
       return "onboard-palace";

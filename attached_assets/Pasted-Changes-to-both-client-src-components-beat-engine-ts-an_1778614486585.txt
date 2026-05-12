@@ -1,0 +1,43 @@
+Changes to both client/src/components/beat-engine.ts and client/src/pages/amble.tsx.
+beat-engine.ts changes:
+1. Add "onboard-choice" to the BeatId type union.
+2. In getTimbukMessage, add the case:
+case "onboard-choice":
+  return "Are you familiar with memory palaces?";
+3. In getNextBeat, change the transition from onboard-welcome:
+Currently onboard-welcome goes to either onboard-skill or onboard-ready (for quiz users). Change BOTH paths so they go to onboard-choice instead. Every user gets the choice — whether they came from the quiz or not.
+Then add the onboard-choice transition:
+case "onboard-choice":
+  const answer = (state.lastUserMessage || "").toLowerCase();
+  if (answer.includes("not") || answer.includes("tell") || answer.includes("more") || answer.includes("what")) {
+    return "onboard-skill";
+  }
+  return "choose-palace";
+If they want to learn more → existing onboard explanation flow → eventually reaches choose-palace.
+If they already know → skip straight to choose-palace.
+4. In beatNeedsContinueButton: Do NOT add onboard-choice. It uses custom buttons, not a continue button.
+5. In beatNeedsUserInput: Do NOT add onboard-choice. It uses custom buttons, not text input.
+6. In getProgressStep: Add if (beatId === "onboard-choice") return 1; (same as other onboarding beats).
+amble.tsx changes:
+7. Render two choice buttons when currentBeat === "onboard-choice":
+In the JSX, after Timbuk's message renders for the onboard-choice beat, show two tappable buttons instead of the input tray. Use the same card styling as the palace selection cards for visual consistency.
+Button 1: "I'm not sure — tell me more, Timbuk."
+
+White background, purple border (1px solid #6D2DE2), purple text, rounded-2xl, full width, py-4, text-lg, font-medium
+On hover: light purple background (#F0EBFF)
+
+Button 2: "I know what they are — let's get started!"
+
+Purple background (#6D2DE2), white text, rounded-2xl, full width, py-4, text-lg, font-medium
+On hover: slightly darker purple
+
+When either button is tapped:
+
+Play the click sound
+Submit the button's text as the user's message (call the same function used when the user submits text input, passing the button label as the message text)
+This will set state.lastUserMessage to the button text, which getNextBeat uses to determine the branch
+
+8. Hide the input tray during onboard-choice:
+When currentBeat === "onboard-choice", hide the text input, microphone button, send button, "I'm confused" button, and "Get a spark" button. The two choice buttons ARE the input for this beat. Show the input tray again on the next beat.
+Do not change landing.tsx, education-slides.tsx, start.tsx, recall-walk-panel.tsx, memory-object-card.tsx, or any server files.
+Do not change anything else.

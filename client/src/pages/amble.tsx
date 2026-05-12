@@ -116,6 +116,7 @@ async function authFetch(path: string, options: RequestInit = {}) {
 const ONBOARDING_BEATS = new Set<BeatId>([
   "welcome",
   "onboard-welcome",
+  "onboard-choice",
   "onboard-skill",
   "onboard-palace",
   "onboard-vivid",
@@ -2244,7 +2245,30 @@ export default function Amble() {
 
       <div className="relative z-10 border-t border-border/50 bg-card/90 backdrop-blur-sm shrink-0 shadow-sm">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8 py-4">
-          {currentBeat === "choose-palace" ? null : isFinished ? (
+          {currentBeat === "choose-palace" ? null : currentBeat === "onboard-choice" ? (
+            <div className="flex flex-col gap-3 w-full max-w-lg mx-auto">
+              <button
+                onClick={() => { playSound("click"); handleUserInput("I'm not sure — tell me more, Timbuk."); }}
+                className="w-full py-4 px-6 rounded-2xl text-lg font-medium transition-colors text-left"
+                style={{ backgroundColor: "#FFFFFF", border: "1px solid #6D2DE2", color: "#6D2DE2" }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F0EBFF")}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#FFFFFF")}
+                data-testid="button-onboard-choice-learn"
+              >
+                I'm not sure — tell me more, Timbuk.
+              </button>
+              <button
+                onClick={() => { playSound("click"); handleUserInput("I know what they are — let's get started!"); }}
+                className="w-full py-4 px-6 rounded-2xl text-lg font-medium transition-colors text-left"
+                style={{ backgroundColor: "#6D2DE2", color: "#FFFFFF" }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#5A24C4")}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#6D2DE2")}
+                data-testid="button-onboard-choice-ready"
+              >
+                I know what they are — let's get started!
+              </button>
+            </div>
+          ) : isFinished ? (
             <div className="text-center space-y-3">
               {isGuest ? (
                 <>

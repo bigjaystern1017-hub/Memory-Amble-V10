@@ -216,7 +216,7 @@ export default function Amble() {
   const [state, setState] = useState<ConversationState>(createFreshState());
   const [resultsSummary, setResultsSummary] = useState({ correctCount: 0, totalItems: 0, streak: 0, justCompletedDay: 0 });
   const [pendingSession, setPendingSession] = useState<PendingSessionData | undefined>(undefined);
-  const [stageFadeIn, setStageFadeIn] = useState(true);
+  const [transcriptOpen, setTranscriptOpen] = useState(false);
 
   const [progressData, setProgressData] = useState<ProgressData>({
     currentDay: 1,
@@ -245,25 +245,6 @@ export default function Amble() {
     window.scrollTo(0, 0);
   }, [phase]);
 
-  // Auto-fade sound banner after 4 seconds
-  useEffect(() => {
-    if (!showSoundReminder) return;
-    const t = setTimeout(() => setShowSoundReminder(false), 4000);
-    return () => clearTimeout(t);
-  }, [showSoundReminder]);
-
-  // Crossfade stage on new Timbuk message
-  const prevLastMsgId = useRef(-1);
-  useEffect(() => {
-    const lastId = messages.length > 0 ? messages[messages.length - 1].id : -1;
-    if (lastId !== prevLastMsgId.current && lastId !== -1) {
-      prevLastMsgId.current = lastId;
-      setStageFadeIn(false);
-      const t = setTimeout(() => setStageFadeIn(true), 50);
-      return () => clearTimeout(t);
-    }
-  }, [messages]);
-
   const scrollToBottom = useCallback(() => {
     if (scrollRef.current) {
       setTimeout(() => {
@@ -279,40 +260,45 @@ export default function Amble() {
     (text: string) => {
       const id = ++msgIdRef.current;
       setMessages((prev) => [...prev, { id, sender: "gladys", text }]);
+      scrollToBottom();
     },
-    []
+    [scrollToBottom]
   );
 
   const showTimbukWithTypewriter = useCallback(
     (text: string): Promise<void> => {
       return new Promise((resolve) => {
         setIsTyping(true);
+        scrollToBottom();
         setTimeout(() => {
           setIsTyping(false);
           const id = ++msgIdRef.current;
           setMessages((prev) => [...prev, { id, sender: "timbuk", text, typewriter: true }]);
           setTypewriterBusy(true);
           typewriterResolveRef.current = resolve;
+          scrollToBottom();
         }, 500);
       });
     },
-    []
+    [scrollToBottom]
   );
 
   const showWisdomMessage = useCallback(
     (text: string): Promise<void> => {
       return new Promise((resolve) => {
         setIsTyping(true);
+        scrollToBottom();
         setTimeout(() => {
           setIsTyping(false);
           const id = ++msgIdRef.current;
           setMessages((prev) => [...prev, { id, sender: "timbuk", text, typewriter: true, variant: "wisdom" }]);
           setTypewriterBusy(true);
           typewriterResolveRef.current = resolve;
+          scrollToBottom();
         }, 500);
       });
     },
-    []
+    [scrollToBottom]
   );
 
   const handleTypewriterDone = useCallback(() => {
@@ -336,8 +322,9 @@ export default function Amble() {
     (text: string) => {
       const id = ++msgIdRef.current;
       setMessages((prev) => [...prev, { id, sender: "timbuk", text }]);
+      scrollToBottom();
     },
-    []
+    [scrollToBottom]
   );
 
   const fetchAssignments = useCallback(
@@ -470,6 +457,7 @@ export default function Amble() {
     async (beat: BeatId, currentState: ConversationState) => {
       if (beat === "assigning") {
         setIsTyping(true);
+        scrollToBottom();
         const newState = await fetchAssignments(currentState);
         setIsTyping(false);
 
@@ -485,7 +473,6 @@ export default function Amble() {
         const nextBeat = getNextBeat("assigning", newState);
         if (nextBeat) {
           setCurrentBeat(nextBeat);
-          await new Promise(resolve => setTimeout(resolve, 600));
           await advanceBeat(nextBeat, newState);
         }
         return;
@@ -496,7 +483,6 @@ export default function Amble() {
         const next = getNextBeat(beat, currentState);
         if (next) {
           setCurrentBeat(next);
-          await new Promise(resolve => setTimeout(resolve, 600));
           await advanceBeat(next, currentState);
         }
         return;
@@ -526,6 +512,7 @@ export default function Amble() {
       if (resolvedText === SMART_CONFIRM) {
         console.log("SMART_CONFIRM block entered for beat:", beat, "text value:", resolvedText, "SMART_CONFIRM sentinel:", SMART_CONFIRM);
         setIsTyping(true);
+        scrollToBottom();
 
         if (beat === "react-place") {
           const fallback = getReactPlaceFallback(currentState);
@@ -2007,59 +1994,65 @@ export default function Amble() {
         </div>
       )}
 
-      {/* ── FIXED STAGE + SIDEBAR ROW ── */}
-      {(() => {
-        const latestTimbukMessage = [...messages].reverse().find(m => m.sender === "timbuk");
-        const latestUserMessage = [...messages].reverse().find(m => m.sender === "gladys");
-        const hasMessages = messages.length > 0;
+      <div
+        className="relative z-10 flex-1 overflow-hidden flex min-h-0 transition-colors duration-500"
+        style={["recall", "react-recall", "check-in-recall", "react-check-in"].includes(currentBeat)
+          ? { backgroundColor: "rgba(237,233,254,0.18)" }
+          : undefined}
+      >
+        {/* Main chat column */}
+        <div
+          ref={scrollRef}
+          className={`flex-1 overflow-y-auto${chatFading ? " palace-chat-fading" : ""}`}
+          data-testid="chat-scroll"
+        >
+          {/* Derive latest messages for single-card stage */}
+          {(() => {
+            const latestTimbukMessage = [...messages].reverse().find(m => m.sender === "timbuk");
+            const latestUserMessage = [...messages].reverse().find(m => m.sender === "gladys");
+            const hasMessages = messages.length > 0;
 
-        const PLACEMENT_BEATS = new Set(["place-object", "mirror-object", "onboard-vivid", "react-practice"]);
-        const RECALL_BEATS = new Set(["recall", "react-recall", "check-in-recall", "react-check-in"]);
-        const inRecall = RECALL_BEATS.has(currentBeat);
-        const inPlacement = PLACEMENT_BEATS.has(currentBeat);
-        const currentAssignment = state.assignments?.[state.stepIndex];
-        const hasAssignment = !!currentAssignment?.object;
-        const sceneText = state.userScenes?.[state.stepIndex];
-        const shouldShowObjectCard = hasAssignment && (inPlacement || inRecall);
+            const PLACEMENT_BEATS = new Set(["place-object", "mirror-object", "onboard-vivid", "react-practice"]);
+            const RECALL_BEATS = new Set(["recall", "react-recall", "check-in-recall", "react-check-in"]);
+            const isObjectPlacementBeat = PLACEMENT_BEATS.has(currentBeat) || RECALL_BEATS.has(currentBeat);
+            const currentAssignment = state.assignments?.[state.stepIndex];
+            const hasAssignment = !!currentAssignment?.object;
+            const sceneText = state.userScenes?.[state.stepIndex];
+            const inRecall = RECALL_BEATS.has(currentBeat);
+            const inPlacement = PLACEMENT_BEATS.has(currentBeat);
+            const shouldShowObjectCard = hasAssignment && isObjectPlacementBeat;
 
-        // Continue button belongs inside the stage for all non-special beats
-        const continueInStage = showContinue
-          && currentBeat !== "expansion-offer"
-          && currentBeat !== "reverse-offer"
-          && !isFinished;
+            let objectCardMode: MemoryObjectCardMode = "idle";
+            if (inRecall) objectCardMode = "recalling";
+            else if (sceneText) objectCardMode = "planted";
+            else if (inPlacement) objectCardMode = "placing";
 
-        return (
-          <div
-            className={`relative z-10 flex-1 overflow-hidden flex min-h-0 transition-colors duration-500${chatFading ? " palace-chat-fading" : ""}`}
-            style={inRecall ? { backgroundColor: "rgba(237,233,254,0.18)" } : undefined}
-          >
-            {/* ── MAIN STAGE ── fills all space, no scroll */}
-            <div className="flex-1 overflow-hidden flex flex-col min-h-0" data-testid="chat-scroll">
-
-              {/* Sound reminder — auto-dismissed via useEffect */}
-              {showSoundReminder && hasMessages && (
-                <div className="flex justify-center pt-3 shrink-0">
-                  <div
-                    className="inline-flex items-center gap-2.5 py-2 px-5 rounded-full text-sm font-medium cursor-pointer transition-opacity"
-                    style={{ backgroundColor: "#EDE9FE", border: "1px solid #D4C8F8", color: "#5B21B6" }}
-                    onClick={() => setShowSoundReminder(false)}
-                  >
-                    <Volume2 className="w-4 h-4 flex-shrink-0" />
-                    <span>Sound on — Timbuk is more fun with sound</span>
-                    <span className="text-xs opacity-60 ml-1">×</span>
+            return (
+              <div className="max-w-[820px] mx-auto px-4 md:px-8 pt-6 pb-40 md:pb-44">
+                {/* Sound reminder */}
+                {showSoundReminder && hasMessages && (
+                  <div className="flex justify-center mb-4">
+                    <div
+                      className="inline-flex items-center gap-2.5 py-2.5 px-5 rounded-full text-sm font-medium cursor-pointer transition-colors"
+                      style={{ backgroundColor: "#EDE9FE", border: "1px solid #D4C8F8", color: "#5B21B6" }}
+                      onClick={() => setShowSoundReminder(false)}
+                    >
+                      <Volume2 className="w-4 h-4 flex-shrink-0" />
+                      <span>Sound on — Timbuk is more fun with sound</span>
+                      <span className="text-xs opacity-60 ml-1">×</span>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Stage content — vertically centered, crossfades on new message */}
-              <div
-                className="flex-1 flex flex-col justify-center overflow-hidden px-4 md:px-8"
-                style={{ opacity: stageFadeIn ? 1 : 0, transition: "opacity 300ms ease" }}
-                data-testid="lesson-stage"
-              >
-                <div className="max-w-[820px] mx-auto w-full flex flex-col gap-4">
+                {/* Stable lesson stage — single current Timbuk card */}
+                <div
+                  className="lesson-stage relative w-full min-h-[280px] md:min-h-[340px] flex flex-col justify-center"
+                  data-testid="lesson-stage"
+                >
+                  {isTyping && !latestTimbukMessage && (
+                    <ChatMessage sender="timbuk" text="" isTyping />
+                  )}
 
-                  {/* Latest Timbuk message */}
                   {latestTimbukMessage && (
                     <ChatMessage
                       key={latestTimbukMessage.id}
@@ -2074,9 +2067,15 @@ export default function Amble() {
                     />
                   )}
 
-                  {/* Latest user reply chip */}
+                  {isTyping && latestTimbukMessage && (
+                    <div className="mt-3">
+                      <ChatMessage sender="timbuk" text="" isTyping />
+                    </div>
+                  )}
+
+                  {/* Latest user reply — compact chip below Timbuk card */}
                   {latestUserMessage && latestTimbukMessage && latestUserMessage.id > latestTimbukMessage.id && (
-                    <div className="flex justify-end">
+                    <div className="mt-3 flex justify-end">
                       <div
                         className="inline-block max-w-[80%] px-4 py-2 rounded-2xl text-sm bg-primary/10 text-foreground border border-primary/15"
                         data-testid="user-reply-chip"
@@ -2085,103 +2084,77 @@ export default function Amble() {
                       </div>
                     </div>
                   )}
-
-                  {/* Continue button — lives inside the stage, not the input tray */}
-                  {continueInStage && (
-                    <div className="flex justify-center pt-2">
-                      <Button
-                        size="lg"
-                        onClick={handleContinue}
-                        className="gap-2"
-                        data-testid="button-continue"
-                      >
-                        {getContinueButtonLabel(currentBeat, state)}
-                        <ArrowRight className="w-5 h-5" />
-                      </Button>
-                    </div>
-                  )}
-
-                  {/* Object card — compact inline, placement or recall */}
-                  {shouldShowObjectCard && currentAssignment && (
-                    inRecall ? (
-                      <div
-                        className="rounded-xl border px-5 py-4 flex flex-col gap-1"
-                        style={{ backgroundColor: "#FFF8E7", borderColor: "#D4A843" }}
-                        data-testid="recall-object-card"
-                      >
-                        <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#8B6914" }}>
-                          Walk to this stop. What's waiting there?
-                        </p>
-                        <p className="font-bold text-lg text-foreground">{currentAssignment.object}</p>
-                        <p className="text-sm text-muted-foreground">{currentAssignment.stopName}</p>
-                      </div>
-                    ) : (
-                      <div
-                        className="rounded-xl border border-border/60 bg-card px-5 py-4 flex flex-col gap-1"
-                        data-testid="placement-object-card"
-                      >
-                        <p className="font-bold text-lg text-foreground">{currentAssignment.object}</p>
-                        <p className="text-sm text-muted-foreground">{currentAssignment.stopName}</p>
-                        <p className="text-xs text-muted-foreground/70 mt-0.5">Make it strange and vivid.</p>
-                      </div>
-                    )
-                  )}
-
-                  {/* Recall hint */}
-                  {recallHint && currentBeat === "recall" && (
-                    <div className="px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 flex items-start gap-2" data-testid="recall-hint-display">
-                      <Lightbulb className="w-3.5 h-3.5 text-primary/60 mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground italic leading-snug">{recallHint}</p>
-                    </div>
-                  )}
-
-                  {/* Spark button */}
-                  {showSparkButton && inputEnabled && !typewriterBusy && (
-                    <div className="flex justify-center">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleSpark}
-                        disabled={sparkLoading}
-                        className="gap-2 text-muted-foreground"
-                        data-testid="button-spark"
-                      >
-                        <Lightbulb className="w-4 h-4" />
-                        {sparkLoading ? "Thinking..." : "Stuck? Get a spark from Timbuk"}
-                      </Button>
-                    </div>
-                  )}
-
                 </div>
+
+                {/* Memory Object Card */}
+                {shouldShowObjectCard && (
+                  <div className="mt-4">
+                    <MemoryObjectCard
+                      objectName={currentAssignment?.object}
+                      stopName={currentAssignment?.stopName}
+                      sceneText={inRecall ? undefined : sceneText}
+                      stepIndex={state.stepIndex}
+                      totalItems={state.itemCount}
+                      mode={objectCardMode}
+                    />
+                  </div>
+                )}
+
+                {/* Collapsed transcript drawer */}
+                {hasMessages && messages.length > 1 && (
+                  <div className="mt-8">
+                    <button
+                      onClick={() => setTranscriptOpen(o => !o)}
+                      className="w-full flex items-center justify-center gap-2 text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors py-2"
+                      data-testid="button-transcript-toggle"
+                    >
+                      <span>{transcriptOpen ? "Hide" : "Review earlier messages"}</span>
+                      <span className="text-muted-foreground/40">{transcriptOpen ? "▲" : "▼"}</span>
+                    </button>
+                    {transcriptOpen && (
+                      <div className="mt-2 space-y-4 border-t border-border/30 pt-4" data-testid="transcript-drawer">
+                        {messages.map((msg, i) => (
+                          <ChatMessage
+                            key={msg.id}
+                            sender={msg.sender}
+                            text={msg.text}
+                            typewriter={false}
+                            variant={msg.variant}
+                            isLatest={false}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
+            );
+          })()}
+        </div>
 
-            {/* Sidebar — unchanged */}
-            <div className="hidden lg:flex flex-col w-[340px] shrink-0 border-l border-border/40 overflow-y-auto px-5 py-6 bg-background/60">
-              {inRecall ? (
-                <RecallWalkPanel
-                  placeName={state.placeName}
-                  stops={state.stops}
-                  currentRecallIndex={state.stepIndex}
-                  userAnswers={state.userAnswers}
-                  totalItems={state.itemCount}
-                />
-              ) : (
-                <MemoryRoutePanel
-                  placeName={state.placeName}
-                  stops={state.stops}
-                  assignments={state.assignments}
-                  userScenes={state.userScenes}
-                  currentStepIndex={state.stepIndex}
-                  currentBeat={currentBeat}
-                />
-              )}
-            </div>
-          </div>
-        );
-      })()}
+        {/* Sidebar — swaps between route panel and recall walk panel */}
+        <div className="hidden lg:flex flex-col w-[340px] shrink-0 border-l border-border/40 overflow-y-auto px-5 py-6 bg-background/60">
+          {["recall", "react-recall", "check-in-recall", "react-check-in"].includes(currentBeat) ? (
+            <RecallWalkPanel
+              placeName={state.placeName}
+              stops={state.stops}
+              currentRecallIndex={state.stepIndex}
+              userAnswers={state.userAnswers}
+              totalItems={state.itemCount}
+            />
+          ) : (
+            <MemoryRoutePanel
+              placeName={state.placeName}
+              stops={state.stops}
+              assignments={state.assignments}
+              userScenes={state.userScenes}
+              currentStepIndex={state.stepIndex}
+              currentBeat={currentBeat}
+            />
+          )}
+        </div>
+      </div>
 
-      {/* ── INPUT TRAY (pinned) ── */}
       <div className="relative z-10 border-t border-border/50 bg-card/90 backdrop-blur-sm shrink-0 shadow-sm">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8 py-4">
           {isFinished ? (
@@ -2225,16 +2198,30 @@ export default function Amble() {
             </div>
           ) : genError ? (
             <div className="text-center">
-              <Button size="lg" onClick={handleRetry} className="gap-2" data-testid="button-retry">
+              <Button
+                size="lg"
+                onClick={handleRetry}
+                className="gap-2"
+                data-testid="button-retry"
+              >
                 Try Again
               </Button>
             </div>
           ) : showContinue && currentBeat === "expansion-offer" ? (
             <div className="flex gap-3 justify-center">
-              <Button size="lg" onClick={handleExpansionAccept} data-testid="button-expansion-accept">
+              <Button
+                size="lg"
+                onClick={handleExpansionAccept}
+                data-testid="button-expansion-accept"
+              >
                 Let's push it!
               </Button>
-              <Button size="lg" variant="outline" onClick={handleExpansionDecline} data-testid="button-expansion-decline">
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={handleExpansionDecline}
+                data-testid="button-expansion-decline"
+              >
                 That's a win!
               </Button>
             </div>
@@ -2248,10 +2235,25 @@ export default function Amble() {
               </Button>
             </div>
           ) : showContinue ? (
-            /* Continue button is in the stage — keep tray minimal */
-            <div className="h-2" />
+            <div className="text-center">
+              <Button
+                size="lg"
+                onClick={handleContinue}
+                className="gap-2"
+                data-testid="button-continue"
+              >
+                {getContinueButtonLabel(currentBeat)}
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+            </div>
           ) : (
             <div className="space-y-2">
+              {recallHint && currentBeat === "recall" && (
+                <div className="px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 flex items-start gap-2" data-testid="recall-hint-display">
+                  <Lightbulb className="w-3.5 h-3.5 text-primary/60 mt-0.5 shrink-0" />
+                  <p className="text-xs text-muted-foreground italic leading-snug">{recallHint}</p>
+                </div>
+              )}
               <div className="flex items-center gap-2">
                 {inputEnabled && (
                   <button
@@ -2285,6 +2287,21 @@ export default function Amble() {
                   </Button>
                 )}
               </div>
+              {showSparkButton && inputEnabled && !typewriterBusy && (
+                <div className="flex justify-center">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleSpark}
+                    disabled={sparkLoading}
+                    className="gap-2 text-muted-foreground"
+                    data-testid="button-spark"
+                  >
+                    <Lightbulb className="w-4 h-4" />
+                    {sparkLoading ? "Thinking..." : "Stuck? Get a spark from Timbuk"}
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </div>

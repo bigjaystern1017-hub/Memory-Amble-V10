@@ -1036,30 +1036,18 @@ export function beatNeedsContinueButton(beatId: BeatId): boolean {
     || beatId === "palace-buffer"
     || beatId === "wisdom-drop"
     || beatId === "expansion-offer"
-    || beatId === "expansion-preview"
-    || beatId === "react-stop"
-    || beatId === "practice-intro"
-    || beatId === "practice-done"
-    || beatId === "placement-intro"
-    || beatId === "walkthrough-intro";
+    || beatId === "expansion-preview";
 }
 
-export function getContinueButtonLabel(beatId: BeatId, state?: ConversationState): string {
+export function getContinueButtonLabel(beatId: BeatId): string {
   if (beatId === "onboard-welcome") return "Yes, let us go!";
   if (beatId === "onboard-secret") return "Let the Memory-Ambling Begin!";
   if (beatId === "item-preview") return "Ready to place them →";
   if (beatId === "practice-buffer") return "Ok, I Pictured It";
   if (beatId === "practice-success") return "Let us do it!";
-  if (beatId === "practice-done") return "Ready for the real thing →";
+  if (beatId === "practice-done") return "Let's do it!";
   if (beatId === "palace-buffer") return "I'm ready";
   if (beatId === "wisdom-drop") return "Continue →";
-  if (beatId === "react-stop") {
-    if (state && state.stops.length < state.itemCount) return "Next stop →";
-    return "Let's go →";
-  }
-  if (beatId === "practice-intro") return "I'm ready →";
-  if (beatId === "placement-intro") return "Let's place them →";
-  if (beatId === "walkthrough-intro") return "Let's walk →";
   return "I'm Ready, Let's Go!";
 }
 

@@ -279,45 +279,40 @@ export default function Amble() {
     (text: string) => {
       const id = ++msgIdRef.current;
       setMessages((prev) => [...prev, { id, sender: "gladys", text }]);
-      scrollToBottom();
     },
-    [scrollToBottom]
+    []
   );
 
   const showTimbukWithTypewriter = useCallback(
     (text: string): Promise<void> => {
       return new Promise((resolve) => {
         setIsTyping(true);
-        scrollToBottom();
         setTimeout(() => {
           setIsTyping(false);
           const id = ++msgIdRef.current;
           setMessages((prev) => [...prev, { id, sender: "timbuk", text, typewriter: true }]);
           setTypewriterBusy(true);
           typewriterResolveRef.current = resolve;
-          scrollToBottom();
         }, 500);
       });
     },
-    [scrollToBottom]
+    []
   );
 
   const showWisdomMessage = useCallback(
     (text: string): Promise<void> => {
       return new Promise((resolve) => {
         setIsTyping(true);
-        scrollToBottom();
         setTimeout(() => {
           setIsTyping(false);
           const id = ++msgIdRef.current;
           setMessages((prev) => [...prev, { id, sender: "timbuk", text, typewriter: true, variant: "wisdom" }]);
           setTypewriterBusy(true);
           typewriterResolveRef.current = resolve;
-          scrollToBottom();
         }, 500);
       });
     },
-    [scrollToBottom]
+    []
   );
 
   const handleTypewriterDone = useCallback(() => {
@@ -341,9 +336,8 @@ export default function Amble() {
     (text: string) => {
       const id = ++msgIdRef.current;
       setMessages((prev) => [...prev, { id, sender: "timbuk", text }]);
-      scrollToBottom();
     },
-    [scrollToBottom]
+    []
   );
 
   const fetchAssignments = useCallback(
@@ -476,7 +470,6 @@ export default function Amble() {
     async (beat: BeatId, currentState: ConversationState) => {
       if (beat === "assigning") {
         setIsTyping(true);
-        scrollToBottom();
         const newState = await fetchAssignments(currentState);
         setIsTyping(false);
 
@@ -533,7 +526,6 @@ export default function Amble() {
       if (resolvedText === SMART_CONFIRM) {
         console.log("SMART_CONFIRM block entered for beat:", beat, "text value:", resolvedText, "SMART_CONFIRM sentinel:", SMART_CONFIRM);
         setIsTyping(true);
-        scrollToBottom();
 
         if (beat === "react-place") {
           const fallback = getReactPlaceFallback(currentState);
@@ -2067,11 +2059,6 @@ export default function Amble() {
               >
                 <div className="max-w-[820px] mx-auto w-full flex flex-col gap-4">
 
-                  {/* Timbuk loading dots — only before first message */}
-                  {isTyping && !latestTimbukMessage && (
-                    <ChatMessage sender="timbuk" text="" isTyping />
-                  )}
-
                   {/* Latest Timbuk message */}
                   {latestTimbukMessage && (
                     <ChatMessage
@@ -2085,11 +2072,6 @@ export default function Amble() {
                       variant={latestTimbukMessage.variant}
                       isLatest={latestTimbukMessage.id === lastMessageId}
                     />
-                  )}
-
-                  {/* Timbuk loading dots — while a follow-up message is incoming */}
-                  {isTyping && latestTimbukMessage && (
-                    <ChatMessage sender="timbuk" text="" isTyping />
                   )}
 
                   {/* Latest user reply chip */}
@@ -2113,7 +2095,7 @@ export default function Amble() {
                         className="gap-2"
                         data-testid="button-continue"
                       >
-                        {getContinueButtonLabel(currentBeat)}
+                        {getContinueButtonLabel(currentBeat, state)}
                         <ArrowRight className="w-5 h-5" />
                       </Button>
                     </div>

@@ -473,8 +473,8 @@ export default function Amble() {
         itemCount: template.stops.length,
       };
       updateState(newState);
-      setCurrentBeat("confirm-palace");
       setTimeout(() => {
+        setCurrentBeat("confirm-palace");
         advanceBeatRef.current("confirm-palace", newState);
       }, 300);
     },
@@ -2368,14 +2368,6 @@ export default function Amble() {
                     {confusedLoading ? "..." : "I'm confused"}
                   </button>
                 )}
-                <div className="flex-1">
-                  <ChatInput
-                    onSend={handleUserInput}
-                    placeholder={getInputPlaceholder(currentBeat, state)}
-                    disabled={!inputEnabled || isTyping || typewriterBusy}
-                    focusTrigger={inputFocusTrigger}
-                  />
-                </div>
                 {currentBeat === "recall" && inputEnabled && !typewriterBusy && (
                   <Button
                     variant="ghost"
@@ -2389,6 +2381,14 @@ export default function Amble() {
                     {recallHintLoading ? "..." : "Hint?"}
                   </Button>
                 )}
+                <div className="flex-1">
+                  <ChatInput
+                    onSend={handleUserInput}
+                    placeholder={getInputPlaceholder(currentBeat, state)}
+                    disabled={!inputEnabled || isTyping || typewriterBusy}
+                    focusTrigger={inputFocusTrigger}
+                  />
+                </div>
               </div>
               {showSparkButton && inputEnabled && !typewriterBusy && (
                 <div className="flex justify-center">

@@ -30,13 +30,13 @@ export function RecallWalkPanel({
       {/* Amber top accent — signals recall mode */}
       <div
         className="h-1 w-full"
-        style={{ background: "linear-gradient(90deg, #C2540A 0%, #FB923C 100%)" }}
+        style={{ background: "linear-gradient(90deg, #D4A843 0%, #F5C842 100%)" }}
       />
 
       {/* Header */}
       <div className="px-5 py-4 border-b" style={{ borderColor: "#F0EBF8" }}>
         <div className="flex items-center gap-2 mb-0.5">
-          <Footprints className="w-4 h-4" style={{ color: "#C2540A" }} />
+          <Footprints className="w-4 h-4" style={{ color: "#8B6914" }} />
           <h3 className="font-semibold text-sm" style={{ color: "#1A1028" }}>Walk It Back</h3>
         </div>
         <p className="text-xs" style={{ color: "#9C8BB4" }}>
@@ -46,7 +46,7 @@ export function RecallWalkPanel({
         {/* Instruction pill */}
         <div
           className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium"
-          style={{ backgroundColor: "#FFF7ED", color: "#C2540A" }}
+          style={{ backgroundColor: "#FFF8E7", color: "#8B6914" }}
         >
           Don't memorize. Walk.
         </div>
@@ -86,7 +86,7 @@ export function RecallWalkPanel({
                   className="flex gap-3 rounded-xl px-3 py-3 transition-all duration-200"
                   style={
                     isActive
-                      ? { backgroundColor: "#FFF7ED", border: "1px solid #FED7AA" }
+                      ? { backgroundColor: "#FFF8E7", border: "1px solid #D4A843" }
                       : isDone
                       ? { backgroundColor: "#FAFAFE", border: "1px solid #EDE9FA" }
                       : { backgroundColor: "#FAFAFA", border: "1px solid #F0EDF8" }
@@ -106,7 +106,7 @@ export function RecallWalkPanel({
                         className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
                         style={
                           isActive
-                            ? { backgroundColor: "#C2540A", color: "#fff" }
+                            ? { backgroundColor: "#D4A843", color: "#fff" }
                             : { backgroundColor: "#EDE9FE", color: "#9C8BB4" }
                         }
                       >
@@ -124,7 +124,7 @@ export function RecallWalkPanel({
                       {stop}
                     </span>
                     {isActive && (
-                      <p className="text-xs mt-0.5 font-semibold" style={{ color: "#C2540A" }}>
+                      <p className="text-xs mt-0.5 font-semibold" style={{ color: "#8B6914" }}>
                         You are here
                       </p>
                     )}

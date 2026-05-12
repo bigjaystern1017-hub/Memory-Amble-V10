@@ -466,7 +466,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
         ? `Keeping your mind active. That is why I am here too.`
         : `Curiosity is how every great palace begins.`;
       if (fromQuiz) {
-        return `Welcome back, ${name}! I am Timbuk. ${goalLine}\n\nLet us build your first Memory Palace — it takes about 10 minutes.`;
+        return `Welcome, ${name}! I am Timbuk. ${goalLine}\n\nLet us build your first Memory Palace — it takes about 10 minutes.`;
       }
       return `Ah, ${name}! I am Timbuk — your guide. ${goalLine}\n\nToday we build your Memory Palace. I have a small surprise waiting for you at the end.`;
     }
@@ -622,7 +622,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       if (cat === 'practical') {
         return `${prefix} — ${emoji} ${a.object}. Now make it YOURS — how are you going to remember ${practicalItemPhrase(a.object)}?`;
       }
-      return `${prefix} — ${emoji} ${a.object}. Make it YOURS — what is happening with that ${a.object} at __STOP__?`;
+      return `${stopPhrase(a.stopName)} — ${a.object}. Make it strange and vivid.`;
     }
 
     case "mirror-object":
@@ -874,7 +874,7 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
       return "onboard-ready";
 
     case "onboard-ready":
-      return "ask-stop";
+      return "ask-place";
 
     case "ask-place":
       return "react-place";

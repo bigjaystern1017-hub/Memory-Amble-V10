@@ -804,7 +804,7 @@ export function AmbleResults({
                         </p>
                       </div>
                       <p className="font-serif text-base leading-relaxed" style={{ color: "#78350F" }}>
-                        Timbuk made a scroll from your walk.
+                        Remember the gift I mentioned? Here it is.
                       </p>
                       <Button
                         size="sm"

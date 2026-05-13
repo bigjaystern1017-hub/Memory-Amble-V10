@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { playSound } from "@/lib/sounds";
-import { Trophy, Flame, ArrowLeft, Eye, EyeOff, Download, CheckCircle2, Route, Sparkles } from "lucide-react";
+import { Trophy, Flame, ArrowLeft, Eye, EyeOff, Download, CheckCircle2, Route, Sparkles, Share2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { SiGoogle } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
 import timbukAvatar from "@assets/timbuk-avatar_1773957235129.png";
+import terraceBg from "@assets/background_table_plate_1778673642748.png";
 
 export interface PendingSessionData {
   date: string;
@@ -579,34 +580,80 @@ export function AmbleResults({
       : correctCount >= totalItems * 0.66
       ? "Your palace is working."
       : correctCount >= 1
-      ? "The pictures are taking shape."
-      : "You built a palace and walked through it. That's a real start.";
+      ? "The images are taking shape."
+      : "You built a route. Tomorrow, we strengthen it.";
 
   const headline = (currentDay || 0) <= 1
     ? "You just built your first Memory Palace."
     : "You strengthened your Memory Palace.";
 
+  const handleShare = () => {
+    playSound("click");
+    const shareText = `${displayName} just completed their Day ${currentDay || 1} memory walk with MemoryAmble — here's what Timbuk wrote them:\n\n"${scrollText}"\n\nThis is what 10 minutes a day looks like. MemoryAmble teaches the 2,000-year-old Memory Palace technique through a guided daily practice — built for seniors who want to stay sharp and have fun doing it.\n\n→ Try your first day free: memoryamble.com`;
+    if (navigator.share) {
+      navigator.share({ title: `${displayName}'s Memory Palace`, text: shareText }).catch(() => {});
+      return;
+    }
+    navigator.clipboard.writeText(shareText).then(() => {
+      setShareButtonText("Copied!");
+      setTimeout(() => setShareButtonText("Share My Scroll"), 2000);
+    }).catch(() => {});
+  };
+
   return (
     <>
       {isPerfect && <Confetti />}
+
+      {/* ── PAGE WRAPPER with backing plate ── */}
       <div
-        className="min-h-dvh flex flex-col items-center justify-start px-4 py-10 overflow-y-auto"
+        className="relative min-h-dvh flex flex-col items-center justify-start overflow-y-auto overflow-x-hidden"
         style={{ background: "linear-gradient(160deg, #F5F0FF 0%, #FAF7FF 40%, #FEF9F0 100%)" }}
       >
+        {/* Layer 1 — backing plate image (hidden on mobile) */}
+        <img
+          src={terraceBg}
+          alt=""
+          aria-hidden="true"
+          className="hidden sm:block"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "center bottom",
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
+        />
+
+        {/* Layer 2 — cream/lavender readability overlay */}
+        <div
+          className="hidden sm:block"
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 1,
+            pointerEvents: "none",
+            background: "linear-gradient(160deg, rgba(245,240,255,0.88) 0%, rgba(250,247,255,0.84) 40%, rgba(254,249,240,0.88) 100%)",
+          }}
+        />
+
+        {/* Layer 3 — main card content */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="max-w-[860px] w-full mx-auto space-y-5"
+          className="relative w-full max-w-[1060px] mx-auto px-4 py-10 space-y-5"
+          style={{ zIndex: 10 }}
         >
-
-          {/* ── PROOF MOMENT CARD ── */}
+          {/* ── MAIN COMPLETION CARD ── */}
           <div
             className="rounded-3xl overflow-hidden"
             style={{
               backgroundColor: "#FFFFFF",
               border: "1px solid #E8E3F4",
-              boxShadow: "0 4px 24px rgba(109,45,226,0.09)",
+              boxShadow: "0 6px 32px rgba(109,45,226,0.11)",
             }}
           >
             {/* Purple top accent */}
@@ -614,10 +661,12 @@ export function AmbleResults({
 
             <div className="px-6 md:px-10 py-8 space-y-7">
 
-              {/* Eyebrow + headline */}
+              {/* ── CEREMONY HEADER ── */}
               <div className="text-center space-y-3">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase"
-                  style={{ backgroundColor: "#EDE9FE", color: "#6D2DE2" }}>
+                <div
+                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase"
+                  style={{ backgroundColor: "#EDE9FE", color: "#6D2DE2" }}
+                >
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   Today's Walk Complete
                 </div>
@@ -631,9 +680,9 @@ export function AmbleResults({
                 </h1>
               </div>
 
-              {/* Hero score */}
+              {/* ── SCORE PANEL ── */}
               <div
-                className="rounded-2xl px-6 py-6 text-center space-y-2"
+                className="rounded-2xl px-6 py-6 text-center space-y-2 max-w-xs mx-auto w-full"
                 style={{ backgroundColor: "#F5F0FF", border: "1px solid #DDD5F8" }}
               >
                 <p className="text-6xl font-bold font-serif" style={{ color: "#1A1028" }}>
@@ -648,7 +697,7 @@ export function AmbleResults({
                 </p>
               </div>
 
-              {/* Proof statement */}
+              {/* ── PROOF STATEMENT ── */}
               <div className="text-center space-y-1">
                 <p className="font-serif text-lg md:text-xl" style={{ color: "#3D2E6E" }}>
                   You didn't memorize a list. You walked a route.
@@ -658,185 +707,202 @@ export function AmbleResults({
                 </p>
               </div>
 
-              {/* Streak card */}
+              {/* ── STREAK STRIP ── */}
               {streak > 0 && (
-                <div
-                  className="flex items-center justify-center gap-3 rounded-xl px-5 py-3"
-                  style={{ backgroundColor: "#FFF7ED", border: "1px solid #FED7AA" }}
-                >
-                  <Flame className="w-5 h-5 flex-shrink-0" style={{ color: "#C2540A" }} />
-                  <p className="text-sm font-semibold" style={{ color: "#92400E" }}>
-                    {streak === 1 ? "First day of your streak." : `${streak}-day streak. The palace is getting familiar.`}
-                  </p>
-                </div>
-              )}
-
-              {getMilestoneNudge(currentDay || 0) && (
-                <p className="text-center text-sm font-medium italic" style={{ color: "#6D2DE2" }}>
-                  {getMilestoneNudge(currentDay || 0)}
-                </p>
-              )}
-
-              {/* Route recap */}
-              {recapItems.length > 0 && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Route className="w-4 h-4" style={{ color: "#9C8BB4" }} />
-                    <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#9C8BB4" }}>
-                      {effectivePlaceName ? `Your route through ${effectivePlaceName.replace(/^my /i, "")}` : "Your route today"}
-                    </p>
-                  </div>
-                  <div className="space-y-1.5">
-                    {recapItems.map((item, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-3 rounded-xl px-4 py-2.5"
-                        style={{ backgroundColor: "#FAFAFE", border: "1px solid #EDE9FA" }}
-                      >
-                        <span
-                          className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                          style={{ backgroundColor: "#EDE9FE", color: "#6D2DE2" }}
-                        >
-                          {i + 1}
-                        </span>
-                        <span className="text-sm" style={{ color: "#5B4B8A" }}>
-                          <span className="font-medium">{item.stopName}</span>
-                          {item.object && (
-                            <>
-                              <span style={{ color: "#C4B5FD" }}> — </span>
-                              <span style={{ color: "#6D2DE2" }} className="font-semibold">
-                                {item.object.charAt(0).toUpperCase() + item.object.slice(1)}
-                              </span>
-                            </>
-                          )}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-xs text-center italic" style={{ color: "#C4B5FD" }}>
-                    The images were waiting where you placed them.
-                  </p>
-                </div>
-              )}
-
-            </div>
-          </div>
-
-          {/* ── TIMBUK'S SCROLL SECTION ── */}
-          <div
-            className="rounded-2xl overflow-hidden"
-            style={{
-              backgroundColor: "#FFFFFF",
-              border: "1px solid #E8E3F4",
-              boxShadow: "0 2px 12px rgba(109,45,226,0.06)",
-            }}
-          >
-            <div className="px-6 md:px-10 py-6">
-
-              {scrollPhase === "prompt" && (
-                <div className="text-center space-y-5">
-                  <div className="flex justify-center">
-                    <img src={timbukAvatar} alt="Timbuk" className="w-14 h-14 rounded-full" />
-                  </div>
-                  <p className="font-serif text-lg md:text-xl leading-relaxed" style={{ color: "#3D2E6E" }}>
-                    I wrote you something while you were walking.<br />Shall I show you?
-                  </p>
-                  <Button
-                    size="lg"
-                    onClick={handleShowScroll}
-                    className="gap-2 text-base px-8 py-5"
-                    data-testid="button-show-scroll"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    Show me
-                  </Button>
-                </div>
-              )}
-
-              {scrollPhase === "loading" && (
-                <div className="text-center space-y-3 py-8">
-                  <img src={timbukAvatar} alt="Timbuk" className="w-14 h-14 rounded-full mx-auto" />
-                  <p className="font-medium" style={{ color: "#1A1028" }}>Timbuk is writing your scroll...</p>
-                  <p className="text-sm italic" style={{ color: "#9C8BB4" }}>He takes these seriously.</p>
-                </div>
-              )}
-
-              {scrollPhase === "revealed" && (
-                <div className="space-y-6">
-                  {/* THE SCROLL */}
+                <div>
                   <div
-                    className="rounded-2xl p-6 md:p-8 space-y-4 border border-amber-200"
-                    style={{
-                      background: "linear-gradient(135deg, #fef9f0 0%, #fdf3e0 50%, #fef9f0 100%)",
-                      boxShadow: "0 4px 24px rgba(180, 140, 80, 0.12)",
-                    }}
-                    data-testid="amble-scroll-card"
+                    className="flex items-center justify-center gap-3 rounded-xl px-5 py-3"
+                    style={{ backgroundColor: "#FFF7ED", border: "1px solid #FED7AA" }}
                   >
-                    <div className="flex items-center gap-3 pb-3 border-b border-amber-200/60">
-                      <img src={timbukAvatar} alt="Timbuk" className="w-10 h-10 rounded-full flex-shrink-0" />
+                    <Flame className="w-5 h-5 flex-shrink-0" style={{ color: "#C2540A" }} />
+                    <p className="text-sm font-semibold" style={{ color: "#92400E" }}>
+                      {streak === 1 ? "First day of your streak." : `${streak} days in a row.`}
+                    </p>
+                  </div>
+                  {getMilestoneNudge(currentDay || 0) && (
+                    <p className="text-center text-sm font-medium italic mt-2" style={{ color: "#6D2DE2" }}>
+                      {getMilestoneNudge(currentDay || 0)}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* ── ROUTE + SCROLL (two-column on desktop) ── */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+
+                {/* LEFT — Route recap */}
+                <div className="space-y-3">
+                  {recapItems.length > 0 ? (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <Route className="w-4 h-4" style={{ color: "#9C8BB4" }} />
+                        <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#9C8BB4" }}>
+                          Your route through {effectivePlaceName ? effectivePlaceName.replace(/^my /i, "") : "your palace"}
+                        </p>
+                      </div>
+                      <div className="space-y-1.5">
+                        {recapItems.map((item, i) => (
+                          <div
+                            key={i}
+                            className="flex items-center gap-3 rounded-xl px-4 py-2.5"
+                            style={{ backgroundColor: "#FAFAFE", border: "1px solid #EDE9FA" }}
+                          >
+                            <span
+                              className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                              style={{ backgroundColor: "#EDE9FE", color: "#6D2DE2" }}
+                            >
+                              {i + 1}
+                            </span>
+                            <span className="text-sm" style={{ color: "#5B4B8A" }}>
+                              <span className="font-medium">{item.stopName}</span>
+                              {item.object && (
+                                <>
+                                  <span style={{ color: "#C4B5FD" }}> — </span>
+                                  <span style={{ color: "#6D2DE2" }} className="font-semibold">
+                                    {item.object.charAt(0).toUpperCase() + item.object.slice(1)}
+                                  </span>
+                                </>
+                              )}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-xs italic" style={{ color: "#C4B5FD" }}>
+                        The images were waiting where you placed them.
+                      </p>
+                    </>
+                  ) : (
+                    <div
+                      className="rounded-2xl px-5 py-8 text-center"
+                      style={{ backgroundColor: "#FAFAFE", border: "1px solid #EDE9FA" }}
+                    >
+                      <p className="text-sm" style={{ color: "#C4B5FD" }}>
+                        Your route will appear here after today's walk.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* RIGHT — Amble Scroll */}
+                <div>
+                  {scrollPhase === "prompt" && (
+                    <div
+                      className="rounded-2xl p-6 space-y-4 text-center"
+                      style={{
+                        background: "linear-gradient(135deg, #fef9f0 0%, #fdf3e0 100%)",
+                        border: "1px solid #e9d09a",
+                        boxShadow: "0 2px 12px rgba(180,140,80,0.10)",
+                      }}
+                    >
+                      <img src={timbukAvatar} alt="Timbuk" className="w-12 h-12 rounded-full mx-auto" />
                       <div>
-                        <p className="font-serif text-sm font-semibold text-amber-900">The Amble Scroll of {displayName}</p>
-                        <p className="text-xs text-amber-700/70">{effectivePlaceName || "Your Palace"} — Day {currentDay || 1}</p>
+                        <p className="font-serif text-sm font-semibold" style={{ color: "#92400E" }}>
+                          The Amble Scroll of {displayName}
+                        </p>
+                        <p className="text-xs mt-0.5" style={{ color: "#B45309" }}>
+                          {effectivePlaceName || "Your Palace"} — Day {currentDay || 1}
+                        </p>
+                      </div>
+                      <p className="font-serif text-base leading-relaxed" style={{ color: "#78350F" }}>
+                        Timbuk made a scroll from your walk.
+                      </p>
+                      <Button
+                        size="sm"
+                        onClick={handleShowScroll}
+                        className="gap-2"
+                        data-testid="button-show-scroll"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        Show My Scroll
+                      </Button>
+                    </div>
+                  )}
+
+                  {scrollPhase === "loading" && (
+                    <div
+                      className="rounded-2xl p-6 space-y-3 text-center"
+                      style={{
+                        background: "linear-gradient(135deg, #fef9f0 0%, #fdf3e0 100%)",
+                        border: "1px solid #e9d09a",
+                        boxShadow: "0 2px 12px rgba(180,140,80,0.10)",
+                      }}
+                    >
+                      <img src={timbukAvatar} alt="Timbuk" className="w-12 h-12 rounded-full mx-auto" style={{ animation: "pulse 2s ease-in-out infinite" }} />
+                      <p className="font-serif text-base font-medium" style={{ color: "#78350F" }}>
+                        Timbuk is writing your scroll...
+                      </p>
+                      <p className="text-sm italic" style={{ color: "#B45309" }}>
+                        He takes these seriously.
+                      </p>
+                    </div>
+                  )}
+
+                  {scrollPhase === "revealed" && (
+                    <div
+                      className="rounded-2xl p-5 md:p-6 space-y-4"
+                      style={{
+                        background: "linear-gradient(135deg, #fef9f0 0%, #fdf3e0 50%, #fef9f0 100%)",
+                        border: "1px solid #e9d09a",
+                        boxShadow: "0 4px 24px rgba(180,140,80,0.12)",
+                      }}
+                      data-testid="amble-scroll-card"
+                    >
+                      <div className="flex items-center gap-3 pb-3 border-b" style={{ borderColor: "rgba(233,208,154,0.6)" }}>
+                        <img src={timbukAvatar} alt="Timbuk" className="w-10 h-10 rounded-full flex-shrink-0" />
+                        <div>
+                          <p className="font-serif text-sm font-semibold" style={{ color: "#92400E" }}>
+                            The Amble Scroll of {displayName}
+                          </p>
+                          <p className="text-xs" style={{ color: "rgba(180,83,9,0.7)" }}>
+                            {effectivePlaceName || "Your Palace"} — Day {currentDay || 1}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="font-serif text-base md:text-lg leading-relaxed" style={{ color: "#451A03" }}>
+                        {scrollText}
+                      </p>
+                      <div className="pt-3 border-t flex items-center justify-between" style={{ borderColor: "rgba(233,208,154,0.6)" }}>
+                        <p className="text-xs" style={{ color: "rgba(180,83,9,0.6)" }}>Built with Timbuk</p>
+                        <p className="text-xs" style={{ color: "rgba(180,83,9,0.6)" }}>MemoryAmble.com</p>
                       </div>
                     </div>
-                    <p className="font-serif text-base md:text-lg leading-relaxed text-amber-950">
-                      {scrollText}
-                    </p>
-                    <div className="pt-3 border-t border-amber-200/60 flex items-center justify-between">
-                      <p className="text-xs text-amber-700/60">Built with Timbuk</p>
-                      <p className="text-xs text-amber-700/60">MemoryAmble.com</p>
-                    </div>
-                  </div>
+                  )}
+                </div>
+              </div>
 
-                  {/* Share */}
-                  <div className="text-center space-y-3">
-                    <p className="text-sm" style={{ color: "#9C8BB4" }}>
-                      If it made you smile — it might do the same for someone you love.
-                    </p>
+              {/* ── CTA BUTTONS ── */}
+              <div className="space-y-3 pt-2">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                  {scrollPhase === "revealed" && (
                     <Button
                       size="lg"
-                      className="w-full gap-2"
-                      onClick={() => {
-                        playSound("click");
-                        const shareText = `${displayName} just completed their Day ${currentDay || 1} memory walk with MemoryAmble — here's what Timbuk wrote them:\n\n"${scrollText}"\n\nThis is what 10 minutes a day looks like. MemoryAmble teaches the 2,000-year-old Memory Palace technique through a guided daily practice — built for seniors who want to stay sharp and have fun doing it.\n\n→ Try your first day free: memoryamble.com`;
-                        if (navigator.share) {
-                          navigator.share({ title: `${displayName}'s Memory Palace`, text: shareText }).catch(() => {});
-                          return;
-                        }
-                        navigator.clipboard.writeText(shareText).then(() => {
-                          setShareButtonText("Copied!");
-                          setTimeout(() => setShareButtonText("Share My Scroll"), 2000);
-                        }).catch(() => {});
-                      }}
+                      onClick={handleShare}
+                      className="w-full sm:w-auto gap-2 px-8"
                       data-testid="button-share-scroll"
                     >
+                      <Share2 className="w-4 h-4" />
                       {shareButtonText}
                     </Button>
-                    <p className="text-xs" style={{ color: "#C4B5FD" }}>
-                      Your scroll is yours. We don't post anything without your tap.
-                    </p>
-                  </div>
+                  )}
+                  <Button
+                    size="lg"
+                    variant={scrollPhase === "revealed" ? "outline" : "default"}
+                    onClick={handleSeeYouTomorrow}
+                    className="w-full sm:w-auto gap-2 px-8"
+                    data-testid="button-see-you-tomorrow"
+                  >
+                    See You Tomorrow
+                  </Button>
                 </div>
-              )}
+                {scrollPhase === "revealed" && (
+                  <p className="text-center text-xs" style={{ color: "#C4B5FD" }}>
+                    Your scroll is yours. We don't post anything without your tap.
+                  </p>
+                )}
+              </div>
 
             </div>
           </div>
-
-          {/* ── CTA ── */}
-          <div className="text-center space-y-3 pb-4">
-            <p className="text-sm italic" style={{ color: "#9C8BB4" }}>
-              Tomorrow, we'll strengthen the route.
-            </p>
-            <Button
-              size="lg"
-              onClick={handleSeeYouTomorrow}
-              className="gap-2 text-lg px-8 py-6 w-full sm:w-auto"
-              data-testid="button-see-you-tomorrow"
-            >
-              See You Tomorrow
-            </Button>
-          </div>
-
         </motion.div>
       </div>
     </>

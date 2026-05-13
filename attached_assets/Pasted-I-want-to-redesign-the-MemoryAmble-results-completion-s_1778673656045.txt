@@ -1,0 +1,367 @@
+I want to redesign the MemoryAmble results/completion screen to match a new blue-sky mockup direction.
+
+Relevant file:
+- client/src/components/amble-results.tsx
+
+Potentially relevant, but only if absolutely needed:
+- client/src/pages/amble.tsx
+- client/src/index.css
+
+Important:
+Do NOT change recall scoring.
+Do NOT change how correctCount or totalItems are calculated.
+Do NOT change session saving.
+Do NOT change Supabase/auth behavior.
+Do NOT change guest conversion behavior.
+Do NOT change pendingSession behavior.
+Do NOT change localStorage keys.
+Do NOT change API routes.
+Do NOT change the /api/generate-scroll endpoint.
+Do NOT remove the existing share behavior.
+Do NOT remove the existing “See You Tomorrow” behavior.
+Do NOT break the graduation flow for Day 7.
+Do NOT break the guest signup/paywall/conversion flow.
+
+This is primarily a UI/layout redesign of the normal non-graduation results screen in AmbleResults.
+
+CURRENT STRUCTURE:
+The file currently has:
+- AmbleResults props including correctCount, totalItems, streak, onContinue, isGuest, userName, dayCount, currentDay, placeName, stops, pendingSession, userScenes, assignments
+- scrollPhase state: "hidden" | "prompt" | "loading" | "revealed"
+- scrollText state
+- handleShowScroll() that calls /api/generate-scroll
+- Share My Scroll behavior using navigator.share or clipboard
+- handleSeeYouTomorrow()
+- showConversion branch for guest account creation
+- isGraduation branch for Day 7
+- normal results branch with scroll prompt/loading/revealed sections
+
+Preserve all of that logic. Redesign the normal results branch.
+
+DESIGN GOAL:
+Turn the results screen into one cohesive completion ceremony.
+
+The emotional story:
+The user completed a memory walk. They remembered their items by walking a route. Timbuk presents them with a keepsake scroll from their journey.
+
+The screen should feel:
+- calm
+- premium
+- magical but restrained
+- warm
+- airy
+- a little travel/retreat-like
+- less like a quiz score
+- more like a “you completed today’s walk” ceremony
+
+Use the attached mockup as the visual reference.
+
+HIGH-LEVEL LAYOUT:
+Create one main centered completion card instead of many disconnected stacked cards.
+
+The screen should have:
+- soft warm/lavender background
+- one large white/cream rounded completion card
+- thin purple top accent line
+- soft shadow
+- max width around 1000–1150px on desktop
+- generous padding
+- desktop two-column section for route recap + scroll
+- mobile stacked layout
+
+BACKGROUND:
+Use the existing MemoryAmble warm atmosphere if available, but keep it subtle.
+Do not let the background compete with the results card.
+If the onboarding/tabletop background is used globally, make this results screen use a quieter/fainter version.
+
+MAIN CARD STRUCTURE:
+
+1. Top ceremony header
+Inside the main card, centered:
+
+Eyebrow pill:
+“TODAY’S WALK COMPLETE”
+
+Small day label:
+“DAY 1 COMPLETE”
+Use currentDay if available:
+`DAY ${currentDay || 1} COMPLETE`
+
+Main headline:
+If currentDay is 1 or missing:
+“You just built your first Memory Palace.”
+Otherwise:
+“You strengthened your Memory Palace.”
+
+2. Score panel
+Use existing correctCount and totalItems.
+
+Display:
+`3 of 3`
+`ITEMS REMEMBERED`
+
+Subcopy based on score:
+- if perfect: “Your palace held everything.”
+- if mostly correct: “Your palace is working.”
+- if partial: “The images are taking shape.”
+- if zero: “You built a route. Tomorrow, we strengthen it.”
+
+Design:
+- pale lavender panel
+- rounded-2xl
+- subtle border
+- centered
+- compact, not huge
+- use large serif number
+- keep accessible contrast
+
+3. Proof statement
+Below score:
+
+“You didn’t memorize a list. You walked a route.”
+
+Below that:
+“That is the Memory Palace working.”
+
+This should be visually prominent, but not louder than the main headline.
+
+4. Streak / milestone strip
+Use existing streak and getMilestoneNudge(currentDay).
+
+If streak <= 1:
+Show a warm amber/gold strip:
+“First day of your streak.”
+
+If streak > 1:
+Show:
+`${streak} days in a row.`
+
+If getMilestoneNudge(currentDay) returns a value, show it subtly underneath or inside the strip.
+
+Do not change streak logic.
+
+5. Route + Scroll section
+Create a responsive two-column layout on desktop:
+
+Left column:
+Route recap
+
+Right column:
+Amble Scroll
+
+On mobile:
+Stack route above scroll.
+
+LEFT COLUMN — ROUTE RECAP:
+Title:
+`YOUR ROUTE THROUGH ${placeName || "YOUR PALACE"}`
+
+Use existing assignments if available.
+Fallback:
+- if assignments exist: show assignment.stopName — assignment.object
+- else if stops exist: show stop names only
+- else show empty state: “Your route will appear here after today’s walk.”
+
+Each route row:
+- pale row background
+- rounded-xl
+- number circle on left
+- stop name in dark text
+- object name in purple
+- small object icon on far right if easy using lucide icons or generic Sparkles/Package icon
+- do not add custom images
+
+Example:
+1. Front Door — Violin
+2. Hallway — Cactus
+3. Kitchen — $100 bill
+
+Bottom route caption:
+“The images were waiting where you placed them.”
+
+RIGHT COLUMN — AMBLE SCROLL:
+The scroll should become the emotional reward and should be visible in the main ceremony flow.
+
+Scroll card style:
+- parchment/cream background
+- warm gold border
+- subtle shadow
+- rounded-2xl
+- optional little folded corner effect using CSS if easy
+- Timbuk avatar top-left
+- serif body text
+- footer line
+
+Header:
+“The Amble Scroll of {displayName}”
+
+Subtitle:
+`${placeName || "Your Palace"} — Day ${currentDay || 1}`
+
+Body:
+Use existing scrollText.
+
+Footer:
+Left: “Built with Timbuk”
+Right: “MemoryAmble.com”
+
+IMPORTANT ABOUT SCROLL PHASE:
+Right now scrollPhase has prompt/loading/revealed.
+
+Keep the existing handleShowScroll() and /api/generate-scroll logic, but make the screen feel cohesive in all phases:
+
+If scrollPhase === "prompt":
+- Do not show a separate disconnected prompt card.
+- Inside the scroll card area, show a parchment placeholder with Timbuk avatar and copy:
+  “Timbuk made a scroll from your walk.”
+- Button inside the scroll area:
+  “Show My Scroll”
+- Clicking it should call existing handleShowScroll.
+- Keep data-testid="button-show-scroll".
+
+If scrollPhase === "loading":
+- Keep the same main completion layout.
+- In the scroll card area show:
+  “Timbuk is writing your scroll...”
+  “He takes these seriously.”
+- Use a subtle loading shimmer or soft pulse, not a spinner-heavy UI.
+
+If scrollPhase === "revealed":
+- Show the actual scrollText in the parchment card.
+- Show share controls beneath the route/scroll section.
+
+OPTIONAL BUT PREFERRED:
+If it is safe, automatically call handleShowScroll once after the results screen mounts so the scroll appears naturally after a short loading state, instead of making the user click “Show me.”
+But only do this if it will not double-call /api/generate-scroll and will not break existing behavior.
+If unsure, keep the explicit “Show My Scroll” button.
+
+6. CTA hierarchy
+At the bottom of the main card:
+
+Primary:
+“Share My Scroll”
+Use existing share behavior exactly.
+Keep data-testid="button-share-scroll".
+
+Secondary:
+“See You Tomorrow”
+Use existing handleSeeYouTomorrow exactly.
+Keep data-testid="button-see-you-tomorrow".
+
+Make these buttons sit side by side on desktop and stack on mobile.
+
+Important:
+Do not make both buttons giant purple primary buttons.
+Use:
+- Share My Scroll = primary purple
+- See You Tomorrow = secondary outline or pale lavender
+
+Under the buttons, keep:
+“Your scroll is yours. We don't post anything without your tap.”
+
+7. Confetti
+The current component has Confetti for perfect results.
+The new visual direction should avoid loud confetti.
+Either:
+- remove confetti from the normal results branch, OR
+- make it extremely subtle and only on perfect score.
+Do not remove graduation confetti unless it is clearly separate and safe.
+
+8. Existing guest conversion branch
+Do not redesign the showConversion branch right now unless necessary.
+The signup/paywall account creation flow must keep working exactly as before.
+
+9. Existing graduation branch
+Do not redesign the isGraduation branch right now.
+Leave GraduationBadge and Day 7 flow alone unless there is a tiny style conflict.
+
+10. Imports
+Currently AmbleResults imports several icons:
+Trophy, Flame, ArrowLeft, Eye, EyeOff, Download.
+You can add small lucide icons if useful:
+- CheckCircle2
+- Route
+- Share2
+- Sparkles
+- ScrollText
+- Sun
+- Package
+But do not add heavy dependencies.
+
+11. Responsive behavior
+Desktop:
+- main card max-width around 1000–1150px
+- two-column route/scroll section
+- buttons side by side
+
+Tablet:
+- reduce padding
+- two-column can remain if enough width
+
+Mobile:
+- stack everything
+- route rows full width
+- scroll full width
+- buttons full width
+- score panel smaller
+- headline readable and not too massive
+
+12. Copy tone
+Use this language:
+
+- “Today’s Walk Complete”
+- “You just built your first Memory Palace.”
+- “You strengthened your Memory Palace.”
+- “You didn’t memorize a list. You walked a route.”
+- “That is the Memory Palace working.”
+- “The images were waiting where you placed them.”
+- “Timbuk made a scroll from your walk.”
+- “Tomorrow, we’ll strengthen the route.”
+- “Your scroll is yours. We don’t post anything without your tap.”
+
+Avoid:
+- “You crushed it”
+- “XP”
+- “Level unlocked”
+- “Quiz”
+- childish confetti language
+- over-hype
+
+13. Data preservation
+Use existing:
+- correctCount
+- totalItems
+- streak
+- displayName
+- currentDay
+- placeName
+- assignments
+- stops
+- userScenes
+- scrollText
+- pendingSession
+- isGuest
+- onContinue
+
+Do not invent fake data.
+
+14. Data-testid preservation
+Preserve existing test IDs:
+- data-testid="button-show-scroll"
+- data-testid="amble-scroll-card"
+- data-testid="button-share-scroll"
+- data-testid="button-see-you-tomorrow"
+- data-testid="button-google-auth"
+- data-testid="button-email-auth"
+- data-testid="button-submit-email"
+- data-testid="button-skip-conversion"
+- any other existing test IDs
+
+15. Implementation summary
+After implementation, summarize:
+1. Files changed.
+2. How the normal results screen hierarchy changed.
+3. How scrollPhase prompt/loading/revealed now appear inside the unified ceremony layout.
+4. How the route recap uses existing assignments/stops data.
+5. How Share My Scroll and See You Tomorrow behavior were preserved.
+6. What logic was intentionally left untouched.

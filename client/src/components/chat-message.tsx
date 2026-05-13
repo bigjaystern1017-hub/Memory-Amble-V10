@@ -184,7 +184,7 @@ export function ChatMessage({
           </div>
         ) : (
           <motion.p
-            className={`text-xl md:text-2xl leading-relaxed whitespace-pre-wrap${
+            className={`text-base md:text-2xl leading-relaxed whitespace-pre-wrap${
               isWisdom ? " italic text-muted-foreground" : ""
             }`}
             initial={textInit}

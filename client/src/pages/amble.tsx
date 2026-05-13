@@ -2371,7 +2371,7 @@ export default function Amble() {
               <Button
                 size="lg"
                 onClick={handleContinue}
-                className="gap-2"
+                className="gap-2 w-full md:w-auto md:min-w-[200px]"
                 data-testid="button-continue"
               >
                 {getContinueButtonLabel(currentBeat)}
@@ -2401,8 +2401,8 @@ export default function Amble() {
                   <p className="text-xs text-muted-foreground italic leading-snug">{recallHint}</p>
                 </div>
               )}
-              <div className="flex items-center gap-2">
-                <div className="flex flex-col gap-1.5 shrink-0">
+              <div className="flex flex-col md:flex-row md:items-center gap-2">
+                <div className="flex flex-row md:flex-col gap-1.5 md:shrink-0">
                   {inputEnabled && (
                     <button
                       onClick={handleConfused}

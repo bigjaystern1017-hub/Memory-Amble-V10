@@ -59,7 +59,7 @@ export function MemoryObjectCard({
           }}
         />
 
-        <div className="px-5 py-4">
+        <div className="px-3 py-3 md:px-5 md:py-4">
           {/* Header row */}
           <div className="flex items-center justify-between mb-3">
             <div

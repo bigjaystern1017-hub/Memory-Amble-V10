@@ -1,0 +1,19 @@
+PROMPT #27 — Mobile layout polish
+In client/src/pages/amble.tsx, make these mobile-specific fixes:
+1. Progress stepper — hide labels on mobile, show only icons.
+Find the progress stepper section (the Learn → Choose Place → Plant Images → Walk the Route → Recall bar). On mobile screens (below sm: breakpoint), hide the text labels and show only the icons. The labels take too much horizontal space on a 375px screen. Wrap each label in a <span className="hidden sm:inline"> so only the icon circles show on mobile.
+2. Input tray — stack buttons on mobile.
+Find the input tray at the bottom. On mobile, the "I'm confused" button, mic button, text input, and send button are all in one row and get cramped. Change the layout so on mobile (below md:), the helper buttons ("I'm confused" and the spark button) sit ABOVE the input row in a separate line, and the input + send button take the full width below. On desktop, keep the current single-row layout.
+Approximate structure on mobile:
+[I'm confused]  [Get a spark]        ← top row, small buttons
+[  text input field          ] [send] ← bottom row, full width
+On desktop (md: and up):
+[I'm confused] [spark] [mic] [   text input    ] [send]
+3. Timbuk's speech bubble — limit font size on mobile.
+Find the Timbuk message bubble in the lesson stage. The text is using a large serif font that can be hard to read on small screens when messages are long. On mobile (below md:), reduce the font size from whatever it currently is to text-base (16px). Keep the larger size on desktop.
+4. Object card — reduce padding on mobile.
+Find the MemoryObjectCard component or where the "Plant this image" / "Walk it back" cards render. On mobile, reduce the card padding: change px-5 py-4 to px-3 py-3 below the md: breakpoint.
+5. Continue buttons — full width on mobile.
+Find where continue buttons render (the "Next →", "I'm ready →", "Let's place them →" buttons). Make sure they are w-full on mobile and centered with max-width on desktop: className="w-full md:w-auto md:min-w-[200px]".
+Do not change beat-engine.ts, landing.tsx, amble-results.tsx, or any server files.
+Do not change anything else.

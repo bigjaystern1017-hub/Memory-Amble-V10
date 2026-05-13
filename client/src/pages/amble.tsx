@@ -1749,11 +1749,15 @@ export default function Amble() {
               </h1>
             </button>
             {isGuest ? (
-              <Button variant="outline" size="sm" onClick={() => navigate("/login")} data-testid="button-header-signin">
-                Sign In
-              </Button>
+              <div className="flex items-center gap-3">
+                <a href="mailto:hello@memoryamble.com" className="text-sm text-muted-foreground hover:text-primary transition-colors">Feedback</a>
+                <Button variant="outline" size="sm" onClick={() => navigate("/login")} data-testid="button-header-signin">
+                  Sign In
+                </Button>
+              </div>
             ) : (
               <div className="flex items-center gap-1">
+                <a href="mailto:hello@memoryamble.com" className="text-sm text-muted-foreground hover:text-primary transition-colors px-2">Feedback</a>
                 <Button variant="ghost" size="sm" onClick={() => navigate("/account")} className="gap-2 text-muted-foreground" data-testid="button-account">
                   <User className="w-4 h-4" />
                   Account
@@ -1798,11 +1802,15 @@ export default function Amble() {
               </h1>
             </button>
             {isGuest ? (
-              <Button variant="outline" size="sm" onClick={() => navigate("/login")} data-testid="button-header-signin">
-                Sign In
-              </Button>
+              <div className="flex items-center gap-3">
+                <a href="mailto:hello@memoryamble.com" className="text-sm text-muted-foreground hover:text-primary transition-colors">Feedback</a>
+                <Button variant="outline" size="sm" onClick={() => navigate("/login")} data-testid="button-header-signin">
+                  Sign In
+                </Button>
+              </div>
             ) : (
               <div className="flex items-center gap-1">
+                <a href="mailto:hello@memoryamble.com" className="text-sm text-muted-foreground hover:text-primary transition-colors px-2">Feedback</a>
                 <Button variant="ghost" size="sm" onClick={() => navigate("/account")} className="gap-2 text-muted-foreground" data-testid="button-account">
                   <User className="w-4 h-4" />
                   Account
@@ -1871,13 +1879,6 @@ export default function Amble() {
           userScenes={state.userScenes}
           assignments={state.assignments}
         />
-        <button
-          onClick={() => window.open("mailto:hello@memoryamble.com?subject=MemoryAmble Feedback")}
-          className="hidden md:block fixed bottom-4 left-4 z-50 bg-primary text-white text-xs px-3 py-2 rounded-full shadow-lg hover:opacity-90 transition-opacity"
-          data-testid="button-feedback"
-        >
-          💬 Feedback
-        </button>
       </>
     );
   }
@@ -1995,11 +1996,15 @@ export default function Amble() {
               </div>
             )}
             {isGuest ? (
-              <Button variant="outline" size="sm" onClick={() => navigate("/login")} data-testid="button-header-signin">
-                Sign In
-              </Button>
+              <div className="flex items-center gap-3">
+                <a href="mailto:hello@memoryamble.com" className="text-sm text-muted-foreground hover:text-primary transition-colors">Feedback</a>
+                <Button variant="outline" size="sm" onClick={() => navigate("/login")} data-testid="button-header-signin">
+                  Sign In
+                </Button>
+              </div>
             ) : (
               <div className="flex items-center gap-1">
+                <a href="mailto:hello@memoryamble.com" className="text-sm text-muted-foreground hover:text-primary transition-colors px-2">Feedback</a>
                 <Button variant="ghost" size="sm" onClick={() => navigate("/account")} className="gap-1 text-muted-foreground" data-testid="button-account">
                   <User className="w-4 h-4" />
                   <span className="hidden sm:inline">Account</span>
@@ -2527,13 +2532,6 @@ export default function Amble() {
           </button>
         </div>
       )}
-      <button
-        onClick={() => window.open("mailto:hello@memoryamble.com?subject=MemoryAmble Feedback")}
-        className="hidden md:block fixed bottom-4 left-4 z-50 bg-primary text-white text-xs px-3 py-2 rounded-full shadow-lg hover:opacity-90 transition-opacity"
-        data-testid="button-feedback"
-      >
-        💬 Feedback
-      </button>
     </div>
   );
 }

@@ -492,17 +492,14 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
         : goal === 'active'
         ? `Keeping your mind active. That is why I am here too.`
         : `Curiosity is how every great palace begins.`;
-      if (fromQuiz) {
-        return `Welcome, ${name}! I am Timbuk. ${goalLine}\n\nLet us build your first Memory Palace — it takes about 10 minutes.`;
-      }
-      return `Ah, ${name}! I am Timbuk — your guide. ${goalLine}\n\nToday we build your Memory Palace. I have a small surprise waiting for you at the end.`;
+      return `Welcome, ${name}! I am Timbuk. ${goalLine}\n\nLet us build your first Memory Palace — it takes about 10 minutes. And when we're done, I have a gift for you at the end.`;
     }
 
     case "onboard-choice":
       return "Are you familiar with memory palaces?";
 
     case "onboard-skill":
-      return `Memory is a skill — and like any skill, it trains.\n\nIs there a place you know so well you could walk through it with your eyes closed? Your home, a garden, somewhere you have been a thousand times?`;
+      return `Memory is a skill. Your brain is extraordinary at remembering places — far better than dry facts. We use that. You pick a place you know, we attach vivid images to it, and your brain does the rest.`;
 
     case "onboard-palace":
       return `${place}. That is your Memory Palace — it already exists. We just furnish it.\n\nYour brain is not great at remembering lists. But it is excellent at remembering places you have walked a thousand times.`;
@@ -511,7 +508,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       return `We take an object — say, a penguin — and place it somewhere in ${place}. But we make it YOURS. Big. Strange. Wearing a bow tie. The penguin that waddled after you at the zoo when you were eight.`;
 
     case "onboard-secret":
-      return `The stranger the image, the harder it sticks. No test. No pressure. Just practice.\n\nHit that magic button...`;
+      return `The stranger the image, the harder it sticks. That is the whole secret. Ready?`;
 
     case "onboard-ready":
       return `If you can picture your home, you have done half the work. Hint button is there if you get stuck.\n\nLet us find your palace.`;
@@ -603,7 +600,7 @@ export function getTimbukMessage(beatId: BeatId, state: ConversationState): stri
       return "";
 
     case "practice-intro":
-      return `Before we place your items — a quick practice. One item, one stop. Tell me what you see.`;
+      return `Quick practice before we start. I will give you an item and a place — you make it as wild and vivid as you can. Ready?`;
 
     case "practice-item": {
       const firstStop = yourify(firstCap(state.stops[0] || "your first stop"));
@@ -910,7 +907,7 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
     }
 
     case "onboard-skill":
-      return "onboard-palace";
+      return "onboard-secret";
 
     case "onboard-palace":
       return "onboard-vivid";
@@ -919,7 +916,7 @@ export function getNextBeat(current: BeatId, state: ConversationState): BeatId |
       return "onboard-secret";
 
     case "onboard-secret":
-      return "onboard-ready";
+      return "choose-palace";
 
     case "onboard-ready":
       return "choose-palace";

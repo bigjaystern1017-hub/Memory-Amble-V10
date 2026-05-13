@@ -1,0 +1,30 @@
+Changes to client/src/components/beat-engine.ts and client/src/pages/amble.tsx.
+beat-engine.ts changes:
+1. Update welcome message to mention the gift.
+In the onboard-welcome case in getTimbukMessage, find the Day 1 first-time welcome message. Change it to:
+return `Welcome, ${name}! I am Timbuk. ${goalLine}\n\nLet us build your first Memory Palace — it takes about 10 minutes. And when we're done, I have a gift for you at the end.`;
+Keep the goalLine reference — it personalizes based on their start page selection.
+2. Rewrite the practice intro.
+Find the practice-intro case in getTimbukMessage. Change it from the current text to:
+return `Quick practice before we start. I will give you an item and a place — you make it as wild and vivid as you can. Ready?`;
+3. Trim the "tell me more" explanation path.
+The current explanation path is: onboard-skill → onboard-palace → onboard-vivid → onboard-secret → onboard-ready (5 beats).
+Change it to 2 beats:
+In getTimbukMessage, change onboard-skill to:
+return `Memory is a skill. Your brain is extraordinary at remembering places — far better than dry facts. We use that. You pick a place you know, we attach vivid images to it, and your brain does the rest.`;
+In getNextBeat, change the transition from onboard-skill:
+Instead of going to onboard-palace, go directly to onboard-secret.
+Change onboard-secret message to:
+return `The stranger the image, the harder it sticks. That is the whole secret. Ready?`;
+In getNextBeat, change the transition from onboard-secret:
+Instead of going to onboard-ready, go directly to choose-palace.
+This makes the "tell me more" path: onboard-skill (one explanation) → onboard-secret (the secret + ready?) → choose-palace. Two beats instead of five.
+amble.tsx changes:
+4. Hide Feedback button on mobile.
+Find the Feedback button element (the purple "💬 Feedback" button that uses position: fixed). Add a CSS class or inline style to hide it on mobile: className="hidden md:block" or add display: none for screens below 768px. On desktop it can stay where it is.
+5. Kill Hawaiian guitar sound.
+Search for any reference to Hawaiian music, ukulele, or guitar sound that plays during the practice or pineapple sequence. Look for playSound("hawaiian") or playSound("ukulele") or similar. Remove the call entirely — just delete the line. Do not remove the sound file itself, just stop it from playing.
+6. Sound banner auto-fade after 4 seconds.
+Find the "Sound on — Timbuk is more fun with sound" banner. If it doesn't already have a fade behavior, add one: use a useState defaulting to true and a useEffect with setTimeout(() => setBannerVisible(false), 4000). When bannerVisible is false, add opacity-0 transition-opacity duration-1000 classes and after the transition completes, set display: none or remove from DOM entirely.
+Do not change amble-results.tsx, landing.tsx, education-slides.tsx, recall-walk-panel.tsx, memory-object-card.tsx, or any server files.
+Do not change anything else.

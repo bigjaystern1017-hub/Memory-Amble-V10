@@ -210,6 +210,7 @@ export default function Amble() {
   const [recallHintLoading, setRecallHintLoading] = useState(false);
   const [confusedLoading, setConfusedLoading] = useState(false);
   const [showSoundReminder, setShowSoundReminder] = useState(true);
+  const [soundBannerFaded, setSoundBannerFaded] = useState(false);
   const [inputFocusTrigger, setInputFocusTrigger] = useState(0);
   const [typewriterBusy, setTypewriterBusy] = useState(false);
   const [fastForward, setFastForward] = useState(false);
@@ -249,8 +250,9 @@ export default function Amble() {
   }, [phase]);
 
   useEffect(() => {
-    const t = setTimeout(() => setShowSoundReminder(false), 4000);
-    return () => clearTimeout(t);
+    const fadeTimer = setTimeout(() => setSoundBannerFaded(true), 4000);
+    const removeTimer = setTimeout(() => setShowSoundReminder(false), 5000);
+    return () => { clearTimeout(fadeTimer); clearTimeout(removeTimer); };
   }, []);
 
   const scrollToBottom = useCallback(() => {
@@ -1871,7 +1873,7 @@ export default function Amble() {
         />
         <button
           onClick={() => window.open("mailto:hello@memoryamble.com?subject=MemoryAmble Feedback")}
-          className="fixed bottom-4 left-4 z-50 bg-primary text-white text-xs px-3 py-2 rounded-full shadow-lg hover:opacity-90 transition-opacity"
+          className="hidden md:block fixed bottom-4 left-4 z-50 bg-primary text-white text-xs px-3 py-2 rounded-full shadow-lg hover:opacity-90 transition-opacity"
           data-testid="button-feedback"
         >
           💬 Feedback
@@ -2093,7 +2095,7 @@ export default function Amble() {
               <div className="max-w-[820px] mx-auto px-4 md:px-8 pt-6 pb-40 md:pb-44">
                 {/* Sound reminder */}
                 {showSoundReminder && hasMessages && (
-                  <div className="flex justify-center mb-4">
+                  <div className={`flex justify-center mb-4 transition-opacity duration-1000 ${soundBannerFaded ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
                     <div
                       className="inline-flex items-center gap-2.5 py-2.5 px-5 rounded-full text-sm font-medium cursor-pointer transition-colors"
                       style={{ backgroundColor: "#EDE9FE", border: "1px solid #D4C8F8", color: "#5B21B6" }}
@@ -2527,7 +2529,7 @@ export default function Amble() {
       )}
       <button
         onClick={() => window.open("mailto:hello@memoryamble.com?subject=MemoryAmble Feedback")}
-        className="fixed bottom-4 left-4 z-50 bg-primary text-white text-xs px-3 py-2 rounded-full shadow-lg hover:opacity-90 transition-opacity"
+        className="hidden md:block fixed bottom-4 left-4 z-50 bg-primary text-white text-xs px-3 py-2 rounded-full shadow-lg hover:opacity-90 transition-opacity"
         data-testid="button-feedback"
       >
         💬 Feedback
